@@ -1,0 +1,2061 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KoMa SMP/MTs 2026 - Portal Kompetisi</title>
+    
+    <!-- ======================================================================= -->
+    <!-- ⚙️ PENGATURAN UTAMA                                                 -->
+    <!-- ======================================================================= -->
+    <script>
+        const CONFIG = {
+            API_URL: 'https://script.google.com/macros/s/AKfycbyQEFlz7On3GR7uodSy8Pb7FVI8jxtSMRGqfMgv_JVvLGTRF0cvgaODALXwQmFSeFVU/exec',
+            LOGO_URL: 'https://lh3.googleusercontent.com/d/1kIKApNGTiAnIDwDCT27D8yGUNRpOpxE5',
+            QRIS_URL: 'https://drive.google.com/thumbnail?id=1zlxMNvEt7a3Pos_Zt8qq6hUtleI2UTj_&sz=w1000'
+        };
+    </script>
+    <!-- ======================================================================= -->
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link id="dynamic-favicon" rel="icon" href="">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; scroll-behavior: smooth; overflow-x: hidden; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+        .page-section { display: none !important; min-height: 100vh; opacity: 0; }
+        .page-section.active { display: block !important; animation: sectionFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        section#page-login.active { display: flex !important; }
+        
+        /* Animasi Baru */
+        @keyframes sectionFadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-12px); } 100% { transform: translateY(0px); } }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes slideRight { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes pulseSoft { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; transform: scale(1.02); } }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+        @keyframes flashBlink { 0%, 100% { opacity: 1; box-shadow: 0 0 0px rgba(220, 38, 38, 0); transform: scale(1); } 50% { opacity: 0.8; box-shadow: 0 0 25px rgba(220, 38, 38, 0.8); transform: scale(1.03); } }
+
+        .animate-float { animation: float 4s ease-in-out infinite; }
+        .animate-scale-in { animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-slide-right { animation: slideRight 0.5s ease-out forwards; }
+        .animate-pulse-soft { animation: pulseSoft 3s ease-in-out infinite; }
+        .animate-marquee { display: inline-block; white-space: nowrap; padding-left: 100%; animation: marquee 25s linear infinite; will-change: transform; }
+        .btn-blink { animation: flashBlink 1.2s infinite; }
+        
+        #loader-overlay { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(8px); z-index: 10000; }
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        
+        .hero-mesh { background-color: #1d4ed8; background-image: radial-gradient(at 0% 0%, hsla(225,100%,48%,1) 0, transparent 50%), radial-gradient(at 100% 100%, hsla(201,100%,40%,1) 0, transparent 50%); }
+        .timeline-line { position: absolute; left: 28px; top: 0; bottom: 0; width: 2px; background: #e2e8f0; z-index: 0; }
+        .timeline-progress { position: absolute; left: 28px; top: 0; width: 2px; background: #3b82f6; z-index: 1; transition: height 1s; }
+        .schedule-item { position: relative; z-index: 2; transition: transform 0.3s ease; }
+        .schedule-item:hover { transform: translateX(10px); }
+        .active-glow { box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); border-color: #3b82f6 !important; transform: scale(1.02); }
+        
+        .site-wrapper { display: flex; flex-direction: column; min-height: 100vh; }
+        .content-grow { flex: 1; }
+
+        /* Hover Efek Spesial */
+        .hover-card-effect { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .hover-card-effect:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border-color: #bfdbfe; }
+
+        @media print { .no-print { display: none !important; } body { background: white; } .page-section { display: block !important; opacity: 1 !important; } #dashboard-content { width: 100% !important; padding: 0 !important; } aside { display: none !important; } }
+    </style>
+</head>
+<body class="text-slate-800" oncontextmenu="return false" ondragstart="return false" onselectstart="return false">
+
+    <div id="loader-overlay" class="fixed inset-0 hidden items-center justify-center no-print transition-opacity duration-300">
+        <div class="flex flex-col items-center text-center animate-scale-in">
+            <div class="relative w-16 h-16 mx-auto mb-4">
+                <div class="absolute inset-0 border-4 border-blue-100 rounded-full"></div>
+                <div class="absolute inset-0 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <p class="font-bold text-blue-900 animate-pulse uppercase tracking-widest text-[10px]">Sinkronisasi Sistem...</p>
+        </div>
+    </div>
+
+    <div class="site-wrapper">
+        <!-- NAVBAR -->
+        <nav class="bg-white/80 backdrop-blur-lg border-b border-slate-100 sticky top-0 z-50 no-print font-bold transition-all duration-300">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-20 items-center">
+                    <div onclick="navigateToHash('#home')" class="flex items-center group cursor-pointer text-center">
+                        <div class="p-2 bg-blue-50 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 mr-3 transform group-hover:rotate-3 group-hover:scale-110">
+                             <img src="" alt="Logo" class="logo-koma-img h-8 w-auto rounded-lg transition-transform duration-300" onerror="this.src='https://placehold.co/40x40/2563eb/white?text=K'">
+                        </div>
+                        <span class="text-2xl font-extrabold text-slate-800 tracking-tighter text-center">KoMa <span class="text-blue-600 font-bold">2026</span></span>
+                    </div>
+                    <div class="hidden md:flex items-center space-x-6">
+                        <button onclick="navigateToHash('#home')" class="px-5 py-2 text-slate-600 hover:text-blue-600 rounded-full hover:bg-blue-50 transition uppercase text-xs tracking-widest transform hover:scale-105">Beranda</button>
+                        <div id="nav-auth-container" class="flex items-center space-x-2"></div>
+                    </div>
+                    <button id="mobile-menu-btn" class="md:hidden p-3 bg-slate-50 hover:bg-blue-50 rounded-xl text-slate-600 hover:text-blue-600 transition-colors" onclick="toggleMobileMenu()"><i data-lucide="menu"></i></button>
+                </div>
+            </div>
+            <div id="mobile-nav-menu" class="hidden md:hidden bg-white border-t p-6 shadow-xl text-center animate-slide-right absolute w-full left-0">
+                <button onclick="navigateToHash('#home')" class="block w-full py-3 mb-2 font-bold text-slate-700 uppercase text-xs text-center hover:bg-slate-50 rounded-lg transition">Beranda</button>
+                <div id="mobile-auth-container" class="border-t pt-4 space-y-3"></div>
+            </div>
+        </nav>
+
+        <main id="main-wrapper" class="content-grow">
+            <!-- 1. BERANDA -->
+            <section id="page-home" class="page-section active text-center">
+                <div id="live-update-bar" class="bg-blue-600 py-3 px-4 no-print text-white shadow-md relative z-40">
+                    <div class="max-w-7xl mx-auto flex items-center justify-start w-full">
+                        <div class="relative h-3 w-3 shrink-0 mr-4 z-10">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+                        </div>
+                        <div class="overflow-hidden flex-1 flex items-center">
+                            <p id="live-status-text" class="text-[10px] font-black uppercase tracking-[0.2em] leading-none pt-0.5 font-bold animate-marquee">Memuat Agenda...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-mesh py-8 sm:py-10 md:py-16 text-white text-center px-4 relative overflow-hidden no-print flex items-center justify-center">
+                    <!-- Ornamen Matematika Transparan di Beranda -->
+                    <div class="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
+                        <i data-lucide="calculator" class="absolute top-10 left-[10%] w-24 h-24 animate-float" style="animation-delay: 0s;"></i>
+                        <i data-lucide="infinity" class="absolute top-32 right-[15%] w-32 h-32 animate-float" style="animation-delay: 1.5s;"></i>
+                        <i data-lucide="divide" class="absolute bottom-20 left-[20%] w-20 h-20 animate-float" style="animation-delay: 2.5s;"></i>
+                        <i data-lucide="percent" class="absolute top-1/3 left-[30%] w-16 h-16 animate-float" style="animation-delay: 0.5s;"></i>
+                        <i data-lucide="hash" class="absolute bottom-1/3 right-[25%] w-24 h-24 animate-float" style="animation-delay: 2s;"></i>
+                        <i data-lucide="plus" class="absolute top-1/2 right-[10%] w-16 h-16 animate-float" style="animation-delay: 1s;"></i>
+                        <i data-lucide="minus" class="absolute bottom-10 right-[20%] w-14 h-14 animate-float" style="animation-delay: 3s;"></i>
+                    </div>
+
+                    <div class="absolute w-[800px] h-[800px] bg-blue-500/30 rounded-full blur-[100px] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse-soft"></div>
+                    <div class="relative z-10 space-y-4 md:space-y-6 max-w-4xl mx-auto text-center">
+                        
+                        <!-- WIDGET COUNTDOWN PENDAFTARAN -->
+                        <div id="hero-countdown" class="w-full flex flex-col items-center justify-center animate-scale-in hidden">
+                            <p id="countdown-label" class="text-[10px] text-yellow-300 font-bold uppercase tracking-[0.2em] mb-3">Memuat Jadwal...</p>
+                            <div id="countdown-container" class="flex justify-center gap-2 sm:gap-4 hidden">
+                                <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20 w-16 sm:w-20 shadow-lg">
+                                    <div id="cd-days" class="text-2xl sm:text-3xl font-black text-white">00</div>
+                                    <div class="text-[8px] sm:text-[10px] text-white/70 uppercase tracking-widest mt-1">Hari</div>
+                                </div>
+                                <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20 w-16 sm:w-20 shadow-lg">
+                                    <div id="cd-hours" class="text-2xl sm:text-3xl font-black text-white">00</div>
+                                    <div class="text-[8px] sm:text-[10px] text-white/70 uppercase tracking-widest mt-1">Jam</div>
+                                </div>
+                                <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20 w-16 sm:w-20 shadow-lg">
+                                    <div id="cd-mins" class="text-2xl sm:text-3xl font-black text-white">00</div>
+                                    <div class="text-[8px] sm:text-[10px] text-white/70 uppercase tracking-widest mt-1">Menit</div>
+                                </div>
+                                <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20 w-16 sm:w-20 shadow-lg">
+                                    <div id="cd-secs" class="text-2xl sm:text-3xl font-black text-white">00</div>
+                                    <div class="text-[8px] sm:text-[10px] text-white/70 uppercase tracking-widest mt-1">Detik</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="inline-flex flex-col items-center justify-center bg-white text-blue-950 px-6 sm:px-10 py-3 rounded-2xl shadow-2xl border-b-4 border-yellow-400 tracking-widest text-center animate-slide-right mx-auto transform hover:scale-105 transition-transform duration-300">
+                            <span class="text-xs sm:text-sm font-black uppercase text-slate-800">Dinas Pendidikan Provinsi Jawa Timur</span>
+                            <span class="text-[9px] sm:text-[10px] font-bold uppercase text-slate-500 mt-1 border-t border-slate-100 pt-1 w-full">Cabang Dinas Pendidikan Wilayah Bojonegoro - Tuban</span>
+                        </div>
+                        <h1 class="text-4xl sm:text-5xl md:text-8xl font-black tracking-tighter leading-tight drop-shadow-2xl text-center animate-scale-in">KOMPETISI<br><span class="text-yellow-400 inline-block animate-float">MATEMATIKA</span></h1>
+                        <p class="text-base md:text-xl opacity-90 font-medium max-w-2xl mx-auto leading-relaxed text-center" style="animation: sectionFadeIn 1s forwards 0.2s; opacity: 0;">Ajang bergengsi numerasi tingkat SMP/MTs Negeri dan Swasta. Tunjukkan potensimu di KoMa 2026.</p>
+                        
+                        <div class="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-5 pt-2 md:pt-4" style="animation: sectionFadeIn 1s forwards 0.4s; opacity: 0;">
+                            <button id="btn-hero-register" onclick="navigateToHash('#register')" class="w-full sm:w-auto bg-red-600 text-white font-extrabold py-4 md:py-5 px-10 md:px-14 rounded-full shadow-xl hover:bg-red-700 hover:shadow-red-600/50 transition-all duration-300 transform active:scale-95 text-sm uppercase tracking-wider text-center btn-blink">Daftar Sekarang</button>
+                            <button onclick="navigateToHash('#login')" class="w-full sm:w-auto bg-green-600 text-white font-extrabold py-4 md:py-5 px-10 md:px-14 rounded-full border-2 border-green-500 hover:bg-green-700 hover:border-green-600 shadow-lg hover:shadow-green-500/50 transition-all duration-300 transform hover:scale-105 active:scale-95 text-sm uppercase tracking-wider text-center">Login Portal</button>
+                        </div>
+                        <div class="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 pt-1 md:pt-3" style="animation: sectionFadeIn 1s forwards 0.6s; opacity: 0;">
+                            <a href="https://sites.google.com/view/petunjukapp" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 rounded-full bg-yellow-400 text-blue-900 hover:bg-yellow-500 border border-yellow-300 shadow-lg shadow-yellow-400/30 font-bold text-xs uppercase tracking-widest transition-all duration-300 transform hover:scale-105 active:scale-95">
+                                <i data-lucide="book-open" class="w-4 h-4 mr-2"></i> Petunjuk App
+                            </a>
+                            <a href="https://sites.google.com/view/profil-mgmp-math/" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 rounded-full bg-blue-900 text-white hover:bg-blue-950 border border-blue-800 shadow-lg shadow-blue-900/30 font-bold text-xs uppercase tracking-widest transition-all duration-300 transform hover:scale-105 active:scale-95">
+                                <i data-lucide="globe" class="w-4 h-4 mr-2"></i> Profil Penyelenggara
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="max-w-6xl mx-auto px-4 py-24 no-print text-left grid grid-cols-1 lg:grid-cols-2 gap-16">
+                    <div class="space-y-10 reveal">
+                        <div class="border-l-4 border-blue-600 pl-4"><h2 class="text-3xl font-black text-slate-900 tracking-tight uppercase">Linimasa Kegiatan</h2></div>
+                        <div class="relative pl-4 py-4 font-bold">
+                            <div class="timeline-line"></div><div id="timeline-progress-bar" class="timeline-progress"></div>
+                            <div class="space-y-10" id="schedule-tracker-list"></div>
+                        </div>
+                    </div>
+                    <div class="space-y-10 text-center reveal" style="transition-delay: 0.2s;">
+                        <div class="border-l-4 border-yellow-500 pl-4 font-bold text-left"><h2 class="text-3xl font-black text-slate-900 tracking-tight uppercase">Hadiah & Juara</h2></div>
+                        <div class="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl border border-slate-100 text-center relative overflow-hidden group hover-card-effect">
+                            <div class="absolute -right-10 -bottom-10 opacity-5 text-slate-800 rotate-12 transition-transform group-hover:rotate-0 duration-1000 group-hover:scale-110 text-center">
+                                <i data-lucide="award" class="w-64 h-64 text-center"></i>
+                            </div>
+                            <div class="relative z-10 text-center">
+                                <span class="inline-block bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest mb-6">Juara Per Tingkat (VII, VIII, IX)</span>
+                                
+                                <h3 class="font-black text-blue-900 uppercase text-xs tracking-[0.2em] mb-4 flex items-center justify-center">
+                                    <i data-lucide="trophy" class="w-4 h-4 mr-2 text-yellow-500 animate-pulse-soft"></i> Pemenang Utama
+                                </h3>
+                                <div class="grid grid-cols-3 gap-3 mb-8 font-bold text-center">
+                                    <div class="p-4 bg-yellow-50/50 border border-yellow-200 rounded-3xl shadow-sm text-center transform transition duration-300 hover:scale-105">
+                                        <div class="w-10 h-10 bg-yellow-400 rounded-2xl flex items-center justify-center text-white mx-auto mb-2 shadow-lg"><span class="text-lg font-black">I</span></div>
+                                        <p class="text-[10px] font-black uppercase text-yellow-800">Emas</p>
+                                    </div>
+                                    <div class="p-4 bg-slate-100/50 border border-slate-200 rounded-3xl shadow-sm text-center transform transition duration-300 hover:scale-105">
+                                        <div class="w-10 h-10 bg-slate-400 rounded-2xl flex items-center justify-center text-white mx-auto mb-2 shadow-lg"><span class="text-lg font-black">II</span></div>
+                                        <p class="text-[10px] font-black uppercase text-slate-700">Perak</p>
+                                    </div>
+                                    <div class="p-4 bg-orange-50/50 border border-orange-200 rounded-3xl shadow-sm text-center transform transition duration-300 hover:scale-105">
+                                        <div class="w-10 h-10 bg-orange-400 rounded-2xl flex items-center justify-center text-white mx-auto mb-2 shadow-lg"><span class="text-lg font-black">III</span></div>
+                                        <p class="text-[10px] font-black uppercase text-orange-800 text-center">Gangsa</p>
+                                    </div>
+                                </div>
+
+                                <h3 class="font-black text-slate-400 uppercase text-[11px] tracking-[0.2em] mb-4 flex items-center justify-center">
+                                    <i data-lucide="medal" class="w-4 h-4 mr-2 text-blue-400"></i> Juara Harapan
+                                </h3>
+                                <div class="grid grid-cols-3 gap-2 mb-8 font-bold text-center">
+                                    <div class="p-3 bg-blue-50/30 border border-blue-100 rounded-2xl text-center transition hover:bg-blue-100/50"><p class="text-[9px] font-bold uppercase text-blue-600">Harapan I</p></div>
+                                    <div class="p-3 bg-blue-50/30 border border-blue-100 rounded-2xl text-center transition hover:bg-blue-100/50"><p class="text-[9px] font-bold uppercase text-blue-600">Harapan II</p></div>
+                                    <div class="p-3 bg-blue-50/30 border border-blue-100 rounded-2xl text-center transition hover:bg-blue-100/50"><p class="text-[9px] font-bold uppercase text-blue-600">Harapan III</p></div>
+                                </div>
+
+                                <div class="bg-slate-900 text-white rounded-3xl p-6 shadow-2xl border-t-4 border-yellow-400 text-left transform transition duration-300 hover:-translate-y-1">
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-yellow-400 mb-4 text-center border-b border-white/10 pb-2">Reward Pemenang</p>
+                                    <div class="space-y-4">
+                                        <div class="flex items-center text-xs font-bold"><i data-lucide="trophy" class="w-4 h-4 mr-3 text-yellow-400 text-left"></i> Tropi / Piala Kejuaraan</div>
+                                        <div class="flex items-center text-xs font-bold"><i data-lucide="banknote" class="w-4 h-4 mr-3 text-green-400 text-left"></i> Uang Pembinaan</div>
+                                        <div class="flex items-center text-xs font-bold"><i data-lucide="scroll" class="w-4 h-4 mr-3 text-blue-400 text-left"></i> Sertifikat Penghargaan</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="max-w-6xl mx-auto px-4 pb-24 no-print text-left grid grid-cols-1 lg:grid-cols-3 gap-16">
+                    <!-- MATERI KOMPETISI -->
+                    <div class="lg:col-span-2 space-y-10 reveal">
+                        <div class="border-l-4 border-blue-600 pl-4">
+                            <h2 class="text-3xl font-black text-slate-900 tracking-tight uppercase">Materi Kompetisi</h2>
+                            <p class="text-sm text-slate-500 mt-2 font-bold">Ruang lingkup materi Kompetisi Matematika SMP/MTs.</p>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover-card-effect group">
+                                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                    <i data-lucide="hash"></i>
+                                </div>
+                                <h4 class="font-black text-slate-800 text-lg uppercase tracking-wide mb-2">Bilangan</h4>
+                                <p class="text-xs text-slate-500 font-semibold leading-relaxed">Operasi bilangan bulat & pecahan, KPK, FPB, pola bilangan, dan barisan/deret.</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover-card-effect group">
+                                <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                    <i data-lucide="calculator"></i>
+                                </div>
+                                <h4 class="font-black text-slate-800 text-lg uppercase tracking-wide mb-2">Aljabar</h4>
+                                <p class="text-xs text-slate-500 font-semibold leading-relaxed">Himpunan, relasi, fungsi, persamaan/pertidaksamaan linear, dan sistem persamaan.</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover-card-effect group">
+                                <div class="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                    <i data-lucide="shapes"></i>
+                                </div>
+                                <h4 class="font-black text-slate-800 text-lg uppercase tracking-wide mb-2">Geometri</h4>
+                                <p class="text-xs text-slate-500 font-semibold leading-relaxed">Garis, sudut, bangun datar, kekongruenan, kesebangunan, dan bangun ruang.</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover-card-effect group">
+                                <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                    <i data-lucide="pie-chart"></i>
+                                </div>
+                                <h4 class="font-black text-slate-800 text-lg uppercase tracking-wide mb-2">Statistika & Peluang</h4>
+                                <p class="text-xs text-slate-500 font-semibold leading-relaxed">Penyajian data, ukuran pemusatan data, aturan pencacahan, dan peluang empirik.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KONTAK PANITIA -->
+                    <div class="space-y-10 text-left reveal" style="transition-delay: 0.2s;">
+                        <div class="border-l-4 border-green-500 pl-4">
+                            <h2 class="text-3xl font-black text-slate-900 tracking-tight uppercase">Kontak Panitia</h2>
+                            <p class="text-sm text-slate-500 mt-2 font-bold">Pusat bantuan & informasi via WhatsApp.</p>
+                        </div>
+                        <div class="space-y-5">
+                            <!-- Kontak 1 -->
+                            <a href="https://wa.me/6285649842450" target="_blank" class="block bg-slate-900 text-white p-6 rounded-[2rem] shadow-xl hover:-translate-y-2 transition-transform duration-300 relative overflow-hidden group">
+                                <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
+                                <div class="flex items-center gap-4 relative z-10">
+                                    <div class="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center shrink-0 shadow-lg shadow-green-500/30">
+                                        <i data-lucide="message-circle" class="w-6 h-6 animate-pulse-soft"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] uppercase tracking-[0.2em] text-green-400 font-bold mb-1">Narahubung 1</p>
+                                        <h4 class="text-lg font-black uppercase tracking-wider">Bpk. Fathony</h4>
+                                        <p class="text-xs font-mono mt-1 text-slate-300">0856-4984-2450</p>
+                                    </div>
+                                </div>
+                            </a>
+                            
+                            <!-- Kontak 2 -->
+                            <a href="https://wa.me/6282333868885" target="_blank" class="block bg-white p-6 rounded-[2rem] shadow-lg border border-slate-100 hover:-translate-y-2 transition-transform duration-300 relative overflow-hidden group">
+                                <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-blue-50 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
+                                <div class="flex items-center gap-4 relative z-10">
+                                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center shrink-0 shadow-md">
+                                        <i data-lucide="message-circle" class="w-6 h-6"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] uppercase tracking-[0.2em] text-blue-500 font-bold mb-1">Narahubung 2</p>
+                                        <h4 class="text-lg font-black uppercase tracking-wider text-slate-800">Bpk. Miftahul Huda</h4>
+                                        <p class="text-xs font-mono mt-1 text-slate-500">0823-3386-8885</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. PENDAFTARAN -->
+            <section id="page-register" class="page-section py-20 bg-[#f4f7fe] px-4 font-bold text-center">
+                <div class="max-w-4xl mx-auto shadow-2xl rounded-[1.5rem] overflow-hidden bg-white border border-slate-200 text-center animate-scale-in">
+                    <!-- Pengepala Borang -->
+                    <div class="bg-[#10141d] p-10 text-white text-center relative overflow-hidden">
+                        <div class="absolute w-64 h-64 bg-blue-600/20 rounded-full blur-[50px] -top-32 -left-32"></div>
+                        <div class="absolute w-64 h-64 bg-blue-600/20 rounded-full blur-[50px] -bottom-32 -right-32"></div>
+                        <h2 class="text-4xl font-black uppercase tracking-tighter mb-1 text-center relative z-10">PENDAFTARAN</h2>
+                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.4em] text-center relative z-10">SISTEM KOMA SMP/MTS 2026</p>
+                    </div>
+
+                    <div class="p-8 md:p-14 text-center">
+                        <form onsubmit="handleRegister(event)" class="space-y-10 text-center">
+                            <!-- Input Fields -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left font-bold">
+                                <div class="md:col-span-2">
+                                    <label class="text-[10px] font-black uppercase mb-2 block text-slate-400 tracking-widest">Nama Lengkap Sesuai Akta *</label>
+                                    <input type="text" id="reg-name" required placeholder="Contoh: SITI AHMAD" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none font-bold uppercase transition hover:border-blue-300">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-black uppercase mb-2 block text-slate-400 tracking-widest">NISN Peserta *</label>
+                                    <input type="text" id="reg-nisn" maxlength="10" required placeholder="Contoh: 0087987979" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold focus:ring-2 focus:ring-blue-600 transition hover:border-blue-300">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-black uppercase mb-2 block text-slate-400 tracking-widest">Sekolah Asal *</label>
+                                    <input type="text" id="reg-sekolah" required placeholder="Contoh: SMP/MTs Indonesia" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-black italic focus:ring-2 focus:ring-blue-600 transition hover:border-blue-300 uppercase">
+                                </div>
+                                
+                                <!-- FIELD BARU: TINGKAT KELAS -->
+                                <div>
+                                    <label class="text-[10px] font-black uppercase mb-2 block text-slate-400 tracking-widest">Tingkat Kelas SMP/MTs *</label>
+                                    <select id="reg-kelas" required class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-black focus:ring-2 focus:ring-blue-600 transition hover:border-blue-300 uppercase cursor-pointer text-slate-700 appearance-none">
+                                        <option value="" disabled selected>PILIH KELAS</option>
+                                        <option value="VII">KELAS VII (TUJUH)</option>
+                                        <option value="VIII">KELAS VIII (DELAPAN)</option>
+                                        <option value="IX">KELAS IX (SEMBILAN)</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="text-[10px] font-black uppercase mb-2 block text-slate-400 tracking-widest">No HP (WhatsApp) *</label>
+                                    <input type="tel" id="reg-wa" required placeholder="Contoh: 08123456789" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold focus:ring-2 focus:ring-blue-600 transition hover:border-blue-300">
+                                </div>
+                                
+                                <div class="md:col-span-2">
+                                    <label class="text-[10px] font-black uppercase mb-2 block text-slate-400 tracking-widest">Email Login *</label>
+                                    <input type="email" id="reg-email" required placeholder="identitas@gmail.com" class="w-full px-6 py-4 bg-blue-50/50 border border-blue-100 rounded-xl outline-none font-bold focus:ring-2 focus:ring-blue-600 transition hover:border-blue-300">
+                                </div>
+                                <div class="relative">
+                                    <label class="text-[10px] font-black uppercase mb-2 block text-slate-400 tracking-widest">Buat Password *</label>
+                                    <input type="password" id="reg-pass" required minlength="6" oninput="checkPasswordMatch()" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold focus:ring-2 focus:ring-blue-600 transition hover:border-blue-300">
+                                    <button type="button" onclick="togglePass('reg-pass', this)" class="absolute right-4 top-[2.7rem] text-slate-300 hover:text-blue-600 transition"><i data-lucide="eye" class="w-5 h-5"></i></button>
+                                </div>
+                                <div class="relative">
+                                    <label class="text-[10px] font-black uppercase mb-2 block text-slate-400 tracking-widest">Konfirmasi Password *</label>
+                                    <input type="password" id="reg-pass-confirm" required minlength="6" oninput="checkPasswordMatch()" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold focus:ring-2 focus:ring-blue-600 transition hover:border-blue-300">
+                                    <button type="button" onclick="togglePass('reg-pass-confirm', this)" class="absolute right-4 top-[2.7rem] text-slate-300 hover:text-blue-600 transition"><i data-lucide="eye" class="w-5 h-5"></i></button>
+                                    <p id="pass-error-msg" class="text-[9px] text-red-500 font-bold mt-1 hidden text-left animate-slide-right">Password tidak cocok!</p>
+                                </div>
+                            </div>
+
+                            <!-- BOX PEMBAYARAN KOTAK BIRU -->
+                            <div class="bg-[#2b63f1] rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden text-center hover-card-effect">
+                                <div class="grid grid-cols-1 md:grid-cols-5 gap-8 items-center text-center">
+                                    
+                                    <!-- QRIS Section (Kiri) -->
+                                    <div class="md:col-span-2 text-center flex flex-col items-center text-center">
+                                        <div class="bg-white p-3 rounded-3xl inline-block shadow-lg mb-4 cursor-zoom-in group relative text-center transition-transform hover:scale-105" onclick="openQRISZoom()">
+                                            <img src="" alt="QRIS" class="qris-img w-40 h-40 object-contain rounded-xl" id="reg-qris-display">
+                                            <div class="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl backdrop-blur-[2px]">
+                                                <i data-lucide="zoom-in" class="text-white w-10 h-10 animate-scale-in"></i>
+                                            </div>
+                                        </div>
+                                        <p class="text-[10px] font-black uppercase tracking-widest opacity-80 cursor-pointer hover:opacity-100 transition text-center" onclick="openQRISZoom()">Klik gambar QRIS untuk memperbesar</p>
+                                    </div>
+                                    
+                                    <!-- Rekening Section (Kanan) -->
+                                    <div class="md:col-span-3 space-y-8 text-center md:text-left">
+                                        <div class="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 shadow-inner text-center transition hover:bg-white/20">
+                                            <p class="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80 mb-2">INFAQ PENDAFTARAN</p>
+                                            <h3 class="text-4xl font-black tracking-tight">Rp. 50.000 <span class="text-sm font-medium opacity-70">/Peserta</span></h3>
+                                        </div>
+                                        <div class="space-y-3">
+                                            <p class="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 md:text-left text-center">REKENING BRI RESMI:</p>
+                                            <div class="flex items-center justify-center md:justify-start gap-3 sm:gap-4">
+                                                <span class="text-xl sm:text-2xl md:text-3xl font-black tracking-wider border-b-4 border-yellow-400 pb-1 select-all" id="acc-num">010901003012569</span>
+                                                <button type="button" onclick="copyAcc()" class="p-3 bg-white/20 rounded-xl hover:bg-white/40 transition-all active:scale-90 transform hover:scale-110 shrink-0"><i data-lucide="copy" class="w-5 h-5 sm:w-6 sm:h-6 text-white"></i></button>
+                                            </div>
+                                            <p class="text-[11px] font-bold uppercase tracking-widest text-yellow-300 md:text-left text-center">AN. MGMP MATEMATIKA SMA TUBAN</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Lampiran Bukti -->
+                                <div class="mt-12 pt-8 border-t border-white/10 text-left">
+                                    <p class="text-[11px] font-black uppercase tracking-[0.2em] mb-5 text-left">LAMPIRKAN BUKTI BAYAR *</p>
+                                    <div class="flex items-center gap-6 flex-wrap text-left">
+                                        <label class="bg-yellow-400 text-blue-900 px-10 py-4 rounded-full font-black text-xs uppercase cursor-pointer hover:bg-yellow-500 hover:shadow-yellow-400/50 transition-all shadow-xl inline-block active:scale-95 text-center transform hover:-translate-y-1">
+                                            Pilih File
+                                            <input type="file" id="reg-file-input" accept="image/*" required class="hidden" onchange="convertImageToBase64(this)">
+                                        </label>
+                                        <span id="file-name-display" class="text-sm font-bold opacity-90 truncate max-w-[250px] transition-all">Belum ada fail dipilih</span>
+                                        <div id="upload-status-box" class="hidden p-2.5 bg-white text-green-600 rounded-xl text-xs font-black animate-scale-in shadow-lg">✓ SIAP</div>
+                                    </div>
+                                    <input type="hidden" id="reg-photo-base64">
+                                </div>
+                            </div>
+                            
+                            <button type="submit" id="reg-submit-btn" class="w-full bg-[#10141d] text-white font-black py-7 rounded-[2rem] shadow-2xl hover:bg-blue-600 transition-all duration-300 uppercase tracking-[0.4em] transform hover:scale-[1.01] active:scale-95 text-base text-center font-bold">
+                                KIRIM PENDAFTARAN
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. DASHBOARD -->
+            <section id="page-dashboard" class="page-section bg-slate-50 font-bold">
+                <div class="flex flex-col lg:flex-row min-h-screen text-left">
+                    <aside class="w-full lg:w-72 bg-[#10141d] p-6 lg:p-8 shadow-2xl relative flex flex-col no-print z-50 transition-all duration-300">
+                        <div class="absolute top-0 left-0 w-full h-full bg-blue-600/10 pointer-events-none blur-[80px]"></div>
+                        
+                        <!-- Ornamen Matematika Transparan di Sidebar -->
+                        <div class="absolute inset-0 overflow-hidden pointer-events-none opacity-5">
+                            <i data-lucide="calculator" class="absolute top-20 left-4 w-10 h-10 animate-float" style="animation-delay: 0s;"></i>
+                            <i data-lucide="divide" class="absolute bottom-32 right-4 w-12 h-12 animate-float" style="animation-delay: 1.5s;"></i>
+                            <i data-lucide="percent" class="absolute top-1/2 left-8 w-8 h-8 animate-float" style="animation-delay: 0.5s;"></i>
+                        </div>
+
+                        <!-- HEADER PANEL & TOMBOL TOGGLE -->
+                        <div class="flex items-center justify-between relative z-10 text-white">
+                             <div class="flex items-center">
+                                 <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg shadow-blue-600/40 font-bold"><i data-lucide="layout-dashboard"></i></div>
+                                 <div class="text-left text-white font-bold">
+                                     <h2 class="font-black uppercase tracking-widest text-sm leading-tight text-left">Panel KoMa</h2>
+                                     <p id="sidebar-role-display" class="text-[10px] text-blue-400 uppercase mt-1 text-left">Dashboard</p>
+                                 </div>
+                             </div>
+                             
+                             <!-- TOMBOL MENU PANEL -->
+                             <button onclick="toggleSidebarMenu()" class="w-12 h-12 flex items-center justify-center bg-white/5 hover:bg-blue-600 text-white rounded-2xl border border-white/10 transition-all active:scale-95 shadow-sm transform hover:scale-105">
+                                 <i data-lucide="menu" id="sidebar-menu-icon" class="w-5 h-5 transition-transform duration-300"></i>
+                             </button>
+                        </div>
+                        
+                        <!-- WADAH MENU (HIDDEN DEFAULT on Mobile, FLEX on Desktop) -->
+                        <div id="sidebar-nav-container" class="hidden lg:flex flex-col mt-8 relative z-10 flex-1 animate-slide-right">
+                            <p class="text-[9px] text-slate-500 uppercase tracking-[0.2em] font-bold mb-3 pl-2">Navigasi Panel</p>
+                            <nav id="sidebar-nav" class="flex-1 space-y-1 text-left font-bold"></nav>
+                        </div>
+                    </aside>
+                    <div class="flex-1 p-8 lg:p-14 text-center font-bold">
+                        <header class="flex justify-between items-center mb-12 bg-white p-8 rounded-[2rem] border no-print font-bold shadow-sm hover-card-effect">
+                            <h2 class="font-black text-2xl uppercase text-left" id="panel-title">Dashboard</h2>
+                            <div class="flex items-center text-left">
+                                <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white mr-4 font-black shadow-lg shadow-blue-600/30 transform transition hover:scale-110 hover:rotate-6 cursor-pointer" id="user-initial">?</div>
+                                <div class="text-left font-bold"><div class="font-black text-xs uppercase text-slate-800 text-left" id="user-display-name">User</div><div class="text-[9px] text-slate-400 uppercase text-left" id="user-display-role">Role</div></div>
+                            </div>
+                        </header>
+                        <div id="dashboard-content" class="min-h-[400px] text-center font-bold relative"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. LOGIN -->
+            <section id="page-login" class="page-section flex-col items-center justify-center py-20 px-4 text-center no-print">
+                <div class="max-w-md w-full bg-white p-10 md:p-12 rounded-[3rem] shadow-2xl border border-slate-100 mx-auto relative overflow-hidden animate-scale-in">
+                   <div class="absolute -top-10 -right-10 w-32 h-32 bg-green-50 rounded-full opacity-50 pointer-events-none animate-pulse-soft"></div>
+                   <div class="relative z-10 text-center mb-10">
+                       <div class="inline-flex p-4 bg-green-50 rounded-3xl text-green-600 mb-6 mx-auto shadow-sm transform transition hover:rotate-12"><i data-lucide="lock" class="w-8 h-8"></i></div>
+                       <h2 class="text-3xl font-black uppercase text-slate-800 tracking-tight">Masuk Portal</h2>
+                       <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.3em] mt-2">Sistem KoMa 2026</p>
+                   </div>
+                   <form onsubmit="handleLogin(event)" class="space-y-6 text-left relative z-10">
+                       <div class="space-y-2">
+                           <label class="text-[10px] uppercase font-black ml-2 text-slate-500 tracking-widest">Email Login</label>
+                           <input type="email" id="log-email" required placeholder="email@domain.com" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-green-600 focus:bg-white transition-all font-bold text-slate-700 hover:border-green-300">
+                       </div>
+                       <div class="space-y-2 relative">
+                           <label class="text-[10px] uppercase font-black ml-2 text-slate-500 tracking-widest">Password</label>
+                           <input type="password" id="log-pass-login" required placeholder="••••••••" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-green-600 focus:bg-white transition-all font-bold text-slate-700 hover:border-green-300">
+                           <button type="button" onclick="togglePass('log-pass-login', this)" class="absolute right-5 top-[2.6rem] text-slate-400 hover:text-green-600 transition-colors transform hover:scale-110">
+                               <i data-lucide="eye" class="w-5 h-5"></i>
+                           </button>
+                       </div>
+                       <button type="submit" class="w-full bg-green-600 text-white font-black py-5 rounded-[1.5rem] uppercase text-xs shadow-xl hover:bg-green-700 transition-all duration-300 transform hover:scale-[1.02] active:scale-95 tracking-[0.2em] mt-4">
+                           Masuk Sekarang
+                       </button>
+                   </form>
+                   <p class="mt-8 text-xs font-bold text-slate-500 uppercase tracking-wide relative z-10 text-center">Belum punya akun? <button onclick="navigateToHash('#register')" class="text-green-600 hover:text-green-800 hover:underline transition-colors font-black">Daftar Akun</button></p>
+                </div>
+            </section>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="bg-[#10141d] border-t border-white/5 py-16 px-6 no-print text-center font-bold">
+            <div class="max-w-6xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-10 text-center">
+                <div class="flex items-center space-x-6 mx-auto lg:mx-0 text-left hover:opacity-80 transition cursor-pointer shrink-0" onclick="navigateToHash('#home')">
+                    <div class="p-4 bg-white/5 rounded-[1.5rem] border border-white/10 shadow-inner text-left">
+                        <img src="https://lh3.googleusercontent.com/d/1kIKApNGTiAnIDwDCT27D8yGUNRpOpxE5" alt="Logo" class="h-14 opacity-80 text-left">
+                    </div>
+                    <div class="text-left font-bold">
+                        <h3 class="text-white font-black text-2xl tracking-tighter">KoMa <span class="text-blue-500 font-bold">2026</span></h3>
+                        <p class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.4em] mt-1 font-bold">Portal Kompetisi Numerasi</p>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
+                    <img src="https://lh3.googleusercontent.com/d/1qSrBDVRQfZjNoPGZt8IUyfzbveAM5gEN=w256" alt="Logo Dinas Pendidikan" class="h-16 sm:h-20 object-contain opacity-90">
+                    <div>
+                        <p class="text-white text-sm font-bold leading-relaxed">Dinas Pendidikan Provinsi Jawa Timur</p>
+                        <p class="text-slate-400 text-xs font-bold leading-relaxed">Cabang Dinas Pendidikan Wilayah Bojonegoro - Tuban</p>
+                        <p class="text-slate-500 text-[10px] uppercase tracking-widest mt-2 font-semibold hover:text-blue-400 transition"><a href="https://sites.google.com/view/profil-mgmp-math/" target="_blank">MGMP Matematika SMA/MA Kabupaten Tuban</a></p>
+                        <p class="hidden text-slate-600 text-[9px] mt-4 font-mono font-bold tracking-[0.2em] uppercase font-bold">© 2026 MGMP Matematika SMA/MA Tuban. All Rights Reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- MODAL VERIFIKASI -->
+    <div id="modal-verifikasi" class="fixed inset-0 hidden items-center justify-center bg-black/90 z-[10000] p-3 sm:p-4 backdrop-blur-md no-print font-bold transition-all duration-300">
+        <div class="bg-white w-full max-w-4xl rounded-[2rem] p-5 sm:p-8 shadow-2xl relative flex flex-col max-h-[95vh] overflow-hidden transform scale-95 transition-transform duration-300" id="verifikasi-box">
+            
+            <div class="shrink-0 mb-4 text-center relative">
+                <button onclick="closeVerifikasi()" class="absolute top-0 right-0 p-2 text-slate-400 hover:text-red-500 transition-colors transform hover:rotate-90 duration-300"><i data-lucide="x-circle" class="w-6 h-6 sm:w-8 sm:h-8"></i></button>
+                <h3 class="text-xl sm:text-2xl font-black uppercase tracking-tighter text-slate-800 mb-1">Verifikasi Bukti</h3>
+                <p id="verif-nama" class="text-[10px] sm:text-sm font-bold text-blue-600 uppercase tracking-widest truncate px-10">---</p>
+                <input type="hidden" id="verif-row">
+            </div>
+
+            <div class="flex-1 min-h-0 w-full overflow-hidden bg-slate-100 rounded-2xl mb-4 relative flex items-center justify-center border border-slate-200 group">
+                <div id="verif-loading" class="absolute inset-0 flex items-center justify-center bg-slate-100/80 backdrop-blur-sm z-10"><div class="animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent"></div></div>
+                <iframe id="verif-iframe" src="" class="w-full h-full border-0 hidden animate-scale-in" onload="document.getElementById('verif-loading').classList.add('hidden')"></iframe>
+                <img id="verif-img" src="" alt="Bukti" class="w-full h-full object-contain hidden animate-scale-in" onload="document.getElementById('verif-loading').classList.add('hidden')">
+                <p id="verif-no-file" class="hidden text-slate-400 font-bold italic text-sm absolute">Tidak ada bukti pembayaran</p>
+            </div>
+
+            <div class="shrink-0 space-y-4">
+                <div class="text-center">
+                    <a id="verif-link" href="#" target="_blank" class="inline-block text-[9px] sm:text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline bg-blue-50 px-4 py-2 rounded-full border border-blue-100 transition-colors hidden transform hover:scale-105 active:scale-95">
+                        <i data-lucide="external-link" class="w-3 h-3 inline mr-1 -mt-0.5"></i> Buka Fail Penuh di Tab Baru
+                    </a>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full">
+                    <button onclick="submitVerifikasi('Rejected')" class="flex-1 bg-red-50 text-red-600 py-3 sm:py-4 rounded-xl font-black uppercase text-[10px] sm:text-xs tracking-widest border border-red-200 hover:bg-red-600 hover:text-white transition-all order-3 sm:order-1 active:scale-95">Tolak</button>
+                    <button onclick="submitVerifikasi('Menunggu Konfirmasi')" class="flex-1 bg-amber-50 text-amber-600 py-3 sm:py-4 rounded-xl font-black uppercase text-[10px] sm:text-xs tracking-widest border border-amber-200 hover:bg-amber-500 hover:text-white transition-all order-2 sm:order-2 active:scale-95">Pending</button>
+                    <button onclick="submitVerifikasi('Active')" class="flex-1 bg-green-600 text-white py-3 sm:py-4 rounded-xl font-black uppercase text-[10px] sm:text-xs tracking-widest shadow-lg hover:bg-green-700 transition-all order-1 sm:order-3 active:scale-95 border border-green-600">Aktifkan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ALERT MODAL -->
+    <div id="modal-alert" class="fixed inset-0 hidden items-center justify-center bg-black/90 z-[10000] p-4 backdrop-blur-md no-print text-center font-bold transition-all duration-300 opacity-0" onclick="closeAlert()">
+        <div class="relative w-full max-w-lg bg-white rounded-[2rem] p-6 shadow-2xl text-center border-t-8 border-blue-600 transform scale-95 transition-transform duration-300" id="alert-box" onclick="event.stopPropagation()">
+            <button onclick="closeAlert()" class="absolute -top-12 right-0 text-white flex items-center gap-2 font-bold uppercase text-[10px] tracking-widest hover:text-red-400 transition transform hover:rotate-3">
+                Tutup <i data-lucide="x-circle"></i>
+            </button>
+            <div id="alert-content" class="flex flex-col items-center">
+                <div id="alert-icon-container" class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center shadow-inner animate-scale-in"></div>
+                <h3 id="alert-title" class="text-lg font-black mb-3 uppercase tracking-tighter text-slate-800"></h3>
+                <div id="alert-msg" class="text-slate-500 text-sm italic font-bold w-full overflow-hidden"></div>
+                <button onclick="closeAlert()" class="mt-8 w-full bg-slate-900 text-white font-black py-4 rounded-2xl uppercase text-xs tracking-widest hover:bg-blue-600 transition shadow-lg active:scale-95">Kembali</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // ==========================================
+        // KOD KESELAMATAN (ANTI INSPECT & VIEW SOURCE)
+        // ==========================================
+        document.addEventListener('keydown', function(e) {
+            // Sekat F12
+            if (e.key === 'F12' || e.keyCode === 123) { e.preventDefault(); return false; }
+            // Sekat Ctrl+Shift+I (Inspect)
+            if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.keyCode === 73)) { e.preventDefault(); return false; }
+            // Sekat Ctrl+Shift+J (Console)
+            if (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j' || e.keyCode === 74)) { e.preventDefault(); return false; }
+            // Sekat Ctrl+C (Copy) - Optional
+            if (e.ctrlKey && (e.key === 'C' || e.key === 'c' || e.keyCode === 67)) { e.preventDefault(); return false; }
+            // Sekat Ctrl+U (View Source)
+            if (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.keyCode === 85)) { e.preventDefault(); return false; }
+            // Sekat Ctrl+S (Save As)
+            if (e.ctrlKey && (e.key === 'S' || e.key === 's' || e.keyCode === 83)) { e.preventDefault(); return false; }
+            // Sekat Ctrl+P (Print)
+            if (e.ctrlKey && (e.key === 'P' || e.key === 'p' || e.keyCode === 80)) { e.preventDefault(); return false; }
+        });
+
+        let currentUser = null;
+        let globalSchedule = [];
+        let allParticipantsLocal = [];
+        let isRegistrationOpen = true;
+        let countdownInterval;
+
+        // --- CORE FUNCTIONS ---
+        function initScrollReveal() { 
+            const obs = new IntersectionObserver((es) => { es.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); }); }, { threshold: 0.1 }); 
+            document.querySelectorAll('.reveal').forEach(el => obs.observe(el)); 
+        }
+
+        function checkPasswordMatch() {
+            const p1 = document.getElementById('reg-pass'), p2 = document.getElementById('reg-pass-confirm'), msg = document.getElementById('pass-error-msg'), btn = document.getElementById('reg-submit-btn');
+            if (!p1 || !p2) return;
+            if (p2.value === "") { msg.classList.add('hidden'); btn.disabled = false; return; }
+            if (p1.value !== p2.value) { msg.classList.remove('hidden'); p2.classList.add('border-red-500'); btn.disabled = true; } 
+            else { msg.classList.add('hidden'); p2.classList.remove('border-red-500'); p2.classList.add('border-green-500'); btn.disabled = false; }
+        }
+
+        function togglePass(id, btn) { 
+            const input = document.getElementById(id); 
+            if (input.type === 'password') { input.type = 'text'; btn.innerHTML = '<i data-lucide="eye-off" class="w-5 h-5"></i>'; } 
+            else { input.type = 'password'; btn.innerHTML = '<i data-lucide="eye" class="w-5 h-5"></i>'; }
+            if (window.lucide) lucide.createIcons(); 
+        }
+
+        function openQRISZoom() {
+            const qrisHtml = `
+                <div class="p-2 cursor-pointer" onclick="closeAlert()">
+                    <img src="${CONFIG.QRIS_URL}" class="mx-auto w-full max-w-[400px] rounded-2xl border-4 border-slate-100 shadow-2xl transition hover:scale-[1.02]">
+                    <div class="mt-6 p-4 bg-blue-50 rounded-2xl border border-blue-100">
+                        <p class="text-[10px] text-blue-600 uppercase font-black tracking-widest">MGMP MATEMATIKA SMA TUBAN</p>
+                        <p class="text-[9px] text-slate-400 mt-1 font-bold">Klik gambar atau tekan 'Kembali' untuk menutup</p>
+                    </div>
+                </div>`;
+            showAlert('Scan QRIS Pembayaran', qrisHtml, 'success');
+        }
+
+        function copyAcc() { 
+            const text = document.getElementById('acc-num').textContent;
+            const el = document.createElement('textarea');
+            el.value = text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
+            showAlert('Berhasil Salin', 'Nomor rekening BRI telah disalin ke clipboard anda.', 'success');
+        }
+
+        function setActiveMenu(id) {
+            document.querySelectorAll('.menu-btn').forEach(b => { b.classList.remove('bg-blue-600', 'text-white', 'shadow-lg', 'scale-105'); b.classList.add('text-slate-300'); });
+            const act = document.getElementById(id);
+            if (act) { act.classList.remove('text-slate-300'); act.classList.add('bg-blue-600', 'text-white', 'shadow-lg', 'scale-105'); }
+            
+            // Auto hide menu panel hanya pada paparan telefon pintar (lebar skrin kurang 1024px)
+            if (window.innerWidth < 1024) {
+                closeSidebarMenu();
+            }
+        }
+
+        function toggleSidebarMenu() {
+            const container = document.getElementById('sidebar-nav-container');
+            const icon = document.getElementById('sidebar-menu-icon');
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                container.classList.add('flex');
+                if (icon) { icon.setAttribute('data-lucide', 'x'); icon.style.transform = 'rotate(90deg)'; setTimeout(() => {icon.style.transform = 'none'; if (window.lucide) lucide.createIcons();}, 150); }
+            } else {
+                container.classList.add('hidden');
+                container.classList.remove('flex');
+                if (icon) { icon.setAttribute('data-lucide', 'menu'); icon.style.transform = 'rotate(-90deg)'; setTimeout(() => {icon.style.transform = 'none'; if (window.lucide) lucide.createIcons();}, 150); }
+            }
+        }
+
+        function closeSidebarMenu() {
+            const container = document.getElementById('sidebar-nav-container');
+            const icon = document.getElementById('sidebar-menu-icon');
+            if (container && !container.classList.contains('hidden')) {
+                container.classList.add('hidden');
+                container.classList.remove('flex');
+                if (icon) { icon.setAttribute('data-lucide', 'menu'); if (window.lucide) lucide.createIcons(); }
+            }
+        }
+
+        function setLoading(s) { 
+            const overlay = document.getElementById('loader-overlay');
+            if (s) {
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+            } else {
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+            }
+        }
+
+        function showAlert(t, m, ty) { 
+            setLoading(false); 
+            const mod = document.getElementById('modal-alert'); 
+            const box = document.getElementById('alert-box');
+            if (mod) { 
+                document.getElementById('alert-title').textContent = t; 
+                document.getElementById('alert-msg').innerHTML = m; 
+                const i = document.getElementById('alert-icon-container'); 
+                i.className = `w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center ${ty === 'success' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`; 
+                i.innerHTML = ty === 'success' ? '<i data-lucide="check" class="w-8 h-8"></i>' : '<i data-lucide="x" class="w-8 h-8"></i>'; 
+                
+                mod.classList.replace('hidden', 'flex'); 
+                setTimeout(() => {
+                    mod.classList.remove('opacity-0');
+                    box.classList.remove('scale-95');
+                    box.classList.add('scale-100');
+                }, 10);
+                if (window.lucide) lucide.createIcons(); 
+            } 
+        }
+
+        function closeAlert() { 
+            const mod = document.getElementById('modal-alert');
+            const box = document.getElementById('alert-box');
+            mod.classList.add('opacity-0');
+            box.classList.remove('scale-100');
+            box.classList.add('scale-95');
+            setTimeout(() => {
+                mod.classList.replace('flex', 'hidden'); 
+            }, 300);
+        }
+        
+        function closeVerifikasi() {
+            const modal = document.getElementById('modal-verifikasi');
+            const box = document.getElementById('verifikasi-box');
+            box.classList.remove('scale-100');
+            box.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden'); modal.classList.remove('flex');
+                document.getElementById('verif-iframe').src = '';
+                document.getElementById('verif-img').src = '';
+            }, 300);
+        }
+
+        function toggleMobileMenu() { const m = document.getElementById('mobile-nav-menu'); if (m) m.classList.toggle('hidden'); }
+        
+        function getDrivePreviewUrl(link) {
+            if (!link || !link.startsWith('http')) return null;
+            let fileId = '';
+            if (link.includes('id=')) fileId = link.split('id=')[1].split('&')[0];
+            else if (link.includes('/d/')) fileId = link.split('/d/')[1].split('/')[0];
+            return fileId ? `https://drive.google.com/file/d/${fileId}/preview` : link;
+        }
+
+        async function callGAS(p) {
+            const max = 3; let d = 1000;
+            for (let i = 0; i < max; i++) {
+                try { const r = await fetch(CONFIG.API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(p) }); return await r.json(); } 
+                catch (e) { if (i === max - 1) throw e; await new Promise(r => setTimeout(r, d)); d *= 2; }
+            }
+        }
+
+        function renderNavAuth() {
+            const d = document.getElementById('nav-auth-container'), m = document.getElementById('mobile-auth-container');
+            let btnHtml = '';
+            if (currentUser) {
+                btnHtml = `<button onclick="navigateToHash('#dashboard')" class="bg-green-600 text-white font-black px-6 py-2 rounded-xl text-[10px] uppercase shadow-lg transform transition hover:scale-105 hover:bg-green-700">Portal ${currentUser.role}</button>`;
+            } else {
+                const regBtn = isRegistrationOpen 
+                    ? `<button onclick="navigateToHash('#register')" class="bg-red-600 text-white px-8 py-2 rounded-xl font-bold text-[10px] uppercase shadow-xl hover:bg-red-700 transform transition active:scale-95 btn-blink">Daftar</button>`
+                    : `<button onclick="showAlert('Informasi', 'Pendaftaran sedang ditutup.', 'error')" class="bg-slate-400 text-white px-8 py-2 rounded-xl font-bold text-[10px] uppercase shadow-md cursor-not-allowed">Ditutup</button>`;
+                
+                btnHtml = `<button onclick="navigateToHash('#login')" class="bg-green-600 text-white px-6 py-2 rounded-xl font-bold text-[10px] uppercase shadow-md hover:bg-green-700 transform transition hover:scale-105 mr-2">Login</button>${regBtn}`;
+            }
+            if (d) d.innerHTML = btnHtml; if (m) m.innerHTML = btnHtml;
+        }
+
+        function navigateToHash(targetHash) {
+            let target = targetHash || '#home';
+            
+            // Halang akses ke dashboard jika belum log masuk
+            if (target === '#dashboard' && !currentUser) {
+                target = '#login';
+            }
+            
+            if (target === '#register' && !isRegistrationOpen) {
+                showAlert('Informasi', 'Mohon maaf, jadwal pendaftaran saat ini sedang ditutup.', 'error');
+                target = '#home';
+            }
+
+            // Segerakkan URL di bahagian atas browser tanpa mencetuskan reload
+            if (window.location.hash !== target) {
+                window.history.pushState(null, null, target);
+            }
+
+            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+            const elId = 'page-' + target.replace('#', '');
+            const el = document.getElementById(elId);
+            if(el) {
+                el.classList.add('active');
+            } else {
+                document.getElementById('page-home').classList.add('active');
+            }
+            
+            setLoading(false); window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (target === '#dashboard') renderDashboardLayout();
+            renderNavAuth(); 
+            if (window.lucide) lucide.createIcons();
+
+            // Sembunyikan menu mobile atas (Beranda, Login, dll) secara automatik
+            const mobileMenu = document.getElementById('mobile-nav-menu');
+            if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('hidden');
+            }
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault(); setLoading(true); 
+            const em = document.getElementById('log-email').value.trim().toLowerCase(), pw = document.getElementById('log-pass-login').value;
+            try { 
+                const r = await callGAS({ action: 'login', email: em, password: pw }); 
+                if (r && r.result === 'success') { currentUser = r.user; localStorage.setItem('koma_user', JSON.stringify(currentUser)); navigateToHash('#dashboard'); } 
+                else showAlert('Ditolak', 'Email atau Password salah.', 'error'); 
+            } catch (e) { showAlert('Ralat', 'Gagal memproses log masuk.', 'error'); }
+            finally { setLoading(false); }
+        }
+
+        async function handleRegister(event) {
+            event.preventDefault(); 
+            const n = document.getElementById('reg-name').value;
+            const ni = document.getElementById('reg-nisn').value;
+            const s = document.getElementById('reg-sekolah').value;
+            const k = document.getElementById('reg-kelas').value; // Mengambil data Tingkat Kelas
+            const w = document.getElementById('reg-wa').value;
+            const em = document.getElementById('reg-email').value.trim().toLowerCase();
+            const p = document.getElementById('reg-pass').value;
+            const ph = document.getElementById('reg-photo-base64').value;
+            
+            if (!ph) return showAlert('Ralat', 'Sila muat naik bukti pembayaran.', 'error');
+            setLoading(true); try {
+                // Menambahkan kelas ke payload
+                const r = await callGAS({ action: 'register', name: n, nisn: ni, sekolah: s, kelas: k, wa: w, email: em, password: p, photoBase64: ph });
+                if (r && r.result === 'success') { 
+                    currentUser = { name: n, nisn: ni, sekolah: s, kelas: k, email: em, password: p, status: 'Menunggu Konfirmasi', role: 'Siswa', photoUrl: r.url }; 
+                    localStorage.setItem('koma_user', JSON.stringify(currentUser)); 
+                    navigateToHash('#dashboard'); 
+                    showAlert('Sukses', 'Pendaftaran Berhasil!', 'success'); 
+                } 
+                else showAlert('Gagal', r.message, 'error');
+            } catch (e) { showAlert('Ralat', 'Semak sambungan internet.', 'error'); }
+            finally { setLoading(false); }
+        }
+
+        async function handleLogout() {
+            setLoading(true); 
+            try { if(currentUser) await callGAS({ action: 'logout_record', email: currentUser.email }); } finally { currentUser = null; localStorage.removeItem('koma_user'); navigateToHash('#home'); setLoading(false); }
+        }
+
+        function convertImageToBase64(input) {
+            const file = input.files[0]; if (!file) return;
+            document.getElementById('file-name-display').textContent = file.name;
+            const statusBox = document.getElementById('upload-status-box');
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image(); img.src = e.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas'); const MAX = 800; let w = img.width, h = img.height;
+                    if (w > h) { if (w > MAX) { h *= MAX/w; w = MAX; } } else { if (h > MAX) { w *= MAX/h; h = MAX; } }
+                    canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    document.getElementById('reg-photo-base64').value = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
+                    if (statusBox) statusBox.classList.remove('hidden');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function renderDashboardLayout() {
+            const side = document.getElementById('sidebar-nav'), u = currentUser; if(!u) return;
+            document.getElementById('user-display-name').textContent = u.name; 
+            document.getElementById('user-display-role').textContent = u.role; 
+            document.getElementById('user-initial').textContent = u.name.charAt(0);
+            
+            const roleDisp = document.getElementById('sidebar-role-display');
+            if (roleDisp) roleDisp.textContent = 'Panel ' + u.role;
+            
+            // Susun atur panel responsif awal
+            const navContainer = document.getElementById('sidebar-nav-container');
+            const menuIcon = document.getElementById('sidebar-menu-icon');
+            if (window.innerWidth >= 1024) {
+                if(navContainer) { navContainer.classList.remove('hidden'); navContainer.classList.add('flex'); }
+                if(menuIcon) { menuIcon.setAttribute('data-lucide', 'x'); }
+            } else {
+                if(navContainer) { navContainer.classList.add('hidden'); navContainer.classList.remove('flex'); }
+                if(menuIcon) { menuIcon.setAttribute('data-lucide', 'menu'); }
+            }
+
+            const baseClass = "menu-btn w-full flex items-center px-6 py-4 rounded-xl text-sm font-bold transition-all duration-300 mb-1 transform hover:translate-x-1 hover:bg-white/10 ";
+            
+            if(u.role === 'Siswa') {
+                const act = u.status === 'Active';
+                let menuHtml = `
+                    <button onclick="viewSiswaHome()" id="menu-status" class="${baseClass} text-slate-300"><i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i> Status</button>
+                    <button onclick="viewSiswaProfile()" id="menu-profil" class="${baseClass} text-slate-300"><i data-lucide="user" class="w-5 h-5 mr-3"></i> Profil</button>
+                    <button onclick="viewSiswaTimeline()" id="menu-jadwal-siswa" class="${baseClass} text-slate-300"><i data-lucide="calendar" class="w-5 h-5 mr-3"></i> Time Line</button>
+                    <button onclick="viewSiswaPetunjuk()" id="menu-petunjuk" class="${baseClass} text-slate-300"><i data-lucide="book-open" class="w-5 h-5 mr-3"></i> Ketentuan</button>
+                `;
+                
+                // JIKA STATUS ACTIVE TAMPILKAN MENU KARTU & APP, JIKA BELUM MAKA TERKUNCI
+                if (act) {
+                    menuHtml += `
+                        <button onclick="viewSiswaCard()" id="menu-kartu" class="${baseClass} text-slate-300"><i data-lucide="credit-card" class="w-5 h-5 mr-3"></i> Kartu Ujian</button>
+                        <button onclick="viewSiswaApp()" id="menu-app" class="${baseClass} text-slate-300"><i data-lucide="download-cloud" class="w-5 h-5 mr-3"></i> Unduh Aplikasi</button>
+                    `;
+                } else {
+                    menuHtml += `
+                        <button class="${baseClass} opacity-30 cursor-not-allowed hover:translate-x-0"><i data-lucide="credit-card" class="w-5 h-5 mr-3"></i> Kartu Ujian <span class="ml-auto text-[8px] bg-white/20 px-2 py-1 rounded-md">Terkunci</span></button>
+                        <button class="${baseClass} opacity-30 cursor-not-allowed hover:translate-x-0"><i data-lucide="download-cloud" class="w-5 h-5 mr-3"></i> Unduh Aplikasi <span class="ml-auto text-[8px] bg-white/20 px-2 py-1 rounded-md">Terkunci</span></button>
+                    `;
+                }
+                side.innerHTML = menuHtml;
+                viewSiswaHome();
+            } else {
+                side.innerHTML = `
+                    <button onclick="viewStaffData()" id="menu-peserta" class="${baseClass} text-slate-300"><i data-lucide="users" class="w-5 h-5 mr-3"></i> Peserta</button>
+                    <button onclick="viewAdminTimeline()" id="menu-jadwal" class="${baseClass} text-slate-300"><i data-lucide="calendar" class="w-5 h-5 mr-3"></i> Jadwal</button>
+                    <button onclick="viewAdminLinks()" id="menu-links" class="${baseClass} text-slate-300"><i data-lucide="link" class="w-5 h-5 mr-3"></i> Link Aplikasi</button>
+                `;
+                viewStaffData();
+            }
+            side.innerHTML += `<div class="pt-4 mt-4 border-t border-white/10"><button onclick="handleLogout()" class="${baseClass} text-red-400 hover:text-red-300 hover:bg-red-500/10"><i data-lucide="log-out" class="w-5 h-5 mr-3"></i> Keluar</button></div>`;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function viewSiswaHome() { 
+            setActiveMenu('menu-status');
+            const c = document.getElementById('dashboard-content'), u = currentUser; 
+            
+            let noteHtml = '';
+            if (u.status !== 'Active') {
+                const waMessage = encodeURIComponent(`Halo Pak Fathony (Panitia KoMa 2026),\n\nSaya ingin mengonfirmasi status pendaftaran saya yang belum diverifikasi selama lebih dari 2 jam.\n\nBerikut identitas pendaftaran saya:\nNama: ${u.name}\nNISN: ${u.nisn}\nSekolah: ${u.sekolah}\nEmail: ${u.email}\n\nMohon bantuannya untuk pengecekan bukti pembayaran saya. Terima kasih.`);
+                const waLink = `https://wa.me/6285649842450?text=${waMessage}`;
+                
+                noteHtml = `
+                    <div class="mt-10 bg-amber-50 border border-amber-200 rounded-[2rem] p-6 md:p-8 flex flex-col md:flex-row gap-6 items-start md:items-center text-left shadow-sm animate-slide-right" style="animation-delay: 0.2s; opacity:0; animation-fill-mode: forwards;">
+                        <div class="flex-1">
+                            <h4 class="font-black text-amber-900 text-lg mb-2 flex items-center">
+                                <i data-lucide="alert-circle" class="w-5 h-5 mr-2 animate-pulse-soft"></i> Perhatian
+                            </h4>
+                            <p class="text-xs md:text-sm text-amber-800 font-bold leading-relaxed">
+                                Jika selama 2 Jam Status belum di Verifikasi maka berikan informasi untuk Chat WA ke Admin, dengan mengirimkan konfirmasi identitas pendaftaran Anda.
+                            </p>
+                        </div>
+                        <a href="${waLink}" target="_blank" class="shrink-0 w-full md:w-auto bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center justify-center shadow-lg transition-transform hover:scale-105 active:scale-95">
+                            <i data-lucide="message-square" class="w-5 h-5 mr-3"></i> Chat Admin
+                        </a>
+                    </div>
+                `;
+            }
+
+            const statusColor = u.status === 'Active' ? 'text-green-600' : (u.status === 'Rejected' ? 'text-red-600' : 'text-amber-600');
+            const boxColor = u.status === 'Active' ? 'bg-green-50 border-green-200' : (u.status === 'Rejected' ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200');
+            const iconName = u.status === 'Active' ? 'check-circle' : (u.status === 'Rejected' ? 'x-circle' : 'clock');
+
+            c.innerHTML = `
+                <div class="bg-white p-8 md:p-12 rounded-[3rem] border text-center shadow-sm animate-scale-in">
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 border-b border-slate-100 pb-6">
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status Pendaftaran Saat Ini</h3>
+                        <button onclick="refreshSiswaData()" class="px-5 py-2.5 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm active:scale-95 flex items-center group">
+                            <i data-lucide="refresh-cw" class="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform duration-500"></i> Refresh Status
+                        </button>
+                    </div>
+                    <div class="p-10 ${boxColor} rounded-[2.5rem] border-2 border-dashed flex flex-col items-center justify-center transition-all duration-500 hover:scale-[1.02]">
+                        <i data-lucide="${iconName}" class="w-16 h-16 ${statusColor} mb-4 ${u.status !== 'Active' ? 'animate-pulse-soft' : ''}"></i>
+                        <div class="text-3xl md:text-5xl ${statusColor} uppercase tracking-tighter font-black">${u.status}</div>
+                    </div>
+                    ${noteHtml}
+                </div>
+            `;
+            setTimeout(() => { if (window.lucide) lucide.createIcons(); }, 50);
+        }
+
+        async function refreshSiswaData() {
+            if (!currentUser) return;
+            setLoading(true);
+            try {
+                const r = await callGAS({ action: 'login', email: currentUser.email, password: currentUser.password });
+                if (r && r.result === 'success') {
+                    // Pengekalan pautan foto dari memori semasa
+                    const currentPhotoUrl = currentUser.photoUrl;
+                    currentUser = r.user;
+                    if (currentPhotoUrl) currentUser.photoUrl = currentPhotoUrl;
+                    
+                    localStorage.setItem('koma_user', JSON.stringify(currentUser));
+                    showAlert('Sukses', 'Status pendaftaran berhasil diperbarui!', 'success');
+                    renderDashboardLayout(); // Kemas kini paparan menu secara automatik
+                } else {
+                    showAlert('Gagal', 'Sistem gagal mengambil data terkini.', 'error');
+                }
+            } catch(e) {
+                showAlert('Ralat', 'Gagal menyambung ke server. Sila periksa internet anda.', 'error');
+            } finally {
+                setLoading(false);
+            }
+        }
+        
+        async function viewSiswaProfile() {
+            setActiveMenu('menu-profil');
+            const c = document.getElementById('dashboard-content'), u = currentUser;
+            setLoading(true);
+            try {
+                const res = u.rowNum ? await callGAS({ action: 'getBuktiBayar', targetRow: u.rowNum }) : null; 
+                setLoading(false);
+                let link = u.photoUrl || (res && res.result === 'success' ? res.photoUrl : '');
+                
+                let imgHtml = '';
+                if (link && link !== '-' && link !== 'Gagal Muat Naik' && link !== 'Tiada Fail') {
+                    let iframeSrc = link.includes('drive.google.com') ? getDrivePreviewUrl(link) : link;
+                    imgHtml = `
+                        <div class="mt-10 border-t border-slate-100 pt-8 animate-slide-right" style="animation-delay: 0.2s; opacity:0; animation-fill-mode: forwards;">
+                            <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-4">Bukti Pembayaran</p>
+                            <div class="w-full h-64 md:h-96 bg-slate-100 rounded-3xl border border-slate-200 overflow-hidden relative group transition-all duration-300 hover:shadow-lg">
+                                <iframe src="${iframeSrc}" class="w-full h-full border-0"></iframe>
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-sm">
+                                    <a href="${link}" target="_blank" class="px-6 py-4 bg-white text-slate-800 rounded-xl text-[10px] uppercase font-black tracking-widest shadow-2xl hover:bg-blue-600 hover:text-white transition transform hover:scale-105">
+                                        <i data-lucide="external-link" class="w-4 h-4 inline mr-2 -mt-0.5"></i> Buka Fail Penuh
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    imgHtml = `<div class="mt-10 border-t border-slate-100 pt-8 text-center animate-slide-right"><p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-2">Bukti Pembayaran</p><p class="text-sm font-bold text-red-500 italic">Belum ada fail bukti pembayaran yang sah.</p></div>`;
+                }
+                
+                c.innerHTML = `
+                    <!-- MODE VIEW -->
+                    <div id="profile-view-mode" class="bg-white p-8 md:p-12 rounded-[3rem] border text-left font-bold shadow-sm transition-all duration-500 animate-scale-in">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-6 mb-8 gap-4">
+                            <h3 class="text-2xl font-black uppercase text-slate-800">Profil Peserta</h3>
+                            <button onclick="toggleEditProfile()" class="w-full sm:w-auto px-6 py-3 bg-blue-50 text-blue-600 rounded-xl text-xs uppercase font-black tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm transform hover:scale-105">
+                                <i data-lucide="edit" class="w-4 h-4 inline mr-2 -mt-0.5"></i> Edit Profil
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 font-bold">
+                            <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 hover-card-effect"><p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Nama Lengkap</p><p class="text-lg text-slate-800 uppercase">${u.name}</p></div>
+                            <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 hover-card-effect"><p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">NISN</p><p class="text-lg text-slate-800">${u.nisn}</p></div>
+                            <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 hover-card-effect"><p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Sekolah Asal</p><p class="text-lg text-slate-800 uppercase italic font-bold">${u.sekolah}</p></div>
+                            <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 hover-card-effect"><p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Tingkat Kelas</p><p class="text-lg text-slate-800 uppercase font-bold">${u.kelas || '-'}</p></div>
+                            <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 hover-card-effect"><p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Email Login</p><p class="text-lg text-slate-800">${u.email}</p></div>
+                            <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 hover-card-effect"><p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Password Akun</p><p class="text-lg text-slate-800 font-mono tracking-wider">${u.password}</p></div>
+                        </div>
+                        ${imgHtml}
+                    </div>
+
+                    <!-- MODE EDIT -->
+                    <div id="profile-edit-mode" class="bg-white p-8 md:p-12 rounded-[3rem] border text-left font-bold shadow-xl hidden transition-all duration-500 animate-scale-in">
+                        <div class="border-b pb-6 mb-8">
+                            <h3 class="text-2xl font-black uppercase text-slate-800">Edit Profil</h3>
+                            <p class="text-xs text-slate-400 mt-2 font-semibold">Ubah data di bawah ini. Email dan Password tidak dapat diganti.</p>
+                        </div>
+                        <form onsubmit="handleUpdateProfile(event)" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-2 block ml-1">Nama Lengkap</label>
+                                    <input type="text" id="edit-name" value="${u.name}" required class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-600 uppercase text-slate-800 font-bold transition hover:border-blue-300">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-2 block ml-1">NISN</label>
+                                    <input type="text" id="edit-nisn" value="${u.nisn}" maxlength="10" required class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-600 text-slate-800 font-bold transition hover:border-blue-300">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-2 block ml-1">Sekolah Asal</label>
+                                    <input type="text" id="edit-sekolah" value="${u.sekolah}" required class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-600 uppercase text-slate-800 font-bold transition hover:border-blue-300">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-2 block ml-1">Tingkat Kelas</label>
+                                    <select id="edit-kelas" required class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-600 uppercase text-slate-800 font-bold transition hover:border-blue-300 cursor-pointer appearance-none">
+                                        <option value="VII" ${u.kelas === 'VII' ? 'selected' : ''}>KELAS VII (TUJUH)</option>
+                                        <option value="VIII" ${u.kelas === 'VIII' ? 'selected' : ''}>KELAS VIII (DELAPAN)</option>
+                                        <option value="IX" ${u.kelas === 'IX' ? 'selected' : ''}>KELAS IX (SEMBILAN)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-2 block ml-1">Email Login <span class="text-red-400">*Terkunci</span></label>
+                                    <input type="email" id="edit-email" value="${u.email}" readonly class="w-full px-5 py-4 bg-slate-200 border border-slate-300 text-slate-500 rounded-xl outline-none cursor-not-allowed font-bold">
+                                </div>
+                                <div class="md:col-span-2 relative">
+                                    <label class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-2 block ml-1">Password <span class="text-red-400">*Terkunci</span></label>
+                                    <input type="password" id="edit-pass" value="${u.password}" readonly class="w-full px-5 py-4 bg-slate-200 border border-slate-300 text-slate-500 rounded-xl outline-none cursor-not-allowed font-bold">
+                                    <button type="button" onclick="togglePass('edit-pass', this)" class="absolute right-5 top-[2.4rem] text-slate-400 hover:text-blue-600 transition-colors transform hover:scale-110"><i data-lucide="eye" class="w-5 h-5"></i></button>
+                                </div>
+                                
+                                <div class="md:col-span-2 pt-6 border-t border-slate-100">
+                                    <label class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-3 block ml-1">Update Bukti Pembayaran (Opsional)</label>
+                                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                                        <label class="bg-amber-100 text-amber-700 px-6 py-4 rounded-xl text-xs uppercase font-black cursor-pointer hover:bg-amber-200 transition shadow-sm border border-amber-200 flex-shrink-0 text-center w-full sm:w-auto transform hover:-translate-y-1">
+                                            <i data-lucide="upload" class="w-4 h-4 inline mr-2 -mt-1"></i> Pilih File Baru
+                                            <input type="file" accept="image/*" class="hidden" onchange="convertEditImage(this)">
+                                        </label>
+                                        <span id="edit-file-name" class="text-xs text-slate-400 italic font-semibold px-2">Abaikan jika tidak ingin mengubah bukti.</span>
+                                        <input type="hidden" id="edit-photo-base64">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex flex-col sm:flex-row justify-end gap-3 mt-10 pt-6 border-t border-slate-100">
+                                <button type="button" onclick="toggleEditProfile()" class="px-8 py-4 bg-slate-100 text-slate-600 rounded-2xl text-xs uppercase font-black hover:bg-slate-200 transition">Batal</button>
+                                <button type="submit" class="px-8 py-4 bg-[#10141d] text-white rounded-2xl text-xs uppercase tracking-widest font-black shadow-lg hover:bg-blue-600 transition active:scale-95 transform hover:scale-[1.02]">Simpan Perubahan</button>
+                            </div>
+                        </form>
+                    </div>
+                `;
+            } catch(e) { setLoading(false); }
+            finally { setTimeout(() => { if (window.lucide) lucide.createIcons(); }, 50); }
+        }
+
+        function toggleEditProfile() {
+            document.getElementById('profile-view-mode').classList.toggle('hidden');
+            document.getElementById('profile-edit-mode').classList.toggle('hidden');
+        }
+
+        function convertEditImage(input) {
+            const file = input.files[0]; if (!file) return;
+            const nameDisplay = document.getElementById('edit-file-name');
+            nameDisplay.textContent = "Fail siap diunggah: " + file.name;
+            nameDisplay.classList.remove('text-slate-400', 'italic');
+            nameDisplay.classList.add('text-green-600', 'font-black');
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image(); img.src = e.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas'); const MAX = 800; let w = img.width, h = img.height;
+                    if (w > h) { if (w > MAX) { h *= MAX/w; w = MAX; } } else { if (h > MAX) { w *= MAX/h; h = MAX; } }
+                    canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    document.getElementById('edit-photo-base64').value = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function handleUpdateProfile(event) {
+            event.preventDefault();
+            const n = document.getElementById('edit-name').value;
+            const ni = document.getElementById('edit-nisn').value;
+            const s = document.getElementById('edit-sekolah').value;
+            const k = document.getElementById('edit-kelas').value; // Mengambil Tingkat Kelas yang diupdate
+            const p = document.getElementById('edit-pass').value;
+            const ph = document.getElementById('edit-photo-base64').value;
+            
+            setLoading(true);
+            try {
+                // Menambahkan kelas ke payload
+                const r = await callGAS({ action: 'updateProfile', email: currentUser.email, name: n, nisn: ni, sekolah: s, kelas: k, password: p, photoBase64: ph });
+                if (r && r.result === 'success') {
+                    currentUser = r.user;
+                    if (r.photoUrl) currentUser.photoUrl = r.photoUrl;
+                    localStorage.setItem('koma_user', JSON.stringify(currentUser));
+                    showAlert('Sukses', 'Profil anda berjaya dikemas kini!', 'success');
+                    
+                    // Kemas kini nama di navigasi
+                    document.getElementById('user-display-name').textContent = currentUser.name;
+                    document.getElementById('user-initial').textContent = currentUser.name.charAt(0);
+                    
+                    viewSiswaProfile(); // Kembali ke paparan profil
+                } else {
+                    showAlert('Gagal', r.message || 'Terjadi kesalahan sistem.', 'error');
+                }
+            } catch(e) {
+                showAlert('Ralat', 'Semak sambungan internet anda.', 'error');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function viewSiswaCard() {
+            setActiveMenu('menu-kartu');
+            const c = document.getElementById('dashboard-content'), u = currentUser;
+            const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            c.innerHTML = `
+                <div class="bg-white p-8 md:p-12 rounded-[3rem] border text-center font-bold animate-scale-in">
+                    <h3 class="text-xl mb-8 font-bold">Kartu Peserta Resmi</h3>
+                    
+                    <div id="kartu-peserta-area" class="bg-[#10141d] p-8 rounded-3xl text-white max-w-md mx-auto text-left border-b-8 border-blue-600 shadow-2xl relative overflow-hidden transition-transform duration-500 hover:scale-[1.02]">
+                        <!-- Latar belakang hiasan -->
+                        <div data-html2canvas-ignore="true" class="absolute -right-10 -top-10 w-40 h-40 bg-blue-600/10 rounded-full blur-2xl animate-pulse-soft"></div>
+                        
+                        <div class="flex items-center mb-6 relative z-10">
+                            <img src="${CONFIG.LOGO_URL}" crossorigin="anonymous" class="h-10 mr-4 rounded-lg bg-white p-1 transform hover:rotate-6 transition">
+                            <div class="font-black text-xl tracking-tight">KoMa <span class="text-blue-500">2026</span></div>
+                        </div>
+                        
+                        <p class="text-[10px] uppercase text-blue-400 font-bold mb-5 tracking-widest relative z-10">KARTU UJIAN DIGITAL</p>
+                        
+                        <div class="space-y-4 relative z-10">
+                            <div>
+                                <label class="text-[8px] opacity-60 block font-bold tracking-widest mb-1">NAMA PESERTA</label>
+                                <p class="font-black uppercase text-lg leading-tight">${u.name}</p>
+                            </div>
+                            <div>
+                                <label class="text-[8px] opacity-60 block font-bold tracking-widest mb-1">NISN / SEKOLAH ASAL / KELAS</label>
+                                <p class="font-bold uppercase text-sm text-slate-300">${u.nisn} / ${u.sekolah} / KELAS ${u.kelas || '-'}</p>
+                            </div>
+                        </div>
+
+                        <!-- BOX LOGIN APLIKASI (FOKUS) -->
+                        <div class="mt-6 bg-blue-900/40 border border-blue-500/30 p-5 rounded-2xl relative z-10 hover-card-effect">
+                            <p class="text-[9px] text-yellow-400 uppercase font-black tracking-widest mb-4 border-b border-blue-500/30 pb-2 flex items-center">
+                                <i data-lucide="key" class="w-3 h-3 mr-2 animate-pulse-soft"></i> Akses Login Aplikasi Ujian
+                            </p>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="text-[8px] text-blue-300 block font-bold tracking-widest mb-0.5">USERNAME (EMAIL)</label>
+                                    <p class="font-black text-sm break-all tracking-wide text-white">${u.email}</p>
+                                </div>
+                                <div>
+                                    <label class="text-[8px] text-blue-300 block font-bold tracking-widest mb-0.5">PASSWORD LOGIN</label>
+                                    <p class="font-black text-sm tracking-widest text-white">${u.password}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-8 border-t border-white/10 pt-5 flex justify-between items-center text-center relative z-10">
+                            <span class="text-[8px] text-slate-400 font-semibold tracking-wider">Dicetak pada: ${today}<br>Validasi: Panitia KoMa</span>
+                            <i data-lucide="award" class="w-10 h-10 text-yellow-500/30"></i>
+                        </div>
+                    </div>
+                    
+                    <button onclick="downloadKartuPDF()" class="mt-8 px-12 py-4 bg-slate-900 text-white rounded-2xl no-print font-black tracking-widest uppercase text-xs shadow-lg hover:bg-blue-600 transition-all transform hover:scale-105 active:scale-95">
+                        <i data-lucide="download" class="w-4 h-4 inline-block mr-2 -mt-1"></i> Unduh PDF Kartu
+                    </button>
+                </div>
+            `;
+            setTimeout(() => { if (window.lucide) lucide.createIcons(); }, 50);
+        }
+
+        function downloadKartuPDF() {
+            setLoading(true);
+            window.scrollTo(0, 0); // Memastikan posisi skrin berada di atas bagi mengelakkan canvas kosong
+            
+            setTimeout(() => {
+                const element = document.getElementById('kartu-peserta-area');
+                const opt = {
+                  margin:       [1, 1],
+                  filename:     `Kartu_Ujian_KoMa_${currentUser.name.replace(/\s+/g, '_')}.pdf`,
+                  image:        { type: 'jpeg', quality: 1 },
+                  html2canvas:  { 
+                      scale: 2, 
+                      useCORS: true, 
+                      scrollY: 0,
+                      backgroundColor: '#ffffff'
+                  },
+                  jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+                };
+                
+                html2pdf().set(opt).from(element).save().then(() => {
+                    setLoading(false);
+                }).catch(err => {
+                    setLoading(false);
+                    showAlert('Ralat', 'Gagal memuat turun PDF.', 'error');
+                });
+            }, 300);
+        }
+
+        async function viewSiswaTimeline() {
+            setActiveMenu('menu-jadwal-siswa');
+            const c = document.getElementById('dashboard-content');
+            c.innerHTML = `
+                <div class="bg-white p-8 md:p-12 rounded-[3rem] border shadow-sm font-bold text-left animate-scale-in">
+                    <h3 class="text-2xl mb-8 font-black uppercase text-slate-800 border-b pb-4">Time Line Kegiatan</h3>
+                    <div class="relative pl-4 py-4">
+                        <div class="timeline-line"></div>
+                        <div class="space-y-10" id="siswa-schedule-list">
+                            <div class="p-10 text-center text-slate-400 italic font-bold">Memuat jadwal...</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            try {
+                const res = await callGAS({ action: 'getSchedule' });
+                if (res && res.result === 'success') {
+                    const list = document.getElementById('siswa-schedule-list');
+                    if (list) {
+                        list.innerHTML = res.data.map((item, index) => `
+                            <div class="schedule-item flex items-start gap-6 font-bold relative z-10 animate-slide-right" style="animation-delay: ${index * 0.1}s; opacity:0; animation-fill-mode: forwards;">
+                                <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border-2 border-blue-100 shadow-sm shrink-0 transition-transform hover:rotate-12">
+                                    <i data-lucide="calendar" class="text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-black text-slate-800">${item.name}</h4>
+                                    <p class="text-xs text-slate-500 font-bold mb-2">${item.start === item.end ? item.start : item.start + ' - ' + item.end}</p>
+                                    <p class="text-[11px] text-blue-700 font-bold bg-blue-50 px-4 py-3 rounded-xl border border-blue-100 inline-block leading-relaxed max-w-xl">${item.info || 'Menunggu pembaruan informasi.'}</p>
+                                </div>
+                            </div>
+                        `).join('');
+                        if (window.lucide) lucide.createIcons();
+                    }
+                }
+            } catch (e) {
+                document.getElementById('siswa-schedule-list').innerHTML = `<div class="p-10 text-center text-red-500 font-bold">Gagal memuat jadwal.</div>`;
+            }
+        }
+
+        function viewSiswaPetunjuk() {
+            setActiveMenu('menu-petunjuk');
+            const c = document.getElementById('dashboard-content');
+            c.innerHTML = `
+                <div class="bg-white p-8 md:p-12 rounded-[3rem] border shadow-sm font-bold text-left animate-scale-in">
+                    <h3 class="text-2xl mb-8 font-black uppercase text-slate-800 border-b pb-4">Ketentuan Kompetisi KoMa 2026</h3>
+                    
+                    <div class="space-y-6 text-sm text-slate-600 leading-relaxed">
+                        <div class="p-6 bg-slate-50 border border-slate-200 rounded-2xl hover:shadow-md transition hover:-translate-y-1 animate-slide-right" style="animation-delay: 0.1s; opacity:0; animation-fill-mode: forwards;">
+                            <h4 class="font-black text-blue-700 text-lg mb-3 flex items-center"><i data-lucide="info" class="w-5 h-5 mr-2"></i> 1. Ketentuan Umum</h4>
+                            <ul class="list-disc list-inside space-y-2 ml-2">
+                                <li>Peserta adalah siswa/i aktif tingkat SMP/MTs baik Negeri maupun Swasta.</li>
+                                <li>Setiap peserta wajib menggunakan akun (email & password) yang telah didaftarkan untuk login ke aplikasi CBT.</li>
+                                <li>Peserta diwajibkan mengikuti Technical Meeting dan Simulasi Uji Coba sesuai jadwal yang ditentukan.</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="p-6 bg-slate-50 border border-slate-200 rounded-2xl hover:shadow-md transition hover:-translate-y-1 animate-slide-right" style="animation-delay: 0.2s; opacity:0; animation-fill-mode: forwards;">
+                            <h4 class="font-black text-blue-700 text-lg mb-3 flex items-center"><i data-lucide="laptop" class="w-5 h-5 mr-2"></i> 2. Spesifikasi Perangkat</h4>
+                            <ul class="list-disc list-inside space-y-2 ml-2">
+                                <li>Peserta dapat menggunakan perangkat Laptop/PC (Windows), MacBook (Mac OS) ataupun Smartphone/Tablet (Android).</li>
+                                <li>Pastikan perangkat memiliki koneksi internet yang stabil minimal 2 Mbps.</li>
+                                <li>Pastikan aplikasi CBT versi terbaru telah terpasang dengan baik sebelum hari H kompetisi.</li>
+                            </ul>
+                        </div>
+
+                        <div class="p-6 bg-slate-50 border border-slate-200 rounded-2xl hover:shadow-md transition hover:-translate-y-1 animate-slide-right" style="animation-delay: 0.3s; opacity:0; animation-fill-mode: forwards;">
+                            <h4 class="font-black text-blue-700 text-lg mb-3 flex items-center"><i data-lucide="alert-triangle" class="w-5 h-5 mr-2"></i> 3. Tata Tertib Pelaksanaan</h4>
+                            <ul class="list-disc list-inside space-y-2 ml-2">
+                                <li>Peserta harus login ke aplikasi ujian minimal 15 menit sebelum waktu pelaksanaan dimulai.</li>
+                                <li>Dilarang keras membuka aplikasi lain, browser, atau menyontek selama ujian berlangsung. Aplikasi CBT dilengkapi dengan sistem deteksi kecurangan otomatis (Auto-Lock).</li>
+                                <li>Jika terjadi kendala teknis (mati listrik/internet putus), peserta dapat login kembali tanpa kehilangan jawaban yang sudah disimpan sebelumnya.</li>
+                            </ul>
+                        </div>
+
+                        <div class="p-6 bg-amber-50 border border-amber-200 rounded-2xl hover:shadow-md transition hover:-translate-y-1 animate-slide-right" style="animation-delay: 0.4s; opacity:0; animation-fill-mode: forwards;">
+                            <h4 class="font-black text-amber-800 text-lg mb-2 flex items-center"><i data-lucide="help-circle" class="w-5 h-5 mr-2 animate-pulse-soft"></i> Bantuan & Kendala</h4>
+                            <p class="ml-7 font-semibold">Jika mengalami masalah pada aplikasi atau akun, segera hubungi Panitia melalui WhatsApp ke <b>Kontak Admin</b> yang tersedia di halaman Status Pendaftaran.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        async function viewSiswaApp() {
+            setActiveMenu('menu-app');
+            const c = document.getElementById('dashboard-content');
+            c.innerHTML = `<div class="p-10 text-center"><div class="animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent mx-auto"></div><p class="mt-4 font-bold text-slate-400">Menyinkronkan link unduhan...</p></div>`;
+            
+            try {
+                const r = await callGAS({ action: 'getAppLinks' });
+                let links = { 
+                    "Android": "https://drive.google.com/file/d/1QglDIUlIeUY144aaSafsTQ7RWEZzBpNs/view?usp=sharing",
+                    "Windows SEB": "https://drive.google.com/file/d/1cC2FtMphb6Igh7M9cc-x-1ebF6d0LcsV/view?usp=sharing",
+                    "Mac OS SEB": "https://drive.google.com/file/d/1cho_Ji8tfqLwbB_IFh7NsMLgOARsLgJ3/view?usp=sharing",
+                    "iOS SEB": "https://apps.apple.com/us/app/safeexambrowser/id1155002964",
+                    "Config SEB": "https://drive.google.com/drive/folders/1kRL_oX86Yw2HYQB4uRDQEV559tDAJlfF"
+                };
+                if (r && r.result === 'success') {
+                    r.data.forEach(d => { 
+                        let p = d.platform;
+                        if (p === 'Windows') p = 'Windows SEB'; // Legacy support
+                        if (p === 'Mac OS') p = 'Mac OS SEB';   // Legacy support
+                        if(d.url && d.url !== '#' && d.url.trim() !== '') {
+                            links[p] = d.url; 
+                        }
+                    });
+                }
+
+                const getBtnAction = (url) => {
+                    if(!url || url === '#' || url.trim() === '') {
+                        return `onclick="showAlert('Informasi', 'Tautan unduhan untuk versi ini akan segera tersedia mendekati hari simulasi.', 'success')"`;
+                    }
+                    return `onclick="window.open('${url}', '_blank')"`;
+                };
+
+                c.innerHTML = `
+                    <div class="bg-white p-8 md:p-12 rounded-[3rem] border shadow-sm font-bold text-center animate-scale-in">
+                        <h3 class="text-2xl mb-4 font-black uppercase text-slate-800">Aplikasi Ujian KoMa</h3>
+                        <p class="text-sm text-slate-500 mb-10 max-w-xl mx-auto leading-relaxed">Silakan unduh dan instal aplikasi ujian (CBT) sesuai dengan perangkat yang akan Anda gunakan pada saat kompetisi berlangsung.</p>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 text-left">
+                            
+                            <!-- Android App -->
+                            <div class="bg-slate-50 border border-slate-200 rounded-[2rem] p-6 transition-transform duration-300 hover:scale-105 flex flex-col justify-between hover-card-effect animate-slide-right" style="animation-delay: 0.1s; opacity:0; animation-fill-mode: forwards;">
+                                <div class="text-center mb-6">
+                                    <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 transform transition hover:rotate-12">
+                                        <i data-lucide="smartphone" class="w-8 h-8"></i>
+                                    </div>
+                                    <h4 class="font-black text-lg text-slate-800 uppercase">Android</h4>
+                                    <p class="text-[10px] text-slate-400 mt-1 uppercase tracking-widest">HP / Tablet</p>
+                                </div>
+                                <button ${getBtnAction(links["Android"])} class="w-full bg-green-600 text-white font-black py-4 rounded-xl uppercase text-[10px] shadow-lg hover:bg-green-700 transition tracking-widest text-center active:scale-95">
+                                    Unduh
+                                </button>
+                            </div>
+
+                            <!-- BOX BESAR: SEB ECOSYSTEM (Win, Mac, iOS, Config) -->
+                            <div class="lg:col-span-2 bg-[#f4f7fe] border-2 border-blue-200 rounded-[2rem] p-6 lg:p-8 hover-card-effect animate-slide-right relative overflow-hidden" style="animation-delay: 0.2s; opacity:0; animation-fill-mode: forwards;">
+                                
+                                <!-- WAJIB SEB WARNING -->
+                                <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-xl mb-8 flex items-start gap-4 shadow-sm">
+                                    <div class="bg-red-100 p-2 rounded-lg text-red-600 shrink-0">
+                                        <i data-lucide="alert-triangle" class="w-6 h-6 animate-pulse-soft"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-black uppercase tracking-widest text-xs mb-1 text-red-700">Wajib: Install SEB</h4>
+                                        <p class="text-xs font-bold text-red-600/80 leading-relaxed">Install aplikasi <b>Safe Exam Browser</b> terlebih dahulu sebelum mengunduh dan menjalankan file Config.</p>
+                                    </div>
+                                </div>
+
+                                <!-- OS BOXES INSIDE LARGE BOX -->
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                                    <!-- Windows -->
+                                    <div class="bg-white border border-slate-200 rounded-2xl p-5 text-center transition hover:shadow-md hover:-translate-y-1">
+                                        <i data-lucide="monitor" class="w-10 h-10 text-blue-600 mx-auto mb-3"></i>
+                                        <h5 class="font-black text-sm uppercase text-slate-800 mb-4">Windows</h5>
+                                        <button ${getBtnAction(links["Windows SEB"])} class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl text-[10px] uppercase tracking-widest hover:bg-blue-700 transition active:scale-95">Unduh</button>
+                                    </div>
+                                    <!-- Mac OS -->
+                                    <div class="bg-white border border-slate-200 rounded-2xl p-5 text-center transition hover:shadow-md hover:-translate-y-1">
+                                        <i data-lucide="laptop" class="w-10 h-10 text-purple-600 mx-auto mb-3"></i>
+                                        <h5 class="font-black text-sm uppercase text-slate-800 mb-4">Mac OS</h5>
+                                        <button ${getBtnAction(links["Mac OS SEB"])} class="w-full bg-purple-600 text-white font-bold py-3 rounded-xl text-[10px] uppercase tracking-widest hover:bg-purple-700 transition active:scale-95">Unduh</button>
+                                    </div>
+                                    <!-- iOS -->
+                                    <div class="bg-white border border-slate-200 rounded-2xl p-5 text-center transition hover:shadow-md hover:-translate-y-1">
+                                        <i data-lucide="tablet" class="w-10 h-10 text-slate-800 mx-auto mb-3"></i>
+                                        <h5 class="font-black text-sm uppercase text-slate-800 mb-4">Apple iOS</h5>
+                                        <button ${getBtnAction(links["iOS SEB"])} class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl text-[10px] uppercase tracking-widest hover:bg-slate-900 transition active:scale-95">App Store</button>
+                                    </div>
+                                </div>
+
+                                <!-- CONFIG BOX -->
+                                <div class="bg-white border-2 border-dashed border-amber-400 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-5 transition hover:shadow-md hover:bg-amber-50/50 group">
+                                    <div class="flex items-center gap-4 text-center sm:text-left">
+                                        <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center shrink-0 mx-auto sm:mx-0 shadow-inner group-hover:rotate-180 transition-transform duration-700">
+                                            <i data-lucide="settings" class="w-6 h-6"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-black text-slate-800 uppercase text-sm mb-1">Config SEB</h5>
+                                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">File konfigurasi ujian KoMa 2026</p>
+                                        </div>
+                                    </div>
+                                    <button ${getBtnAction(links["Config SEB"])} class="w-full sm:w-auto bg-amber-500 text-white font-black py-4 px-8 rounded-xl text-[10px] uppercase tracking-widest shadow-lg hover:bg-amber-600 transition transform hover:scale-105 active:scale-95 whitespace-nowrap">
+                                        <i data-lucide="download-cloud" class="w-4 h-4 inline mr-2 -mt-0.5"></i> Unduh Config
+                                    </button>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="mt-10 bg-blue-50 p-8 rounded-[2rem] border border-blue-100 text-left animate-slide-right" style="animation-delay: 0.4s; opacity:0; animation-fill-mode: forwards;">
+                            <h4 class="font-black text-blue-800 text-sm uppercase mb-4 flex items-center">
+                                <i data-lucide="info" class="w-5 h-5 mr-2"></i> Panduan Instalasi
+                            </h4>
+                            <ul class="text-xs text-blue-700 space-y-3 font-semibold">
+                                <li class="flex items-start"><i data-lucide="check-circle" class="w-4 h-4 mr-2 shrink-0 mt-0.5"></i> <b>Bagi Pengguna PC/Mac/iOS:</b> Pastikan menginstal aplikasi Safe Exam Browser (SEB) terlebih dahulu sebelum mendownload file Config. File Config tidak akan bisa dibuka jika aplikasi SEB belum terinstal.</li>
+                                <li class="flex items-start"><i data-lucide="check-circle" class="w-4 h-4 mr-2 shrink-0 mt-0.5"></i> Pastikan koneksi internet stabil saat mengunduh aplikasi sebesar kurang lebih 25MB hingga 150MB.</li>
+                                <li class="flex items-start"><i data-lucide="check-circle" class="w-4 h-4 mr-2 shrink-0 mt-0.5"></i> <b>Bagi Pengguna Android:</b> Jika muncul peringatan keamanan, masuk ke Pengaturan HP dan izinkan "Install from unknown sources" (Instal dari sumber tidak dikenal).</li>
+                                <li class="flex items-start"><i data-lucide="check-circle" class="w-4 h-4 mr-2 shrink-0 mt-0.5"></i> Gunakan Username (Email) dan Password yang sama dengan akun pendaftaran ini untuk login di dalam aplikasi CBT nantinya.</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                if (window.lucide) lucide.createIcons();
+            } catch(e) {
+                c.innerHTML = `<div class="p-10 text-center text-red-500 font-bold">Gagal memuat data tautan unduhan.</div>`;
+            }
+        }
+
+        async function viewStaffData() { 
+            setActiveMenu('menu-peserta');
+            const dc = document.getElementById('dashboard-content'); if (!dc) return;
+            dc.innerHTML = `
+                <div class="space-y-6 text-left bg-white p-8 rounded-3xl shadow-sm border animate-scale-in">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <h3 class="font-black text-xl text-slate-800 uppercase">Verifikasi Peserta</h3>
+                        <button onclick="loadAllStaffData()" class="p-2.5 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm active:scale-95">
+                            Refresh Data
+                        </button>
+                    </div>
+
+                    <!-- STATISTIK CONTAINER -->
+                    <div id="staff-stats-container" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center animate-pulse"><div class="h-8 bg-slate-200 rounded w-1/2 mx-auto mb-2"></div><div class="h-3 bg-slate-200 rounded w-3/4 mx-auto"></div></div>
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center animate-pulse"><div class="h-8 bg-slate-200 rounded w-1/2 mx-auto mb-2"></div><div class="h-3 bg-slate-200 rounded w-3/4 mx-auto"></div></div>
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center animate-pulse"><div class="h-8 bg-slate-200 rounded w-1/2 mx-auto mb-2"></div><div class="h-3 bg-slate-200 rounded w-3/4 mx-auto"></div></div>
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center animate-pulse"><div class="h-8 bg-slate-200 rounded w-1/2 mx-auto mb-2"></div><div class="h-3 bg-slate-200 rounded w-3/4 mx-auto"></div></div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <div>
+                            <label class="text-[9px] font-black uppercase text-slate-400 block mb-1.5 ml-1">Cari Nama Siswa</label>
+                            <input type="text" id="staff-filter-name" oninput="applyStaffFilters()" class="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-blue-600 outline-none transition hover:border-blue-300" placeholder="Ketik nama...">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-black uppercase text-slate-400 block mb-1.5 ml-1">Filter Status</label>
+                            <select id="staff-filter-status" onchange="applyStaffFilters()" class="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-blue-600 outline-none transition hover:border-blue-300 cursor-pointer text-slate-700">
+                                <option value="">Semua Status</option>
+                                <option value="Active">Telah Dikonfirmasi (Active)</option>
+                                <option value="Menunggu Konfirmasi">Pending (Menunggu Konfirmasi)</option>
+                                <option value="Rejected">Ditolak (Rejected)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-inner mt-4">
+                        <table class="w-full border-collapse text-sm">
+                            <thead class="bg-[#10141d] text-white border-b">
+                                <tr>
+                                    <th class="p-4 text-left font-black uppercase text-[10px] tracking-widest whitespace-nowrap">Nama Lengkap</th>
+                                    <th class="p-4 text-left font-black uppercase text-[10px] tracking-widest whitespace-nowrap">Kelas</th>
+                                    <th class="p-4 text-left font-black uppercase text-[10px] tracking-widest whitespace-nowrap">Sekolah Asal</th>
+                                    <th class="p-4 text-center font-black uppercase text-[10px] tracking-widest whitespace-nowrap">Status</th>
+                                    <th class="p-4 text-center font-black uppercase text-[10px] tracking-widest whitespace-nowrap">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staff-table-body" class="divide-y divide-slate-100 bg-white">
+                                <tr><td colspan="5" class="p-10 text-center text-slate-400 italic font-bold">Memuat data peserta...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            loadAllStaffData();
+        }
+
+        function renderStaffStats(data) {
+            const container = document.getElementById('staff-stats-container');
+            if (!container) return;
+            
+            const total = data.length;
+            const aktif = data.filter(p => p.Status === 'Active').length;
+            const pending = data.filter(p => p.Status === 'Menunggu Konfirmasi').length;
+            const ditolak = data.filter(p => p.Status === 'Rejected').length;
+
+            container.innerHTML = `
+                <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100 text-center shadow-sm transform transition duration-300 hover:scale-105 animate-slide-right" style="animation-delay: 0.1s; opacity:0; animation-fill-mode: forwards;">
+                    <h4 class="text-3xl font-black text-blue-600 mb-1">${total}</h4>
+                    <p class="text-[9px] font-bold uppercase tracking-widest text-blue-500">Total Pendaftar</p>
+                </div>
+                <div class="p-4 bg-green-50 rounded-2xl border border-green-100 text-center shadow-sm transform transition duration-300 hover:scale-105 animate-slide-right" style="animation-delay: 0.2s; opacity:0; animation-fill-mode: forwards;">
+                    <h4 class="text-3xl font-black text-green-600 mb-1">${aktif}</h4>
+                    <p class="text-[9px] font-bold uppercase tracking-widest text-green-500">Status Aktif</p>
+                </div>
+                <div class="p-4 bg-amber-50 rounded-2xl border border-amber-100 text-center shadow-sm transform transition duration-300 hover:scale-105 animate-slide-right" style="animation-delay: 0.3s; opacity:0; animation-fill-mode: forwards;">
+                    <h4 class="text-3xl font-black text-amber-600 mb-1">${pending}</h4>
+                    <p class="text-[9px] font-bold uppercase tracking-widest text-amber-500">Menunggu Konfirmasi</p>
+                </div>
+                <div class="p-4 bg-red-50 rounded-2xl border border-red-100 text-center shadow-sm transform transition duration-300 hover:scale-105 animate-slide-right" style="animation-delay: 0.4s; opacity:0; animation-fill-mode: forwards;">
+                    <h4 class="text-3xl font-black text-red-600 mb-1">${ditolak}</h4>
+                    <p class="text-[9px] font-bold uppercase tracking-widest text-red-500">Ditolak</p>
+                </div>
+            `;
+        }
+
+        async function loadAllStaffData() {
+            const tbody = document.getElementById('staff-table-body');
+            if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-400 italic font-bold">Memuat data peserta...</td></tr>`;
+            try {
+                const res = await callGAS({ action: 'getAllData', role: currentUser.role });
+                if(res && res.result === 'success') {
+                    allParticipantsLocal = (res.data || []).filter(p => (p.Role || p.role || "").toLowerCase() === 'siswa').sort((a,b)=>b.rowNum - a.rowNum);
+                    renderStaffStats(allParticipantsLocal);
+                    renderStaffTable(allParticipantsLocal);
+                } else {
+                    if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-red-500 font-bold">Gagal memuat data dari server.</td></tr>`;
+                }
+            } catch(e) {
+                if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-red-500 font-bold">Terjadi kesalahan jaringan.</td></tr>`;
+            }
+        }
+
+        function renderStaffTable(data) {
+            const tbody = document.getElementById('staff-table-body'); if (!tbody) return;
+            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-400 font-bold">Tidak ada data peserta ditemukan.</td></tr>`; return; }
+            
+            tbody.innerHTML = data.map((p, idx) => `
+                <tr class="hover:bg-blue-50/50 transition-colors group animate-slide-right" style="animation-delay: ${Math.min(idx * 0.05, 0.5)}s; opacity:0; animation-fill-mode: forwards;">
+                    <td class="p-4 font-black text-slate-800 whitespace-nowrap">${p["Nama Lengkap"]}</td>
+                    <td class="p-4 font-semibold text-slate-600">${p["Tingkat Kelas"] || p.kelas || '-'}</td>
+                    <td class="p-4 font-black text-slate-600 uppercase text-[10px] tracking-wider">${p["Sekolah Asal"] || p["Sekolah"] || '-'}</td>
+                    <td class="p-4 text-center">
+                        <span class="px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                            p.Status === 'Active' ? 'bg-green-100 text-green-700' : 
+                            (p.Status === 'Rejected' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700')
+                        }">${p.Status}</span>
+                    </td>
+                    <td class="p-4 text-center">
+                        <button onclick="openVerifikasi(${p.rowNum}, '${(p["Nama Lengkap"] || '').replace(/'/g, "\\'")}')" class="bg-slate-100 text-slate-600 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase hover:bg-blue-600 hover:text-white transition shadow-sm group-hover:shadow-md active:scale-95">Cek Bukti</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function applyStaffFilters() {
+            const nameFilter = (document.getElementById('staff-filter-name').value || '').toLowerCase();
+            const statusFilter = document.getElementById('staff-filter-status').value;
+            
+            const filteredData = allParticipantsLocal.filter(p => {
+                const nameMatch = (p["Nama Lengkap"] || '').toLowerCase().includes(nameFilter);
+                const statusMatch = statusFilter ? p.Status === statusFilter : true;
+                return nameMatch && statusMatch;
+            });
+            
+            renderStaffTable(filteredData);
+        }
+
+        async function openVerifikasi(rowNum, name) {
+            setLoading(true);
+            try {
+                const res = await callGAS({ action: 'getBuktiBayar', targetRow: rowNum });
+                setLoading(false);
+                if(res && res.result === 'success') {
+                    document.getElementById('verif-nama').textContent = name;
+                    document.getElementById('verif-row').value = rowNum;
+
+                    const link = res.photoUrl || '';
+                    const iframe = document.getElementById('verif-iframe');
+                    const img = document.getElementById('verif-img');
+                    const noFile = document.getElementById('verif-no-file');
+                    const extLink = document.getElementById('verif-link');
+                    const loading = document.getElementById('verif-loading');
+
+                    iframe.classList.add('hidden'); iframe.src = '';
+                    img.classList.add('hidden'); img.src = '';
+                    extLink.classList.add('hidden'); extLink.href = '#';
+                    noFile.classList.add('hidden');
+                    loading.classList.remove('hidden');
+
+                    if (link && link !== '-' && link !== 'Tiada Fail' && link !== 'Gagal Muat Naik') {
+                        extLink.href = link;
+                        extLink.classList.remove('hidden');
+
+                        if (link.includes('drive.google.com')) {
+                            iframe.src = getDrivePreviewUrl(link);
+                            iframe.classList.remove('hidden');
+                        } else if (link.startsWith('http') || link.startsWith('data:image')) {
+                            img.src = link;
+                            img.classList.remove('hidden');
+                        } else {
+                            noFile.classList.remove('hidden');
+                            loading.classList.add('hidden');
+                        }
+                    } else {
+                        noFile.classList.remove('hidden');
+                        loading.classList.add('hidden');
+                    }
+
+                    const modal = document.getElementById('modal-verifikasi');
+                    const box = document.getElementById('verifikasi-box');
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                    setTimeout(() => {
+                        box.classList.remove('scale-95');
+                        box.classList.add('scale-100');
+                    }, 10);
+                }
+            } catch(e) { setLoading(false); showAlert('Ralat', 'Gagal memuat bukti pembayaran.', 'error'); }
+        }
+
+        async function submitVerifikasi(ns) {
+            const row = document.getElementById('verif-row').value;
+            if (!row) return;
+            closeVerifikasi();
+            setLoading(true);
+            try {
+                await callGAS({ action: 'updateStatus', role: currentUser.role, targetRow: row, newStatus: ns });
+                loadAllStaffData();
+                showAlert('Sukses', 'Status peserta berjaya diperbarui.', 'success');
+            } catch(e) {
+                showAlert('Ralat', 'Gagal memperbarui status.', 'error');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        async function viewAdminTimeline() { 
+            setActiveMenu('menu-jadwal');
+            const dc = document.getElementById('dashboard-content'); if (!dc) return;
+            const isAdmin = currentUser.role === 'Admin';
+            
+            dc.innerHTML = `
+                <div class="space-y-6 text-left bg-white p-8 rounded-3xl shadow-sm border animate-scale-in">
+                    <h3 class="font-black text-xl text-slate-800 uppercase">${isAdmin ? 'Update ' : 'Daftar '}Jadwal & Timeline</h3>
+                    <div id="timeline-edit-form" class="space-y-4">
+                        <div class="p-10 text-center text-slate-400 italic font-bold">Memuat data jadwal...</div>
+                    </div>
+                </div>
+            `;
+            try {
+                const r = await callGAS({ action: 'getSchedule' });
+                if (r && r.result === 'success') {
+                    const formContainer = document.getElementById('timeline-edit-form');
+                    formContainer.innerHTML = r.data.map((it, idx) => `
+                        <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 space-y-4 hover-card-effect animate-slide-right" style="animation-delay: ${idx * 0.1}s; opacity:0; animation-fill-mode: forwards;" data-id="${it.id}">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-black text-xs shadow-lg">${idx + 1}</div>
+                                <h4 class="font-bold text-slate-700 uppercase tracking-wider text-xs">Fase ${idx + 1}</h4>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="text-[9px] uppercase font-black text-slate-400 block mb-1">Nama Kegiatan</label>
+                                    <input type="text" class="name-in w-full p-3 border border-slate-200 rounded-xl text-sm font-bold outline-none transition ${isAdmin ? 'bg-white focus:ring-2 focus:ring-blue-600 hover:border-blue-300' : 'bg-slate-100 text-slate-500 cursor-not-allowed'}" value="${it.name}" ${isAdmin ? '' : 'readonly'}>
+                                </div>
+                                <div>
+                                    <label class="text-[9px] uppercase font-black text-slate-400 block mb-1">Tanggal Mulai</label>
+                                    <input type="date" class="start-in w-full p-3 border border-slate-200 rounded-xl text-sm font-bold outline-none transition ${isAdmin ? 'bg-white focus:ring-2 focus:ring-blue-600 hover:border-blue-300 text-slate-700' : 'bg-slate-100 text-slate-500 cursor-not-allowed'}" value="${it.start}" ${isAdmin ? '' : 'readonly'}>
+                                </div>
+                                <div>
+                                    <label class="text-[9px] uppercase font-black text-slate-400 block mb-1">Tanggal Selesai</label>
+                                    <input type="date" class="end-in w-full p-3 border border-slate-200 rounded-xl text-sm font-bold outline-none transition ${isAdmin ? 'bg-white focus:ring-2 focus:ring-blue-600 hover:border-blue-300 text-slate-700' : 'bg-slate-100 text-slate-500 cursor-not-allowed'}" value="${it.end}" ${isAdmin ? '' : 'readonly'}>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-[9px] uppercase font-black text-slate-400 block mb-1">Deskripsi / Info Update</label>
+                                <input type="text" class="info-in w-full p-3 border border-slate-200 rounded-xl text-xs font-bold outline-none transition ${isAdmin ? 'bg-white focus:ring-2 focus:ring-blue-600 hover:border-blue-300 text-slate-600' : 'bg-slate-100 text-slate-500 cursor-not-allowed'}" value="${it.info || ''}" ${isAdmin ? '' : 'readonly'}>
+                            </div>
+                        </div>
+                    `).join('') + (isAdmin ? `
+                        <button onclick="submitTimelineUpdate()" class="w-full bg-[#10141d] text-white font-black py-4 rounded-2xl uppercase text-xs tracking-[0.2em] shadow-lg hover:bg-blue-600 transition-all mt-4 active:scale-95 transform hover:scale-[1.01]">
+                            Simpan Perubahan Jadwal
+                        </button>
+                    ` : `
+                        <div class="mt-4 p-4 bg-amber-50 text-amber-700 text-xs font-bold text-center rounded-xl border border-amber-200 animate-scale-in">
+                            <i data-lucide="lock" class="w-4 h-4 inline mr-1 -mt-0.5"></i> Hanya Admin Utama yang diizinkan mengubah jadwal kegiatan.
+                        </div>
+                    `);
+                    if (window.lucide) lucide.createIcons();
+                }
+            } catch(e) { 
+                document.getElementById('timeline-edit-form').innerHTML = `<div class="p-10 text-center text-red-500 font-bold">Gagal memuat jadwal.</div>`;
+            }
+        }
+
+        async function submitTimelineUpdate() {
+            const updates = []; 
+            document.querySelectorAll('#timeline-edit-form > div[data-id]').forEach(div => { 
+                updates.push({ 
+                    id: div.dataset.id, 
+                    name: div.querySelector('.name-in').value, 
+                    start: div.querySelector('.start-in').value, 
+                    end: div.querySelector('.end-in').value, 
+                    info: div.querySelector('.info-in').value 
+                }); 
+            });
+            setLoading(true); 
+            try { 
+                await callGAS({ action: 'updateSchedule', updates: updates, role: currentUser.role }); 
+                showAlert('Sukses', 'Jadwal berhasil diperbarui!', 'success'); 
+                fetchSchedule(); 
+            } catch(e) { 
+                showAlert('Ralat', 'Gagal memperbarui jadwal.', 'error');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        async function viewAdminLinks() {
+            setActiveMenu('menu-links');
+            const dc = document.getElementById('dashboard-content'); if (!dc) return;
+            const isAdmin = currentUser.role === 'Admin';
+            
+            dc.innerHTML = `
+                <div class="space-y-6 text-left bg-white p-8 rounded-3xl shadow-sm border animate-scale-in">
+                    <h3 class="font-black text-xl text-slate-800 uppercase">${isAdmin ? 'Pengaturan ' : 'Daftar '}Link Aplikasi</h3>
+                    <p class="text-sm text-slate-500 font-semibold mb-6">${isAdmin ? 'Masukkan URL tautan unduhan (Google Drive, MediaFire, dll) yang akan disimpan ke Google Sheet "Link". Kosongkan atau isi dengan "#" jika aplikasi belum tersedia.' : 'Berikut adalah daftar tautan unduhan aplikasi ujian yang saat ini aktif di sistem.'}</p>
+                    <div id="links-edit-form" class="space-y-4">
+                        <div class="p-10 text-center text-slate-400 italic font-bold">Memuat data link dari server...</div>
+                    </div>
+                </div>
+            `;
+            try {
+                const r = await callGAS({ action: 'getAppLinks' });
+                
+                let adminLinks = [
+                    { platform: "Android", url: "" },
+                    { platform: "Windows SEB", url: "" },
+                    { platform: "Mac OS SEB", url: "" },
+                    { platform: "iOS SEB", url: "" },
+                    { platform: "Config SEB", url: "" }
+                ];
+
+                if (r && r.result === 'success') {
+                    r.data.forEach(d => {
+                        let p = d.platform;
+                        if (p === 'Windows') p = 'Windows SEB'; // Legacy
+                        if (p === 'Mac OS') p = 'Mac OS SEB';   // Legacy
+                        let found = adminLinks.find(x => x.platform === p);
+                        if(found) found.url = (d.url === '#' ? '' : d.url);
+                    });
+                }
+
+                const formContainer = document.getElementById('links-edit-form');
+                formContainer.innerHTML = adminLinks.map((it, idx) => {
+                    let iconName = 'link';
+                    if(it.platform.includes('Windows')) iconName = 'monitor';
+                    else if(it.platform.includes('Mac OS')) iconName = 'laptop';
+                    else if(it.platform.includes('iOS')) iconName = 'tablet';
+                    else if(it.platform.includes('Android')) iconName = 'smartphone';
+                    else if(it.platform.includes('Config')) iconName = 'settings';
+
+                    return `
+                        <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 link-item group hover-card-effect animate-slide-right" style="animation-delay: ${idx * 0.1}s; opacity:0; animation-fill-mode: forwards;" data-platform="${it.platform}">
+                            <label class="text-[10px] uppercase font-black text-slate-500 block mb-2 flex items-center">
+                                <i data-lucide="${iconName}" class="w-4 h-4 mr-2 text-blue-600 group-hover:scale-110 transition-transform"></i>
+                                Link Unduhan ${it.platform}
+                            </label>
+                            <input type="text" class="url-in w-full p-4 border border-slate-200 rounded-xl text-sm font-bold outline-none transition ${isAdmin ? 'bg-white focus:ring-2 focus:ring-blue-600 hover:border-blue-300 text-blue-700' : 'bg-slate-100 text-slate-500 cursor-not-allowed'}" value="${it.url}" placeholder="https://..." ${isAdmin ? '' : 'readonly'}>
+                        </div>
+                    `;
+                }).join('') + (isAdmin ? `
+                    <button onclick="submitAppLinksUpdate()" class="w-full bg-[#10141d] text-white font-black py-4 rounded-2xl uppercase text-xs tracking-[0.2em] shadow-lg hover:bg-blue-600 transition-all mt-6 active:scale-95 transform hover:scale-[1.01]">
+                        Simpan Perubahan Link
+                    </button>
+                ` : `
+                    <div class="mt-4 p-4 bg-amber-50 text-amber-700 text-xs font-bold text-center rounded-xl border border-amber-200 animate-scale-in">
+                        <i data-lucide="lock" class="w-4 h-4 inline mr-1 -mt-0.5"></i> Hanya Admin Utama yang diizinkan mengubah link aplikasi.
+                    </div>
+                `);
+                if (window.lucide) lucide.createIcons();
+            } catch(e) { 
+                document.getElementById('links-edit-form').innerHTML = `<div class="p-10 text-center text-red-500 font-bold">Gagal memuat link dari Google Sheets.</div>`;
+            }
+        }
+
+        async function submitAppLinksUpdate() {
+            const updates = [];
+            document.querySelectorAll('#links-edit-form .link-item').forEach(div => {
+                let val = div.querySelector('.url-in').value.trim();
+                if(!val) val = "#"; // Auto letak "#" jika borang dikosongkan
+                updates.push({
+                    platform: div.dataset.platform,
+                    url: val
+                });
+            });
+            setLoading(true);
+            try {
+                const res = await callGAS({ action: 'updateAppLinks', updates: updates, role: currentUser.role });
+                if (res && res.result === 'success') {
+                    showAlert('Sukses', 'Link unduhan aplikasi berhasil disimpan ke Google Sheets!', 'success');
+                    viewAdminLinks(); // Refresh paparan untuk memastikan data terkini dibaca
+                } else {
+                    showAlert('Gagal', 'Sistem gagal memperbarui tautan.', 'error');
+                }
+            } catch(e) {
+                showAlert('Ralat', 'Gagal memperbarui link unduhan. Periksa sambungan internet.', 'error');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function updateLiveStatusBar(data) {
+            const statusEl = document.getElementById('live-status-text');
+            if (!statusEl) return;
+
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateString = today.toLocaleDateString('id-ID', options);
+
+            let activeInfo = "INFO KOMA 2026";
+            
+            const offset = today.getTimezoneOffset() * 60000;
+            const localISOTime = (new Date(today - offset)).toISOString().slice(0, -1);
+            const todayStr = localISOTime.split('T')[0];
+            
+            let found = false;
+            for (let i = 0; i < data.length; i++) {
+                if (todayStr >= data[i].start && todayStr <= data[i].end) {
+                    activeInfo = data[i].info || data[i].name;
+                    found = true;
+                    break;
+                }
+            }
+            
+            if (!found) {
+                for (let i = 0; i < data.length; i++) {
+                    if (todayStr < data[i].start) {
+                        activeInfo = "Mendatang: " + (data[i].info || data[i].name);
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!found && data.length > 0) {
+                activeInfo = data[data.length-1].info || data[data.length-1].name;
+            }
+            
+            statusEl.innerHTML = `${dateString} &nbsp;&bull;&nbsp; <span class="text-yellow-300">${activeInfo}</span>`;
+        }
+
+        async function fetchSchedule() { 
+            try { 
+                const res = await callGAS({ action: 'getSchedule' }); 
+                if (res && res.result === 'success') { 
+                    globalSchedule = res.data; 
+                    renderTimelineUI(res.data); 
+                    updateLiveStatusBar(res.data);
+                    
+                    // Panggil fungsi countdown
+                    startCountdown(res.data);
+                    
+                    // Semak status pendaftaran
+                    const today = new Date();
+                    const offset = today.getTimezoneOffset() * 60000;
+                    const localISOTime = (new Date(today - offset)).toISOString().slice(0, -1);
+                    const todayStr = localISOTime.split('T')[0];
+                    
+                    const regPhase = res.data.find(p => p.name.toLowerCase().includes('daftar')) || res.data[0];
+                    if (regPhase) {
+                        isRegistrationOpen = (todayStr >= regPhase.start && todayStr <= regPhase.end);
+                    }
+                    
+                    // Kemas kini paparan butang Daftar di Hero & Navbar
+                    const heroBtn = document.getElementById('btn-hero-register');
+                    if (heroBtn) {
+                        if (!isRegistrationOpen) {
+                            heroBtn.classList.remove('bg-red-600', 'hover:bg-red-700', 'text-white', 'hover:shadow-red-600/50', 'btn-blink');
+                            heroBtn.classList.add('bg-slate-400', 'hover:bg-slate-500', 'text-white', 'cursor-not-allowed');
+                            heroBtn.innerText = 'Pendaftaran Ditutup';
+                        } else {
+                            heroBtn.classList.remove('bg-slate-400', 'hover:bg-slate-500', 'text-white', 'cursor-not-allowed');
+                            heroBtn.classList.add('bg-red-600', 'hover:bg-red-700', 'text-white', 'hover:shadow-red-600/50', 'btn-blink');
+                            heroBtn.innerText = 'Daftar Sekarang';
+                        }
+                    }
+                    renderNavAuth();
+                } 
+            } catch (e) {} 
+        }
+        
+        function renderTimelineUI(data) { const list = document.getElementById('schedule-tracker-list'); if (!list) return; list.innerHTML = data.map((item, index) => `<div class="schedule-item flex items-start gap-8 font-bold reveal"><div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border shadow-sm shrink-0 hover:bg-blue-50 transition-colors"><i data-lucide="calendar" class="text-blue-600"></i></div><div><h4 class="text-lg font-black text-slate-800 hover:text-blue-600 transition-colors cursor-default">${item.name}</h4><p class="text-xs text-slate-400 italic font-bold">${item.start === item.end ? item.start : item.start + ' - ' + item.end}</p><p class="text-[10px] text-blue-500 font-bold mt-1">${item.info || ''}</p></div></div>`).join(''); if (window.lucide) lucide.createIcons(); initScrollReveal(); }
+
+        function startCountdown(data) {
+            const regPhase = data.find(p => p.name.toLowerCase().includes('daftar')) || data[0];
+            if (!regPhase) return;
+
+            const heroCountdown = document.getElementById('hero-countdown');
+            const countdownLabel = document.getElementById('countdown-label');
+            const countdownContainer = document.getElementById('countdown-container');
+            
+            if (heroCountdown) heroCountdown.classList.remove('hidden');
+
+            const startDate = new Date(regPhase.start + "T00:00:00").getTime();
+            const endDate = new Date(regPhase.end + "T23:59:59").getTime();
+
+            if (countdownInterval) clearInterval(countdownInterval);
+
+            countdownInterval = setInterval(function() {
+                const now = new Date().getTime();
+                let targetDate;
+                let labelText = "";
+
+                if (now < startDate) {
+                    targetDate = startDate;
+                    labelText = "PENDAFTARAN DIBUKA DALAM:";
+                    if (countdownContainer) countdownContainer.classList.remove('hidden');
+                } else if (now >= startDate && now <= endDate) {
+                    targetDate = endDate;
+                    labelText = "PENDAFTARAN DITUTUP DALAM:";
+                    if (countdownContainer) countdownContainer.classList.remove('hidden');
+                } else {
+                    if (countdownLabel) countdownLabel.innerText = "PENDAFTARAN TELAH DITUTUP";
+                    if (countdownContainer) countdownContainer.classList.add('hidden');
+                    clearInterval(countdownInterval);
+                    return;
+                }
+
+                if (countdownLabel) countdownLabel.innerText = labelText;
+
+                const distance = targetDate - now;
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                const elDays = document.getElementById('cd-days');
+                const elHours = document.getElementById('cd-hours');
+                const elMins = document.getElementById('cd-mins');
+                const elSecs = document.getElementById('cd-secs');
+
+                if(elDays) elDays.innerText = days < 10 ? "0" + days : days;
+                if(elHours) elHours.innerText = hours < 10 ? "0" + hours : hours;
+                if(elMins) elMins.innerText = minutes < 10 ? "0" + minutes : minutes;
+                if(elSecs) elSecs.innerText = seconds < 10 ? "0" + seconds : seconds;
+            }, 1000);
+        }
+
+        window.addEventListener('resize', () => {
+            if(window.location.hash === '#dashboard' && currentUser) {
+                const navContainer = document.getElementById('sidebar-nav-container');
+                const menuIcon = document.getElementById('sidebar-menu-icon');
+                if (window.innerWidth >= 1024) {
+                    if(navContainer && navContainer.classList.contains('hidden')) { 
+                        navContainer.classList.remove('hidden'); navContainer.classList.add('flex'); 
+                        if(menuIcon) { menuIcon.setAttribute('data-lucide', 'x'); if (window.lucide) lucide.createIcons(); }
+                    }
+                }
+            }
+        });
+        
+        // PENGESAN KLIK DI LUAR MENU MOBILE UNTUK AUTO-HIDE
+        document.addEventListener('click', function(event) {
+            const mobileMenu = document.getElementById('mobile-nav-menu');
+            const menuBtn = document.getElementById('mobile-menu-btn');
+            if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                if (!mobileMenu.contains(event.target) && !menuBtn.contains(event.target)) {
+                    mobileMenu.classList.add('hidden');
+                }
+            }
+        });
+
+        // PENGESAN BUTANG BACK/FORWARD DI BROWSER
+        window.addEventListener('popstate', () => {
+            navigateToHash(window.location.hash);
+        });
+
+        window.onload = () => { 
+            const favicon = document.getElementById('dynamic-favicon');
+            if (favicon) favicon.href = CONFIG.LOGO_URL;
+            document.querySelectorAll('.logo-koma-img').forEach(img => img.src = CONFIG.LOGO_URL);
+            document.querySelectorAll('.qris-img').forEach(img => img.src = CONFIG.QRIS_URL);
+            
+            const statusEl = document.getElementById('live-status-text');
+            if(statusEl) {
+                const dStr = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                statusEl.innerHTML = `${dStr} &nbsp;&bull;&nbsp; <span class="text-yellow-300 tracking-widest">Memuat Info...</span>`;
+            }
+
+            // Baca sesi storan secara selamat
+            try {
+                const saved = localStorage.getItem('koma_user');
+                if(saved) { 
+                    currentUser = JSON.parse(saved); 
+                }
+            } catch(e) {
+                console.error("Gagal membaca memori log masuk.");
+            }
+
+            // Jika di-reload, baca URL sekarang. Jika tiada, arahkan ke dashboard/home
+            let initialHash = window.location.hash;
+            
+            // Memastikan jika user sudah login, halaman dipaksa ke dashboard
+            if (currentUser && (!initialHash || initialHash === '#home' || initialHash === '#login' || initialHash === '#register')) {
+                initialHash = '#dashboard';
+            } else if (!initialHash) {
+                initialHash = '#home';
+            }
+            
+            navigateToHash(initialHash);
+            
+            fetchSchedule(); 
+            initScrollReveal(); 
+        };
+    </script>
+</body>
+</html>
