@@ -10,7 +10,7 @@
     <!-- ======================================================================= -->
     <script>
         const CONFIG = {
-            API_URL: 'https://script.google.com/macros/s/AKfycbyQEFlz7On3GR7uodSy8Pb7FVI8jxtSMRGqfMgv_JVvLGTRF0cvgaODALXwQmFSeFVU/exec',
+            API_URL: 'https://script.google.com/macros/s/AKfycbwjDL4xDbkEFZKmbdZ5jH7ZYeI54ZSjXtrcVnKH4vH0-ctEoNcTiCPPJfd0ipEoJ5yn/exec',
             LOGO_URL: 'https://lh3.googleusercontent.com/d/1kIKApNGTiAnIDwDCT27D8yGUNRpOpxE5',
             QRIS_URL: 'https://drive.google.com/thumbnail?id=1zlxMNvEt7a3Pos_Zt8qq6hUtleI2UTj_&sz=w1000'
         };
@@ -74,7 +74,7 @@
                 <div class="absolute inset-0 border-4 border-blue-100 rounded-full"></div>
                 <div class="absolute inset-0 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
             </div>
-            <p class="font-bold text-blue-900 animate-pulse uppercase tracking-widest text-[10px]">Sinkronisasi Sistem...</p>
+            <p id="loader-text" class="font-bold text-blue-900 animate-pulse uppercase tracking-widest text-[10px]">Sinkronisasi Sistem...</p>
         </div>
     </div>
 
@@ -469,7 +469,7 @@
                         <header class="flex justify-between items-center mb-12 bg-white p-8 rounded-[2rem] border no-print font-bold shadow-sm hover-card-effect">
                             <h2 class="font-black text-2xl uppercase text-left" id="panel-title">Dashboard</h2>
                             <div class="flex items-center text-left">
-                                <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white mr-4 font-black shadow-lg shadow-blue-600/30 transform transition hover:scale-110 hover:rotate-6 cursor-pointer" id="user-initial">?</div>
+                                <div class="w-12 h-12 bg-blue-600 rounded-full overflow-hidden flex items-center justify-center text-white mr-4 font-black shadow-lg shadow-blue-600/30 transform transition hover:scale-110 hover:rotate-6 cursor-pointer" id="user-initial">?</div>
                                 <div class="text-left font-bold"><div class="font-black text-xs uppercase text-slate-800 text-left" id="user-display-name">User</div><div class="text-[9px] text-slate-400 uppercase text-left" id="user-display-role">Role</div></div>
                             </div>
                         </header>
@@ -577,6 +577,37 @@
         </div>
     </div>
 
+    <!-- MODAL PENGATURAN SERTIFIKAT (KHUSUS ADMIN) -->
+    <div id="modal-manage-cert" class="fixed inset-0 hidden items-center justify-center bg-black/90 z-[10000] p-4 backdrop-blur-md no-print font-bold transition-all duration-300">
+        <div class="bg-white w-full max-w-lg rounded-[2rem] p-6 sm:p-8 shadow-2xl relative flex flex-col transform scale-95 transition-transform duration-300" id="manage-cert-box">
+            <button onclick="closeManageCert()" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-red-500 transition-colors transform hover:rotate-90 duration-300"><i data-lucide="x-circle" class="w-6 h-6"></i></button>
+            <h3 class="text-xl font-black uppercase tracking-tighter text-slate-800 mb-1">Akses Sertifikat</h3>
+            <p id="cert-nama" class="text-[10px] font-bold text-blue-600 uppercase tracking-widest truncate mb-6">---</p>
+            <input type="hidden" id="cert-row">
+            <div class="space-y-5 text-left">
+                <div>
+                    <label class="text-[10px] uppercase font-black text-slate-500 block mb-2">Sertifikat Peserta</label>
+                    <select id="cert-status-peserta" class="w-full p-4 border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-blue-600 outline-none">
+                        <option value="Tidak Aktif">Tidak Aktif (Terkunci)</option>
+                        <option value="Active">Active (Bisa Diunduh)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] uppercase font-black text-slate-500 block mb-2">Sertifikat Juara</label>
+                    <select id="cert-status-juara" class="w-full p-4 border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-yellow-500 outline-none">
+                        <option value="Tidak Aktif">Tidak Aktif (Terkunci)</option>
+                        <option value="Active">Active (Bisa Diunduh)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] uppercase font-black text-slate-500 block mb-2">Gelar Juara (Kosongkan jika bukan juara)</label>
+                    <input type="text" id="cert-juara-text" placeholder="Contoh: JUARA 1, HARAPAN 2" class="w-full p-4 border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-yellow-500 outline-none uppercase">
+                </div>
+            </div>
+            <button onclick="submitCertUpdate()" class="mt-8 w-full bg-blue-600 text-white py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-blue-700 shadow-lg transition active:scale-95">Simpan Perubahan</button>
+        </div>
+    </div>
+
     <!-- ALERT MODAL -->
     <div id="modal-alert" class="fixed inset-0 hidden items-center justify-center bg-black/90 z-[10000] p-4 backdrop-blur-md no-print text-center font-bold transition-all duration-300 opacity-0" onclick="closeAlert()">
         <div class="relative w-full max-w-lg bg-white rounded-[2rem] p-6 shadow-2xl text-center border-t-8 border-blue-600 transform scale-95 transition-transform duration-300" id="alert-box" onclick="event.stopPropagation()">
@@ -621,6 +652,15 @@
         let countdownInterval;
 
         // --- CORE FUNCTIONS ---
+        function getDriveThumbnailUrl(link) {
+            if (!link || link === '-' || !link.startsWith('http')) return null;
+            let fileId = '';
+            if (link.includes('id=')) fileId = link.split('id=')[1].split('&')[0];
+            else if (link.includes('/d/')) fileId = link.split('/d/')[1].split('/')[0];
+            // Gunakan lh3.googleusercontent.com agar mendukung CORS saat dicetak menjadi PDF
+            return fileId ? `https://lh3.googleusercontent.com/d/${fileId}` : link;
+        }
+
         function normalizeAppDate(val) {
             if (!val) return '';
             val = String(val).trim();
@@ -770,6 +810,41 @@
             }, 300);
         }
 
+        function openManageCert(row, nama, stPeserta, stJuara, juara) {
+            document.getElementById('cert-row').value = row;
+            document.getElementById('cert-nama').textContent = nama;
+            document.getElementById('cert-status-peserta').value = stPeserta || 'Tidak Aktif';
+            document.getElementById('cert-status-juara').value = stJuara || 'Tidak Aktif';
+            document.getElementById('cert-juara-text').value = (juara && juara !== '-') ? juara : '';
+            const modal = document.getElementById('modal-manage-cert');
+            const box = document.getElementById('manage-cert-box');
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            setTimeout(() => { box.classList.remove('scale-95'); box.classList.add('scale-100'); }, 10);
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function closeManageCert() {
+            const modal = document.getElementById('modal-manage-cert');
+            const box = document.getElementById('manage-cert-box');
+            box.classList.remove('scale-100'); box.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+        }
+
+        async function submitCertUpdate() {
+            const row = document.getElementById('cert-row').value;
+            const stP = document.getElementById('cert-status-peserta').value;
+            const stJ = document.getElementById('cert-status-juara').value;
+            let jTxt = document.getElementById('cert-juara-text').value.trim().toUpperCase();
+            if (!jTxt) jTxt = '-';
+            if (!row) return;
+            closeManageCert(); setLoading(true);
+            try {
+                await callGAS({ action: 'updateCertStatus', targetRow: row, statusPeserta: stP, statusJuara: stJ, juara: jTxt });
+                loadAllStaffData(); showAlert('Sukses', 'Status Sertifikat berhasil diperbarui.', 'success');
+            } catch(e) { showAlert('Ralat', 'Gagal menyimpan status sertifikat.', 'error'); } 
+            finally { setLoading(false); }
+        }
+
         function toggleMobileMenu() { const m = document.getElementById('mobile-nav-menu'); if (m) m.classList.toggle('hidden'); }
         
         function getDrivePreviewUrl(link) {
@@ -906,7 +981,13 @@
             const side = document.getElementById('sidebar-nav'), u = currentUser; if(!u) return;
             document.getElementById('user-display-name').textContent = u.name; 
             document.getElementById('user-display-role').textContent = u.role; 
-            document.getElementById('user-initial').textContent = u.name.charAt(0);
+            
+            const uInitial = document.getElementById('user-initial');
+            if (u.profileUrl && u.profileUrl !== '-') {
+                uInitial.innerHTML = `<img src="${getDriveThumbnailUrl(u.profileUrl)}" class="w-full h-full object-cover rounded-full" onerror="this.outerHTML='${u.name.charAt(0)}'">`;
+            } else {
+                uInitial.innerHTML = u.name.charAt(0);
+            }
             
             const roleDisp = document.getElementById('sidebar-role-display');
             if (roleDisp) roleDisp.textContent = 'Panel ' + u.role;
@@ -927,6 +1008,14 @@
             // Terapkan default "Active" untuk menu khusus jika user adalah Admin/Panitia
             const act = (u.role === 'Admin' || u.role === 'Panitia' || u.role === 'Staff') ? true : u.status === 'Active';
             
+            let certPhase = globalSchedule.find(p => p.name.toLowerCase().includes('sertifikat') || p.name.toLowerCase().includes('pengumuman'));
+            let isCertOpen = false;
+            if (certPhase) {
+                let sMs = new Date(normalizeAppDate(certPhase.start)).getTime();
+                if (new Date().getTime() >= sMs) isCertOpen = true;
+            }
+            if (u.role === 'Admin' || u.role === 'Panitia' || u.role === 'Staff') isCertOpen = true;
+
             let menuHtml = `
                 <button onclick="viewSiswaHome()" id="menu-status" class="${baseClass} text-slate-300"><i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i> Status</button>
                 <button onclick="viewSiswaProfile()" id="menu-profil" class="${baseClass} text-slate-300"><i data-lucide="user" class="w-5 h-5 mr-3"></i> Profil</button>
@@ -946,6 +1035,12 @@
                     <button class="${baseClass} opacity-30 cursor-not-allowed hover:translate-x-0"><i data-lucide="credit-card" class="w-5 h-5 mr-3"></i> Kartu Ujian <span class="ml-auto text-[8px] bg-white/20 px-2 py-1 rounded-md">Terkunci</span></button>
                     <button class="${baseClass} opacity-30 cursor-not-allowed hover:translate-x-0"><i data-lucide="download-cloud" class="w-5 h-5 mr-3"></i> Unduh Aplikasi <span class="ml-auto text-[8px] bg-white/20 px-2 py-1 rounded-md">Terkunci</span></button>
                 `;
+            }
+
+            if (isCertOpen) {
+                menuHtml += `<button onclick="viewSiswaSertifikat()" id="menu-sertifikat" class="${baseClass} text-slate-300"><i data-lucide="award" class="w-5 h-5 mr-3"></i> Sertifikat</button>`;
+            } else {
+                menuHtml += `<button class="${baseClass} opacity-30 cursor-not-allowed hover:translate-x-0"><i data-lucide="award" class="w-5 h-5 mr-3"></i> Sertifikat <span class="ml-auto text-[8px] bg-white/20 px-2 py-1 rounded-md">Terkunci</span></button>`;
             }
 
             if (u.role === 'Admin' || u.role === 'Panitia' || u.role === 'Staff') {
@@ -1063,8 +1158,10 @@
                 if (r && r.result === 'success') {
                     // Pengekalan pautan foto dari memori semasa
                     const currentPhotoUrl = currentUser.photoUrl;
+                    const currentProfileUrl = currentUser.profileUrl;
                     currentUser = r.user;
                     if (currentPhotoUrl) currentUser.photoUrl = currentPhotoUrl;
+                    if (currentProfileUrl) currentUser.profileUrl = currentProfileUrl;
                     
                     localStorage.setItem('koma_user', JSON.stringify(currentUser));
                     showAlert('Sukses', 'Status pendaftaran berhasil diperbarui!', 'success');
@@ -1108,12 +1205,19 @@
                     imgHtml = `<div class="mt-10 border-t border-slate-100 pt-8 text-center animate-slide-right"><p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-2">Bukti Pembayaran</p><p class="text-sm font-bold text-red-500 italic">Belum ada fail bukti pembayaran yang sah.</p></div>`;
                 }
                 
+                const displayPassword = u.role === 'Admin' ? '********' : (u.password || '-');
+
                 c.innerHTML = `
                     <!-- MODE VIEW -->
                     <div id="profile-view-mode" class="bg-white p-8 md:p-12 rounded-[3rem] border text-left font-bold shadow-sm transition-all duration-500 animate-scale-in">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-6 mb-8 gap-4">
-                            <h3 class="text-2xl font-black uppercase text-slate-800">Profil Peserta</h3>
-                            <button onclick="toggleEditProfile()" class="w-full sm:w-auto px-6 py-3 bg-blue-50 text-blue-600 rounded-xl text-xs uppercase font-black tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm transform hover:scale-105">
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-2xl font-black shadow-md overflow-hidden border-2 border-white shrink-0">
+                                    ${u.profileUrl && u.profileUrl !== '-' ? `<img src="${getDriveThumbnailUrl(u.profileUrl)}" class="w-full h-full object-cover">` : u.name.charAt(0)}
+                                </div>
+                                <h3 class="text-2xl font-black uppercase text-slate-800">Profil Peserta</h3>
+                            </div>
+                            <button onclick="toggleEditProfile()" class="w-full sm:w-auto px-6 py-3 bg-blue-50 text-blue-600 rounded-xl text-xs uppercase font-black tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm transform hover:scale-105 shrink-0">
                                 <i data-lucide="edit" class="w-4 h-4 inline mr-2 -mt-0.5"></i> Edit Profil
                             </button>
                         </div>
@@ -1123,7 +1227,7 @@
                             <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 hover-card-effect"><p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Sekolah Asal</p><p class="text-lg text-slate-800 uppercase italic font-bold">${u.sekolah || '-'}</p></div>
                             <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 hover-card-effect"><p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Tingkat Kelas</p><p class="text-lg text-slate-800 uppercase font-bold">${u.kelas || '-'}</p></div>
                             <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 hover-card-effect"><p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Email Login</p><p class="text-lg text-slate-800">${u.email || '-'}</p></div>
-                            <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 hover-card-effect"><p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Password Akun</p><p class="text-lg text-slate-800 font-mono tracking-wider">${u.password || '-'}</p></div>
+                            <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 hover-card-effect"><p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Password Akun</p><p class="text-lg text-slate-800 font-mono tracking-wider">${displayPassword}</p></div>
                         </div>
                         ${imgHtml}
                     </div>
@@ -1167,13 +1271,25 @@
                                 </div>
                                 
                                 <div class="md:col-span-2 pt-6 border-t border-slate-100">
+                                    <label class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-3 block ml-1">Update Photo Profil (Opsional)</label>
+                                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                                        <label class="bg-blue-100 text-blue-700 px-6 py-4 rounded-xl text-xs uppercase font-black cursor-pointer hover:bg-blue-200 transition shadow-sm border border-blue-200 flex-shrink-0 text-center w-full sm:w-auto transform hover:-translate-y-1">
+                                            <i data-lucide="image" class="w-4 h-4 inline mr-2 -mt-1"></i> Pilih Photo Profil
+                                            <input type="file" accept="image/*" class="hidden" onchange="convertProfileImage(this)">
+                                        </label>
+                                        <span id="edit-profile-name" class="text-xs text-slate-400 italic font-semibold px-2">Abaikan jika tidak ingin mengubah photo profil.</span>
+                                        <input type="hidden" id="edit-profile-base64">
+                                    </div>
+                                </div>
+
+                                <div class="md:col-span-2 pt-6 border-t border-slate-100">
                                     <label class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-3 block ml-1">Update Bukti Pembayaran (Opsional)</label>
                                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                                         <label class="bg-amber-100 text-amber-700 px-6 py-4 rounded-xl text-xs uppercase font-black cursor-pointer hover:bg-amber-200 transition shadow-sm border border-amber-200 flex-shrink-0 text-center w-full sm:w-auto transform hover:-translate-y-1">
-                                            <i data-lucide="upload" class="w-4 h-4 inline mr-2 -mt-1"></i> Pilih File Baru
+                                            <i data-lucide="upload" class="w-4 h-4 inline mr-2 -mt-1"></i> Pilih Bukti Baru
                                             <input type="file" accept="image/*" class="hidden" onchange="convertEditImage(this)">
                                         </label>
-                                        <span id="edit-file-name" class="text-xs text-slate-400 italic font-semibold px-2">Abaikan jika tidak ingin mengubah bukti.</span>
+                                        <span id="edit-file-name" class="text-xs text-slate-400 italic font-semibold px-2">Abaikan jika tidak ingin mengubah bukti bayar.</span>
                                         <input type="hidden" id="edit-photo-base64">
                                     </div>
                                 </div>
@@ -1214,6 +1330,26 @@
             reader.readAsDataURL(file);
         }
 
+        function convertProfileImage(input) {
+            const file = input.files[0]; if (!file) return;
+            const nameDisplay = document.getElementById('edit-profile-name');
+            nameDisplay.textContent = "Photo siap diunggah: " + file.name;
+            nameDisplay.classList.remove('text-slate-400', 'italic');
+            nameDisplay.classList.add('text-blue-600', 'font-black');
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image(); img.src = e.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas'); const MAX = 600; let w = img.width, h = img.height;
+                    if (w > h) { if (w > MAX) { h *= MAX/w; w = MAX; } } else { if (h > MAX) { w *= MAX/h; h = MAX; } }
+                    canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    document.getElementById('edit-profile-base64').value = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
         async function handleUpdateProfile(event) {
             event.preventDefault();
             const n = document.getElementById('edit-name').value;
@@ -1222,20 +1358,28 @@
             const k = document.getElementById('edit-kelas').value; // Mengambil Tingkat Kelas yang diupdate
             const p = document.getElementById('edit-pass').value;
             const ph = document.getElementById('edit-photo-base64').value;
+            const pr = document.getElementById('edit-profile-base64').value;
             
             setLoading(true);
             try {
                 // Menambahkan kelas ke payload
-                const r = await callGAS({ action: 'updateProfile', email: currentUser.email, name: n, nisn: ni, sekolah: s, kelas: k, password: p, photoBase64: ph });
+                const r = await callGAS({ action: 'updateProfile', email: currentUser.email, name: n, nisn: ni, sekolah: s, kelas: k, password: p, photoBase64: ph, profileBase64: pr });
                 if (r && r.result === 'success') {
                     currentUser = r.user;
                     if (r.photoUrl) currentUser.photoUrl = r.photoUrl;
+                    if (r.profileUrl) currentUser.profileUrl = r.profileUrl;
                     localStorage.setItem('koma_user', JSON.stringify(currentUser));
                     showAlert('Sukses', 'Profil anda berjaya dikemas kini!', 'success');
                     
                     // Kemas kini nama di navigasi
                     document.getElementById('user-display-name').textContent = currentUser.name;
-                    document.getElementById('user-initial').textContent = currentUser.name.charAt(0);
+                    
+                    const uInitial = document.getElementById('user-initial');
+                    if (currentUser.profileUrl && currentUser.profileUrl !== '-') {
+                        uInitial.innerHTML = `<img src="${getDriveThumbnailUrl(currentUser.profileUrl)}" class="w-full h-full object-cover rounded-full" onerror="this.outerHTML='${currentUser.name.charAt(0)}'">`;
+                    } else {
+                        uInitial.innerHTML = currentUser.name.charAt(0);
+                    }
                     
                     viewSiswaProfile(); // Kembali ke paparan profil
                 } else {
@@ -1252,6 +1396,14 @@
             setActiveMenu('menu-kartu');
             const c = document.getElementById('dashboard-content'), u = currentUser;
             const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            
+            let photoElement = '';
+            if (u.profileUrl && u.profileUrl !== '-') {
+                photoElement = `<img src="${getDriveThumbnailUrl(u.profileUrl)}" crossorigin="anonymous" class="absolute top-6 right-6 w-20 h-24 object-cover rounded-xl border-2 border-slate-200 shadow-lg z-20 bg-white">`;
+            }
+            
+            const displayPassword = u.role === 'Admin' ? '********' : (u.password || '-');
+
             c.innerHTML = `
                 <div class="bg-white p-8 md:p-12 rounded-[3rem] border text-center font-bold animate-scale-in">
                     <h3 class="text-xl mb-8 font-bold">Kartu Peserta Resmi</h3>
@@ -1260,7 +1412,9 @@
                         <!-- Latar belakang hiasan -->
                         <div data-html2canvas-ignore="true" class="absolute -right-10 -top-10 w-40 h-40 bg-blue-600/10 rounded-full blur-2xl animate-pulse-soft"></div>
                         
-                        <div class="flex items-center mb-6 relative z-10">
+                        ${photoElement}
+
+                        <div class="flex items-center mb-6 relative z-10 w-3/4">
                             <img src="${CONFIG.LOGO_URL}" crossorigin="anonymous" class="h-10 mr-4 rounded-lg bg-white p-1 transform hover:rotate-6 transition">
                             <div class="font-black text-xl tracking-tight">KoMa <span class="text-blue-500">2026</span></div>
                         </div>
@@ -1290,7 +1444,7 @@
                                 </div>
                                 <div>
                                     <label class="text-[8px] text-blue-300 block font-bold tracking-widest mb-0.5">PASSWORD LOGIN</label>
-                                    <p class="font-black text-sm tracking-widest text-white">${u.password}</p>
+                                    <p class="font-black text-sm tracking-widest text-white">${displayPassword}</p>
                                 </div>
                             </div>
                         </div>
@@ -1335,6 +1489,107 @@
                     showAlert('Ralat', 'Gagal memuat turun PDF.', 'error');
                 });
             }, 300);
+        }
+
+        async function viewSiswaSertifikat() {
+            setActiveMenu('menu-sertifikat');
+            const c = document.getElementById('dashboard-content');
+            const u = currentUser;
+
+            c.innerHTML = `
+                <div class="bg-white p-8 md:p-12 rounded-[3rem] border shadow-sm font-bold text-center animate-scale-in">
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-slate-100 pb-6">
+                        <div class="text-center md:text-left">
+                            <h3 class="text-2xl font-black uppercase text-slate-800">Sertifikat KoMa 2026</h3>
+                            <p class="text-sm text-slate-500 mt-1 leading-relaxed">Unduh sertifikat partisipasi atau penghargaan juara.</p>
+                        </div>
+                        <button onclick="refreshSertifikatData()" class="px-5 py-2.5 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm active:scale-95 flex items-center group shrink-0">
+                            <i data-lucide="refresh-cw" class="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform duration-500"></i> Refresh Data
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                        <!-- Sertifikat Peserta -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-[2rem] p-6 transition-transform duration-300 hover:scale-105 flex flex-col justify-between hover-card-effect animate-slide-right">
+                            <div class="text-center mb-6">
+                                <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 transform transition hover:rotate-12">
+                                    <i data-lucide="file-badge" class="w-8 h-8"></i>
+                                </div>
+                                <h4 class="font-black text-lg text-slate-800 uppercase">Sertifikat Peserta</h4>
+                                <p class="text-[10px] text-slate-400 mt-1 uppercase tracking-widest">Partisipasi KoMa</p>
+                            </div>
+                            ${(u.statusPeserta === 'Active' || u.role === 'Admin')
+                                ? `<button onclick="generateSertifikat('Peserta')" class="w-full bg-blue-600 text-white font-black py-4 rounded-xl uppercase text-[10px] shadow-lg hover:bg-blue-700 transition tracking-widest text-center active:scale-95"><i data-lucide="download" class="w-4 h-4 inline mr-2 -mt-0.5"></i> Unduh PDF</button>` 
+                                : `<button class="w-full bg-slate-200 text-slate-400 font-black py-4 rounded-xl uppercase text-[10px] cursor-not-allowed tracking-widest text-center"><i data-lucide="lock" class="w-4 h-4 inline mr-2 -mt-0.5"></i> Belum Aktif</button>`
+                            }
+                        </div>
+
+                        <!-- Sertifikat Juara -->
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-[2rem] p-6 transition-transform duration-300 hover:scale-105 flex flex-col justify-between hover-card-effect animate-slide-right" style="animation-delay: 0.1s;">
+                            <div class="text-center mb-6">
+                                <div class="w-16 h-16 bg-yellow-400 text-yellow-900 rounded-full flex items-center justify-center mx-auto mb-4 transform transition hover:rotate-12 shadow-lg">
+                                    <i data-lucide="trophy" class="w-8 h-8"></i>
+                                </div>
+                                <h4 class="font-black text-lg text-yellow-900 uppercase">Sertifikat Juara</h4>
+                                <p class="text-[10px] text-yellow-700 mt-1 uppercase tracking-widest">Penghargaan Prestasi</p>
+                                ${u.juara && u.juara !== '-' ? `<div class="mt-2 inline-block bg-yellow-200 text-yellow-800 px-3 py-1 rounded-lg text-xs font-black uppercase">${u.juara}</div>` : ''}
+                            </div>
+                            ${(u.juara && u.juara !== '-' && u.juara.trim() !== '') || u.role === 'Admin'
+                                ? ((u.statusJuara === 'Active' || u.role === 'Admin')
+                                    ? `<button onclick="generateSertifikat('Juara')" class="w-full bg-yellow-500 text-yellow-950 font-black py-4 rounded-xl uppercase text-[10px] shadow-lg hover:bg-yellow-600 transition tracking-widest text-center active:scale-95"><i data-lucide="download" class="w-4 h-4 inline mr-2 -mt-0.5"></i> Unduh PDF</button>` 
+                                    : `<button class="w-full bg-yellow-100 text-yellow-600/50 font-black py-4 rounded-xl uppercase text-[10px] cursor-not-allowed tracking-widest text-center border border-yellow-200"><i data-lucide="lock" class="w-4 h-4 inline mr-2 -mt-0.5"></i> Belum Aktif</button>`)
+                                : `<button class="w-full bg-slate-100 text-slate-400 font-bold py-4 rounded-xl uppercase text-[10px] cursor-not-allowed tracking-widest text-center border border-slate-200"><i data-lucide="minus-circle" class="w-4 h-4 inline mr-2 -mt-0.5"></i> Tidak Tersedia</button>`
+                            }
+                        </div>
+                    </div>
+                </div>
+            `;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        async function refreshSertifikatData() {
+            if (!currentUser) return;
+            setLoading(true);
+            try {
+                const r = await callGAS({ action: 'login', email: currentUser.email, password: currentUser.password });
+                if (r && r.result === 'success') {
+                    const currentPhotoUrl = currentUser.photoUrl;
+                    const currentProfileUrl = currentUser.profileUrl;
+                    currentUser = r.user;
+                    if (currentPhotoUrl) currentUser.photoUrl = currentPhotoUrl;
+                    if (currentProfileUrl) currentUser.profileUrl = currentProfileUrl;
+                    
+                    localStorage.setItem('koma_user', JSON.stringify(currentUser));
+                    showAlert('Sukses', 'Data sertifikat berhasil diperbarui!', 'success');
+                    viewSiswaSertifikat();
+                } else {
+                    showAlert('Gagal', 'Sistem gagal mengambil data terkini.', 'error');
+                }
+            } catch(e) {
+                showAlert('Ralat', 'Gagal menyambung ke server. Sila periksa internet anda.', 'error');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        async function generateSertifikat(type) {
+            setLoading(true);
+            const loaderText = document.getElementById('loader-text');
+            if (loaderText) loaderText.innerText = "Memproses PDF (Tunggu 5-10 Detik)...";
+            
+            try {
+                const r = await callGAS({ action: 'generateCertificate', certType: type, email: currentUser.email });
+                if (r && r.result === 'success' && r.url) {
+                    showAlert('Sukses', `Sertifikat ${type} berhasil diproses! <br><br> <a href="${r.url}" target="_blank" class="mt-4 inline-block bg-blue-600 text-white px-6 py-3 rounded-xl uppercase text-[10px] font-black tracking-widest hover:bg-blue-700 shadow-md">Buka / Cetak Sertifikat</a>`, 'success');
+                } else {
+                    showAlert('Gagal', r.message || 'Gagal memproses sertifikat PDF.', 'error');
+                }
+            } catch(e) {
+                showAlert('Ralat', 'Terjadi kesalahan sistem, pastikan internet stabil.', 'error');
+            } finally {
+                if (loaderText) loaderText.innerText = "Sinkronisasi Sistem...";
+                setLoading(false);
+            }
         }
 
         async function viewSiswaTimeline() {
@@ -1497,17 +1752,6 @@
                         if (p === 'Mac OS') p = 'Mac OS SEB';   // Legacy support
                         if(d.url && d.url !== '#' && d.url.trim() !== '') {
                             links[p] = d.url; 
-                        }
-                        
-                        const actionBtns = document.getElementById('verif-action-buttons');
-                        if (actionBtns) {
-                            if (currentUser.role === 'Admin') {
-                                actionBtns.classList.remove('hidden');
-                                actionBtns.classList.add('flex');
-                            } else {
-                                actionBtns.classList.add('hidden');
-                                actionBtns.classList.remove('flex');
-                            }
                         }
                     });
                 }
@@ -1743,7 +1987,10 @@
                         }">${p.Status}</span>
                     </td>
                     <td class="p-4 text-center">
-                        <button onclick="openVerifikasi(${p.rowNum}, '${(p["Nama Lengkap"] || p.name || p.Nama || '').replace(/'/g, "\\'")}', '${waVal.replace(/'/g, "\\'")}')" class="bg-slate-100 text-slate-600 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase hover:bg-blue-600 hover:text-white transition shadow-sm group-hover:shadow-md active:scale-95">Cek Bukti</button>
+                        <div class="flex items-center justify-center gap-2">
+                            <button onclick="openVerifikasi(${p.rowNum}, '${(p["Nama Lengkap"] || p.name || p.Nama || '').replace(/'/g, "\\'")}', '${waVal.replace(/'/g, "\\'")}')" class="bg-slate-100 text-slate-600 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase hover:bg-blue-600 hover:text-white transition shadow-sm active:scale-95">Cek Bukti</button>
+                            ${currentUser.role === 'Admin' ? `<button onclick="openManageCert(${p.rowNum}, '${(p["Nama Lengkap"] || p.name || p.Nama || '').replace(/'/g, "\\'")}', '${p.statusPeserta || 'Tidak Aktif'}', '${p.statusJuara || 'Tidak Aktif'}', '${p.juara || '-'}')" class="bg-amber-100 text-amber-700 px-3 py-2.5 rounded-xl text-[10px] font-black hover:bg-amber-500 hover:text-white transition shadow-sm active:scale-95"><i data-lucide="award" class="w-4 h-4 inline"></i></button>` : ''}
+                        </div>
                     </td>
                 </tr>
             `}).join('');
@@ -1823,6 +2070,18 @@
 
                     const modal = document.getElementById('modal-verifikasi');
                     const box = document.getElementById('verifikasi-box');
+
+                    const actionBtns = document.getElementById('verif-action-buttons');
+                    if (actionBtns) {
+                        if (currentUser.role === 'Admin') {
+                            actionBtns.classList.remove('hidden');
+                            actionBtns.classList.add('flex');
+                        } else {
+                            actionBtns.classList.add('hidden');
+                            actionBtns.classList.remove('flex');
+                        }
+                    }
+
                     modal.classList.remove('hidden');
                     modal.classList.add('flex');
                     setTimeout(() => {
@@ -1955,7 +2214,9 @@
                     { platform: "iOS SEB", url: "" },
                     { platform: "Config SEB", url: "" },
                     { platform: "Technical Meeting", url: "" },
-                    { platform: "Grup WA", url: "" }
+                    { platform: "Grup WA", url: "" },
+                    { platform: "Sertifikat Peserta", url: "" },
+                    { platform: "Sertifikat Juara", url: "" }
                 ];
 
                 if (r && r.result === 'success') {
@@ -1978,6 +2239,7 @@
                     else if(it.platform.includes('Config')) iconName = 'settings';
                         else if(it.platform.includes('Technical Meeting')) iconName = 'video';
                         else if(it.platform.includes('Grup WA')) iconName = 'users';
+                        else if(it.platform.includes('Sertifikat')) iconName = 'award';
 
                     return `
                         <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 link-item group hover-card-effect animate-slide-right" style="animation-delay: ${idx * 0.1}s; opacity:0; animation-fill-mode: forwards;" data-platform="${it.platform}">
