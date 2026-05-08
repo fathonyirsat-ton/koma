@@ -80,7 +80,7 @@
 
     <div class="site-wrapper">
         <!-- NAVBAR -->
-        <nav class="bg-white/80 backdrop-blur-lg border-b border-slate-100 sticky top-0 z-50 no-print font-bold transition-all duration-300">
+        <nav id="main-navbar" class="bg-white/80 backdrop-blur-lg border-b border-slate-100 sticky top-0 z-50 no-print font-bold transition-all duration-300">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-20 items-center">
                     <div onclick="navigateToHash('#home')" class="flex items-center group cursor-pointer text-center">
@@ -465,12 +465,12 @@
                             <nav id="sidebar-nav" class="flex-1 space-y-1 text-left font-bold"></nav>
                         </div>
                     </aside>
-                    <div class="flex-1 p-8 lg:p-14 text-center font-bold">
-                        <header class="flex justify-between items-center mb-12 bg-white p-8 rounded-[2rem] border no-print font-bold shadow-sm hover-card-effect">
-                            <h2 class="font-black text-2xl uppercase text-left" id="panel-title">Dashboard</h2>
-                            <div class="flex items-center text-left">
-                                <div class="w-12 h-12 bg-blue-600 rounded-full overflow-hidden flex items-center justify-center text-white mr-4 font-black shadow-lg shadow-blue-600/30 transform transition hover:scale-110 hover:rotate-6 cursor-pointer" id="user-initial">?</div>
-                                <div class="text-left font-bold"><div class="font-black text-xs uppercase text-slate-800 text-left" id="user-display-name">User</div><div class="text-[9px] text-slate-400 uppercase text-left" id="user-display-role">Role</div></div>
+                <div class="flex-1 p-4 sm:p-8 lg:p-14 text-center font-bold min-w-0">
+                    <header class="flex flex-col-reverse sm:flex-row justify-between items-center sm:items-center mb-8 bg-white p-6 sm:p-8 rounded-[2rem] border no-print font-bold shadow-sm hover-card-effect gap-4 sm:gap-0">
+                        <h2 class="font-black text-xl sm:text-2xl uppercase text-center sm:text-left w-full sm:w-auto" id="panel-title">Dashboard</h2>
+                        <div class="flex items-center justify-center sm:justify-end w-full sm:w-auto text-left border-b border-slate-100 sm:border-0 pb-4 sm:pb-0">
+                            <div class="w-12 h-12 shrink-0 bg-blue-600 rounded-full overflow-hidden flex items-center justify-center text-white mr-4 font-black shadow-lg shadow-blue-600/30 transform transition hover:scale-110 hover:rotate-6 cursor-pointer" id="user-initial">?</div>
+                            <div class="text-left font-bold"><div class="font-black text-xs uppercase text-slate-800 text-left truncate max-w-[160px] sm:max-w-[200px]" id="user-display-name">User</div><div class="text-[9px] text-slate-400 uppercase text-left" id="user-display-role">Role</div></div>
                             </div>
                         </header>
                         <div id="dashboard-content" class="min-h-[400px] text-center font-bold relative"></div>
@@ -512,7 +512,7 @@
         </main>
 
         <!-- FOOTER -->
-        <footer class="bg-[#10141d] border-t border-white/5 py-16 px-6 no-print text-center font-bold">
+        <footer id="main-footer" class="bg-[#10141d] border-t border-white/5 py-16 px-6 no-print text-center font-bold">
             <div class="max-w-6xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-10 text-center">
                 <div class="flex items-center space-x-6 mx-auto lg:mx-0 text-left hover:opacity-80 transition cursor-pointer shrink-0" onclick="navigateToHash('#home')">
                     <div class="p-4 bg-white/5 rounded-[1.5rem] border border-white/10 shadow-inner text-left">
@@ -955,6 +955,18 @@
                 el.classList.add('active');
             } else {
                 document.getElementById('page-home').classList.add('active');
+            }
+            
+            // Sembunyikan Navbar Atas & Footer jika berada di dashboard agar layar HP lebih luas
+            const topNav = document.getElementById('main-navbar');
+            const mainFooter = document.getElementById('main-footer');
+            if (topNav) {
+                if (target === '#dashboard') topNav.classList.add('hidden');
+                else topNav.classList.remove('hidden');
+            }
+            if (mainFooter) {
+                if (target === '#dashboard') mainFooter.classList.add('hidden');
+                else mainFooter.classList.remove('hidden');
             }
             
             setLoading(false); window.scrollTo({ top: 0, behavior: 'smooth' });
