@@ -902,6 +902,7 @@
                     <button onclick="viewSiswaProfile()" id="menu-profil" class="${baseClass} text-slate-300"><i data-lucide="user" class="w-5 h-5 mr-3"></i> Profil</button>
                     <button onclick="viewSiswaTimeline()" id="menu-jadwal-siswa" class="${baseClass} text-slate-300"><i data-lucide="calendar" class="w-5 h-5 mr-3"></i> Time Line</button>
                     <button onclick="viewSiswaPetunjuk()" id="menu-petunjuk" class="${baseClass} text-slate-300"><i data-lucide="book-open" class="w-5 h-5 mr-3"></i> Ketentuan</button>
+                    <button onclick="viewSiswaTM()" id="menu-tm" class="${baseClass} text-slate-300"><i data-lucide="video" class="w-5 h-5 mr-3"></i> Tech. Meeting</button>
                 `;
                 
                 // JIKA STATUS ACTIVE TAMPILKAN MENU KARTU & APP, JIKA BELUM MAKA TERKUNCI
@@ -1353,6 +1354,44 @@
                         <div class="p-6 bg-amber-50 border border-amber-200 rounded-2xl hover:shadow-md transition hover:-translate-y-1 animate-slide-right" style="animation-delay: 0.4s; opacity:0; animation-fill-mode: forwards;">
                             <h4 class="font-black text-amber-800 text-lg mb-2 flex items-center"><i data-lucide="help-circle" class="w-5 h-5 mr-2 animate-pulse-soft"></i> Bantuan & Kendala</h4>
                             <p class="ml-7 font-semibold">Jika mengalami masalah pada aplikasi atau akun, segera hubungi Panitia melalui WhatsApp ke <b>Kontak Admin</b> yang tersedia di halaman Status Pendaftaran.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function viewSiswaTM() {
+            setActiveMenu('menu-tm');
+            const c = document.getElementById('dashboard-content');
+            c.innerHTML = `
+                <div class="bg-white p-8 md:p-12 rounded-[3rem] border shadow-sm font-bold text-left animate-scale-in">
+                    <h3 class="text-2xl mb-8 font-black uppercase text-slate-800 border-b pb-4">Technical Meeting KoMa</h3>
+                    
+                    <div class="space-y-6 text-sm text-slate-600 leading-relaxed">
+                        <div class="p-8 bg-blue-50 border border-blue-200 rounded-[2rem] text-center shadow-sm animate-slide-right">
+                            <div class="w-20 h-20 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg animate-pulse-soft">
+                                <i data-lucide="video" class="w-10 h-10"></i>
+                            </div>
+                            <h4 class="font-black text-blue-900 text-xl mb-2 uppercase tracking-wide">Jadwal Pelaksanaan</h4>
+                            <p class="text-lg text-blue-800 font-black mb-1">Senin, 11 Mei 2026</p>
+                            <p class="text-md text-blue-600 font-bold mb-8">Pukul 13:00 WIB - Selesai</p>
+                            
+                            <div class="bg-white p-6 md:p-8 rounded-3xl border border-blue-100 inline-block text-left w-full max-w-md mx-auto shadow-sm">
+                                <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-4">Info Akses Google Meet</p>
+                                <div class="flex flex-col sm:flex-row items-center gap-4 mb-6 text-center sm:text-left">
+                                    <div class="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center shrink-0">
+                                        <i data-lucide="monitor-play" class="w-6 h-6"></i>
+                                    </div>
+                                    <div>
+                                        <span class="font-black text-slate-800 text-sm block">Panggilan Video</span>
+                                        <span class="text-[10px] text-slate-500 uppercase tracking-widest">Via Google Meet</span>
+                                    </div>
+                                </div>
+                                <a href="https://meet.google.com/oys-jmfs-zxm" target="_blank" class="w-full block bg-blue-600 text-white font-black py-4 rounded-xl text-center uppercase text-xs tracking-widest shadow-lg hover:bg-blue-700 transition transform hover:scale-105 active:scale-95">
+                                    <i data-lucide="external-link" class="w-4 h-4 inline mr-2 -mt-0.5"></i> Gabung Ruang Rapat
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
