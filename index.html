@@ -902,17 +902,18 @@
                     <button onclick="viewSiswaProfile()" id="menu-profil" class="${baseClass} text-slate-300"><i data-lucide="user" class="w-5 h-5 mr-3"></i> Profil</button>
                     <button onclick="viewSiswaTimeline()" id="menu-jadwal-siswa" class="${baseClass} text-slate-300"><i data-lucide="calendar" class="w-5 h-5 mr-3"></i> Time Line</button>
                     <button onclick="viewSiswaPetunjuk()" id="menu-petunjuk" class="${baseClass} text-slate-300"><i data-lucide="book-open" class="w-5 h-5 mr-3"></i> Ketentuan</button>
-                    <button onclick="viewSiswaTM()" id="menu-tm" class="${baseClass} text-slate-300"><i data-lucide="video" class="w-5 h-5 mr-3"></i> Tech. Meeting</button>
                 `;
                 
                 // JIKA STATUS ACTIVE TAMPILKAN MENU KARTU & APP, JIKA BELUM MAKA TERKUNCI
                 if (act) {
                     menuHtml += `
+                        <button onclick="viewSiswaTM()" id="menu-tm" class="${baseClass} text-slate-300"><i data-lucide="video" class="w-5 h-5 mr-3"></i> Tech. Meeting</button>
                         <button onclick="viewSiswaCard()" id="menu-kartu" class="${baseClass} text-slate-300"><i data-lucide="credit-card" class="w-5 h-5 mr-3"></i> Kartu Ujian</button>
                         <button onclick="viewSiswaApp()" id="menu-app" class="${baseClass} text-slate-300"><i data-lucide="download-cloud" class="w-5 h-5 mr-3"></i> Unduh Aplikasi</button>
                     `;
                 } else {
                     menuHtml += `
+                        <button class="${baseClass} opacity-30 cursor-not-allowed hover:translate-x-0"><i data-lucide="video" class="w-5 h-5 mr-3"></i> Tech. Meeting <span class="ml-auto text-[8px] bg-white/20 px-2 py-1 rounded-md">Terkunci</span></button>
                         <button class="${baseClass} opacity-30 cursor-not-allowed hover:translate-x-0"><i data-lucide="credit-card" class="w-5 h-5 mr-3"></i> Kartu Ujian <span class="ml-auto text-[8px] bg-white/20 px-2 py-1 rounded-md">Terkunci</span></button>
                         <button class="${baseClass} opacity-30 cursor-not-allowed hover:translate-x-0"><i data-lucide="download-cloud" class="w-5 h-5 mr-3"></i> Unduh Aplikasi <span class="ml-auto text-[8px] bg-white/20 px-2 py-1 rounded-md">Terkunci</span></button>
                     `;
