@@ -446,7 +446,7 @@
                         <!-- HEADER PANEL & TOMBOL TOGGLE -->
                         <div class="flex items-center justify-between relative z-10 text-white">
                              <div class="flex items-center">
-                                 <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg shadow-blue-600/40 font-bold"><i data-lucide="layout-dashboard"></i></div>
+                                 <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center mr-4 shadow-lg shadow-blue-600/40 font-bold p-1.5"><img src="" alt="Logo" class="logo-koma-img w-full h-full object-contain" onerror="this.src='https://placehold.co/40x40/2563eb/white?text=K'"></div>
                                  <div class="text-left text-white font-bold">
                                      <h2 class="font-black uppercase tracking-widest text-sm leading-tight text-left">Panel KoMa</h2>
                                      <p id="sidebar-role-display" class="text-[10px] text-blue-400 uppercase mt-1 text-left">Dashboard</p>
@@ -1852,12 +1852,13 @@
             
             try {
                 const r = await callGAS({ action: 'getAppLinks' });
-                let links = { 
-                    "Android": "https://drive.google.com/file/d/1QglDIUlIeUY144aaSafsTQ7RWEZzBpNs/view?usp=sharing",
-                    "Windows SEB": "https://drive.google.com/file/d/1cC2FtMphb6Igh7M9cc-x-1ebF6d0LcsV/view?usp=sharing",
-                    "Mac OS SEB": "https://drive.google.com/file/d/1cho_Ji8tfqLwbB_IFh7NsMLgOARsLgJ3/view?usp=sharing",
+                let links = {
+                    "Android": "#",
+                    "Windows SEB": "https://github.com/SafeExamBrowser/seb-win-ref/releases/latest",
+                    "Mac OS SEB": "https://github.com/SafeExamBrowser/seb-mac/releases/latest",
                     "iOS SEB": "https://apps.apple.com/us/app/safeexambrowser/id1155002964",
-                    "Config SEB": "https://drive.google.com/drive/folders/1kRL_oX86Yw2HYQB4uRDQEV559tDAJlfF"
+                    "Config SEB (PC/Laptop)": "#",
+                    "Config SEB (HP/Smartphone)": "#"
                 };
                 if (r && r.result === 'success') {
                     r.data.forEach(d => { 
@@ -1888,13 +1889,13 @@
                             <div class="bg-slate-50 border border-slate-200 rounded-[2rem] p-6 transition-transform duration-300 hover:scale-105 flex flex-col justify-between hover-card-effect animate-slide-right" style="animation-delay: 0.1s; opacity:0; animation-fill-mode: forwards;">
                                 <div class="text-center mb-6">
                                     <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 transform transition hover:rotate-12">
-                                        <i data-lucide="smartphone" class="w-8 h-8"></i>
+                                        <svg class="w-8 h-8 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4483-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993.0004.5511-.4482.9997-.9993.9997zm-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993 0 .5511-.4482.9997-.9993.9997zm11.4045-6.02l1.9973-3.4592c.1158-.201.0466-.4573-.1544-.573-.2007-.1158-.4569-.0466-.5726.1544l-2.0406 3.534c-1.4274-.652-3.0366-1.0182-4.7375-1.0182-1.7006 0-3.3094.3662-4.7375 1.0182L5.5956 5.4446c-.1158-.201-.3719-.2702-.5726-.1544-.201.1158-.2702.372-.1544.573l1.9973 3.4592C2.6889 11.6033.3444 15.8456.1042 20.7303h23.791c-.2402-4.8847-2.5847-9.127-6.7627-11.4089z"/></svg>
                                     </div>
                                     <h4 class="font-black text-lg text-slate-800 uppercase">Android</h4>
                                     <p class="text-[10px] text-slate-400 mt-1 uppercase tracking-widest">HP / Tablet</p>
                                 </div>
-                                <button ${getBtnAction(links["Android"])} class="w-full bg-green-600 text-white font-black py-4 rounded-xl uppercase text-[10px] shadow-lg hover:bg-green-700 transition tracking-widest text-center active:scale-95">
-                                    Unduh
+                                <button ${getBtnAction(links["Android"])} class="w-full bg-green-600 text-white font-black py-4 px-2 rounded-xl uppercase text-[10px] shadow-lg hover:bg-green-700 transition tracking-widest text-center active:scale-95 flex items-center justify-center gap-2">
+                                    <i data-lucide="download" class="w-4 h-4"></i> Instal Aplikasi
                                 </button>
                             </div>
 
@@ -1912,42 +1913,55 @@
                                     </div>
                                 </div>
 
-                                <!-- OS BOXES INSIDE LARGE BOX -->
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-2">
                                     <!-- Windows -->
-                                    <div class="bg-white border border-slate-200 rounded-2xl p-5 text-center transition hover:shadow-md hover:-translate-y-1">
-                                        <i data-lucide="monitor" class="w-10 h-10 text-blue-600 mx-auto mb-3"></i>
-                                        <h5 class="font-black text-sm uppercase text-slate-800 mb-4">Windows</h5>
-                                        <button ${getBtnAction(links["Windows SEB"])} class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl text-[10px] uppercase tracking-widest hover:bg-blue-700 transition active:scale-95">Unduh</button>
+                                    <div class="bg-white border border-slate-200 rounded-2xl p-5 text-center flex flex-col justify-between transition hover:shadow-md hover:-translate-y-1">
+                                        <div>
+                                            <svg class="w-10 h-10 fill-current text-blue-600 mx-auto mb-3" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.951-1.801"/></svg>
+                                            <h5 class="font-black text-sm uppercase text-slate-800 mb-1">Windows</h5>
+                                            <p class="text-[9px] text-slate-500 font-bold uppercase mb-4">Laptop / PC</p>
+                                        </div>
+                                        <div class="space-y-3">
+                                            <button ${getBtnAction(links["Windows SEB"])} class="w-full bg-blue-600 text-white font-bold py-3 px-2 rounded-xl text-[10px] uppercase tracking-widest hover:bg-blue-700 transition active:scale-95 flex items-center justify-center gap-1.5">
+                                                <i data-lucide="download" class="w-3.5 h-3.5"></i> 1. Instal SEB
+                                            </button>
+                                            <button ${getBtnAction(links["Config SEB (PC/Laptop)"])} class="w-full bg-amber-500 text-white font-bold py-3 px-2 rounded-xl text-[10px] uppercase tracking-widest hover:bg-amber-600 transition active:scale-95 flex items-center justify-center gap-1.5">
+                                                <i data-lucide="settings" class="w-3.5 h-3.5"></i> 2. Config PC
+                                            </button>
+                                        </div>
                                     </div>
                                     <!-- Mac OS -->
-                                    <div class="bg-white border border-slate-200 rounded-2xl p-5 text-center transition hover:shadow-md hover:-translate-y-1">
-                                        <i data-lucide="laptop" class="w-10 h-10 text-purple-600 mx-auto mb-3"></i>
-                                        <h5 class="font-black text-sm uppercase text-slate-800 mb-4">Mac OS</h5>
-                                        <button ${getBtnAction(links["Mac OS SEB"])} class="w-full bg-purple-600 text-white font-bold py-3 rounded-xl text-[10px] uppercase tracking-widest hover:bg-purple-700 transition active:scale-95">Unduh</button>
+                                    <div class="bg-white border border-slate-200 rounded-2xl p-5 text-center flex flex-col justify-between transition hover:shadow-md hover:-translate-y-1">
+                                        <div>
+                                            <svg class="w-10 h-10 fill-current text-purple-600 mx-auto mb-3" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 20.92c-1.398 0-2.825-.97-3.957-.97-1.168 0-2.825 1.003-4.025 1.003-1.536 0-2.937-.872-3.704-2.208-1.57-2.738-.403-6.804 1.134-8.975.736-1.07 1.603-1.738 2.606-1.738 1.168 0 2.27.802 3.004.802.768 0 2.07-1.003 3.405-1.003 1.336 0 2.47.536 3.172 1.57-.167.1-1.87 1.07-1.87 3.208 0 2.64 2.304 3.508 2.404 3.542-.034.1-.768 2.64-2.504 5.148-1.503 2.14-2.238 3.542-3.832 3.542zM15.442 5.372c-.736 2.306-3.14 4.01-5.378 3.843.836-2.406 3.24-4.144 5.412-3.876-.034.034-.034.034-.034.033z"/></svg>
+                                            <h5 class="font-black text-sm uppercase text-slate-800 mb-1">Mac OS</h5>
+                                            <p class="text-[9px] text-slate-500 font-bold uppercase mb-4">Macbook / iMac</p>
+                                        </div>
+                                        <div class="space-y-3">
+                                            <button ${getBtnAction(links["Mac OS SEB"])} class="w-full bg-purple-600 text-white font-bold py-3 px-2 rounded-xl text-[10px] uppercase tracking-widest hover:bg-purple-700 transition active:scale-95 flex items-center justify-center gap-1.5">
+                                                <i data-lucide="download" class="w-3.5 h-3.5"></i> 1. Instal SEB
+                                            </button>
+                                            <button ${getBtnAction(links["Config SEB (HP/Smartphone)"])} class="w-full bg-amber-500 text-white font-bold py-3 px-2 rounded-xl text-[10px] uppercase tracking-widest hover:bg-amber-600 transition active:scale-95 flex items-center justify-center gap-1.5">
+                                                <i data-lucide="settings" class="w-3.5 h-3.5"></i> 2. Config Mac
+                                            </button>
+                                        </div>
                                     </div>
                                     <!-- iOS -->
-                                    <div class="bg-white border border-slate-200 rounded-2xl p-5 text-center transition hover:shadow-md hover:-translate-y-1">
-                                        <i data-lucide="tablet" class="w-10 h-10 text-slate-800 mx-auto mb-3"></i>
-                                        <h5 class="font-black text-sm uppercase text-slate-800 mb-4">Apple iOS</h5>
-                                        <button ${getBtnAction(links["iOS SEB"])} class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl text-[10px] uppercase tracking-widest hover:bg-slate-900 transition active:scale-95">App Store</button>
-                                    </div>
-                                </div>
-
-                                <!-- CONFIG BOX -->
-                                <div class="bg-white border-2 border-dashed border-amber-400 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-5 transition hover:shadow-md hover:bg-amber-50/50 group">
-                                    <div class="flex items-center gap-4 text-center sm:text-left">
-                                        <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center shrink-0 mx-auto sm:mx-0 shadow-inner group-hover:rotate-180 transition-transform duration-700">
-                                            <i data-lucide="settings" class="w-6 h-6"></i>
-                                        </div>
+                                    <div class="bg-white border border-slate-200 rounded-2xl p-5 text-center flex flex-col justify-between transition hover:shadow-md hover:-translate-y-1">
                                         <div>
-                                            <h5 class="font-black text-slate-800 uppercase text-sm mb-1">Config SEB</h5>
-                                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">File konfigurasi ujian KoMa 2026</p>
+                                            <svg class="w-10 h-10 fill-current text-slate-800 mx-auto mb-3" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 20.92c-1.398 0-2.825-.97-3.957-.97-1.168 0-2.825 1.003-4.025 1.003-1.536 0-2.937-.872-3.704-2.208-1.57-2.738-.403-6.804 1.134-8.975.736-1.07 1.603-1.738 2.606-1.738 1.168 0 2.27.802 3.004.802.768 0 2.07-1.003 3.405-1.003 1.336 0 2.47.536 3.172 1.57-.167.1-1.87 1.07-1.87 3.208 0 2.64 2.304 3.508 2.404 3.542-.034.1-.768 2.64-2.504 5.148-1.503 2.14-2.238 3.542-3.832 3.542zM15.442 5.372c-.736 2.306-3.14 4.01-5.378 3.843.836-2.406 3.24-4.144 5.412-3.876-.034.034-.034.034-.034.033z"/></svg>
+                                            <h5 class="font-black text-sm uppercase text-slate-800 mb-1">Apple iOS</h5>
+                                            <p class="text-[9px] text-slate-500 font-bold uppercase mb-4">iPhone / iPad</p>
+                                        </div>
+                                        <div class="space-y-3">
+                                            <button ${getBtnAction(links["iOS SEB"])} class="w-full bg-slate-800 text-white font-bold py-3 px-2 rounded-xl text-[10px] uppercase tracking-widest hover:bg-slate-900 transition active:scale-95 flex items-center justify-center gap-1.5">
+                                                <i data-lucide="download" class="w-3.5 h-3.5"></i> 1. App Store
+                                            </button>
+                                            <button ${getBtnAction(links["Config SEB (HP/Smartphone)"])} class="w-full bg-amber-500 text-white font-bold py-3 px-2 rounded-xl text-[10px] uppercase tracking-widest hover:bg-amber-600 transition active:scale-95 flex items-center justify-center gap-1.5">
+                                                <i data-lucide="settings" class="w-3.5 h-3.5"></i> 2. Config iOS
+                                            </button>
                                         </div>
                                     </div>
-                                    <button ${getBtnAction(links["Config SEB"])} class="w-full sm:w-auto bg-amber-500 text-white font-black py-4 px-8 rounded-xl text-[10px] uppercase tracking-widest shadow-lg hover:bg-amber-600 transition transform hover:scale-105 active:scale-95 whitespace-nowrap">
-                                        <i data-lucide="download-cloud" class="w-4 h-4 inline mr-2 -mt-0.5"></i> Unduh Config
-                                    </button>
                                 </div>
                             </div>
                             
@@ -1962,6 +1976,7 @@
                                 <li class="flex items-start"><i data-lucide="check-circle" class="w-4 h-4 mr-2 shrink-0 mt-0.5"></i> Pastikan koneksi internet stabil saat mengunduh aplikasi sebesar kurang lebih 25MB hingga 150MB.</li>
                                 <li class="flex items-start"><i data-lucide="check-circle" class="w-4 h-4 mr-2 shrink-0 mt-0.5"></i> <b>Bagi Pengguna Android:</b> Jika muncul peringatan keamanan, masuk ke Pengaturan HP dan izinkan "Install from unknown sources" (Instal dari sumber tidak dikenal).</li>
                                 <li class="flex items-start"><i data-lucide="check-circle" class="w-4 h-4 mr-2 shrink-0 mt-0.5"></i> Gunakan Username (Email) dan Password yang sama dengan akun pendaftaran ini untuk login di dalam aplikasi CBT nantinya.</li>
+                                <li class="flex items-start"><i data-lucide="check-circle" class="w-4 h-4 mr-2 shrink-0 mt-0.5"></i> Untuk <b> Keluar </b> dari Aplikasi gunakan Password : <b> Tuban </b></li>
                             </ul>
                         </div>
                     </div>
@@ -2130,18 +2145,23 @@
         function exportToCSV() {
             if (!allParticipantsLocal || allParticipantsLocal.length === 0) return showAlert('Info', 'Tidak ada data untuk diekspor.', 'error');
             
-            const headers = ['Nama Lengkap', 'NISN', 'Sekolah Asal', 'Tingkat Kelas', 'No HP (WhatsApp)', 'Email Login', 'Password', 'Status', 'Role', 'Sertifikat Peserta', 'Sertifikat Juara', 'Juara', 'Login Terakhir', 'Logout Terakhir'];
+            const isAdmin = currentUser && currentUser.role === 'Admin';
+            const headers = ['Nama Lengkap', 'NISN', 'Sekolah Asal', 'Tingkat Kelas', 'No HP (WhatsApp)', 'Email Login'];
+            if (isAdmin) headers.push('Password');
+            headers.push('Status', 'Role', 'Sertifikat Peserta', 'Sertifikat Juara', 'Juara', 'Login Terakhir', 'Logout Terakhir');
             
             let csvContent = headers.join(",") + "\n"
                 + allParticipantsLocal.map(p => {
-                    return [
+                    let rowData = [
                         `"${(p["Nama Lengkap"] || p.name || p.Nama || '-').replace(/"/g, '""')}"`,
                         `" ${(p["NISN"] || '-').replace(/"/g, '""')}"`,
                         `"${(p["Sekolah Asal"] || '-').replace(/"/g, '""')}"`,
                         `"${(p["Tingkat Kelas"] || '-').replace(/"/g, '""')}"`,
                         `" ${(p["No HP (WhatsApp)"] || '-').replace(/"/g, '""')}"`,
-                        `"${(p["Email"] || '-').replace(/"/g, '""')}"`,
-                        `"${(p["Password"] || '-').replace(/"/g, '""')}"`,
+                        `"${(p["Email"] || '-').replace(/"/g, '""')}"`
+                    ];
+                    if (isAdmin) rowData.push(`"${(p["Password"] || '-').replace(/"/g, '""')}"`);
+                    rowData.push(
                         `"${(p["Status"] || '-').replace(/"/g, '""')}"`,
                         `"${(p["Role"] || '-').replace(/"/g, '""')}"`,
                         `"${(p["statusPeserta"] || '-').replace(/"/g, '""')}"`,
@@ -2149,7 +2169,8 @@
                         `"${(p["juara"] || '-').replace(/"/g, '""')}"`,
                         `"${(p["Last Login"] || '-').replace(/"/g, '""')}"`,
                         `"${(p["Last Logout"] || '-').replace(/"/g, '""')}"`
-                    ].join(",");
+                    );
+                    return rowData.join(",");
                 }).join("\n");
 
             const blob = new Blob(["\ufeff", csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -2435,7 +2456,8 @@
                     { platform: "Windows SEB", url: "" },
                     { platform: "Mac OS SEB", url: "" },
                     { platform: "iOS SEB", url: "" },
-                    { platform: "Config SEB", url: "" },
+                    { platform: "Config SEB (PC/Laptop)", url: "" },
+                    { platform: "Config SEB (HP/Smartphone)", url: "" },
                     { platform: "Technical Meeting", url: "" },
                     { platform: "Grup WA", url: "" },
                     { platform: "Sertifikat Peserta", url: "" },
