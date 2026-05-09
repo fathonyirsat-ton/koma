@@ -772,6 +772,12 @@
             showAlert('Berhasil Salin', 'Nomor rekening BRI telah disalin ke clipboard anda.', 'success');
         }
 
+        function copyToClipboardText(text) {
+            const el = document.createElement('textarea');
+            el.value = text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
+            showAlert('Berhasil Salin', 'Data teks telah disalin ke clipboard.', 'success');
+        }
+
         function setActiveMenu(id) {
             document.querySelectorAll('.menu-btn').forEach(b => { b.classList.remove('bg-blue-600', 'text-white', 'shadow-lg', 'scale-105'); b.classList.add('text-slate-300'); });
             const act = document.getElementById(id);
@@ -2098,7 +2104,7 @@
                         <div class="flex items-center justify-center gap-2">
                             <button onclick="openVerifikasi(${p.rowNum}, '${(p["Nama Lengkap"] || p.name || p.Nama || '').replace(/'/g, "\\'")}', '${waVal.replace(/'/g, "\\'")}')" class="bg-slate-100 text-slate-600 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase hover:bg-blue-600 hover:text-white transition shadow-sm active:scale-95">Cek Bukti</button>
                             ${currentUser.role === 'Admin' ? `<button onclick="openManageCert(${p.rowNum}, '${(p["Nama Lengkap"] || p.name || p.Nama || '').replace(/'/g, "\\'")}', '${p.statusPeserta || 'Tidak Aktif'}', '${p.statusJuara || 'Tidak Aktif'}', '${p.juara || '-'}')" class="bg-amber-100 text-amber-700 px-3 py-2.5 rounded-xl text-[10px] font-black hover:bg-amber-500 hover:text-white transition shadow-sm active:scale-95"><i data-lucide="award" class="w-4 h-4 inline"></i></button>` : ''}
-                            ${currentUser.role === 'Admin' ? `<button onclick="viewDetailPeserta(${p.rowNum})" class="bg-blue-100 text-blue-700 px-3 py-2.5 rounded-xl text-[10px] font-black hover:bg-blue-600 hover:text-white transition shadow-sm active:scale-95" title="Detail Peserta"><i data-lucide="user-search" class="w-4 h-4 inline"></i></button>` : ''}
+                                ${(currentUser.role === 'Admin' || currentUser.role === 'Panitia') ? `<button onclick="viewDetailPeserta(${p.rowNum})" class="bg-blue-100 text-blue-700 px-3 py-2.5 rounded-xl text-[10px] font-black hover:bg-blue-600 hover:text-white transition shadow-sm active:scale-95" title="Detail Peserta"><i data-lucide="user-search" class="w-4 h-4 inline"></i></button>` : ''}
                         </div>
                     </td>
                 </tr>
@@ -2131,26 +2137,36 @@
                 photoContainer.innerHTML = `<i data-lucide="user" class="w-6 h-6"></i>`;
             }
 
-            const detailHtml = [
+            const detailData = [
                 { label: 'NISN', value: p["NISN"] },
                 { label: 'Sekolah Asal', value: p["Sekolah Asal"] },
                 { label: 'Tingkat Kelas', value: p["Tingkat Kelas"] },
                 { label: 'No HP (WhatsApp)', value: p["No HP (WhatsApp)"] },
                 { label: 'Email Login', value: p["Email"] },
                 { label: 'Password', value: p["Password"] },
-                { label: 'Status Pendaftaran', value: `<span class="px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest ${p.Status === 'Active' ? 'bg-green-100 text-green-700' : (p.Status === 'Rejected' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700')}">${p.Status}</span>` },
+                { label: 'Status Pendaftaran', value: `<span class="px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest ${p.Status === 'Active' ? 'bg-green-100 text-green-700' : (p.Status === 'Rejected' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700')}">${p.Status}</span>`, copyValue: p.Status },
                 { label: 'Role', value: p["Role"] },
                 { label: 'Status Sertifikat Peserta', value: p["statusPeserta"] },
                 { label: 'Status Sertifikat Juara', value: p["statusJuara"] },
                 { label: 'Gelar Juara', value: p["juara"] },
                 { label: 'Login Terakhir', value: p["Last Login"] },
                 { label: 'Logout Terakhir', value: p["Last Logout"] }
-            ].map(item => `
-                <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+            ];
+
+            const detailHtml = detailData.map(item => {
+                const textToCopy = (item.copyValue !== undefined ? item.copyValue : (item.value || '-')).toString().replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                return `
+                <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl relative group">
                     <p class="text-[9px] uppercase font-black text-slate-400 mb-1">${item.label}</p>
-                    <p class="text-xs font-bold text-slate-800 break-words">${item.value || '-'}</p>
+                    <div class="flex justify-between items-start gap-2">
+                        <div class="text-xs font-bold text-slate-800 break-words flex-1">${item.value || '-'}</div>
+                        <button onclick="copyToClipboardText('${textToCopy}')" class="text-slate-300 hover:text-blue-600 transition-colors p-1 shrink-0" title="Salin teks">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                        </button>
+                    </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
 
             document.getElementById('detail-content').innerHTML = detailHtml;
 
