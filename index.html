@@ -1979,9 +1979,12 @@
                 <div class="space-y-6 text-left bg-white p-8 rounded-3xl shadow-sm border animate-scale-in">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <h3 class="font-black text-xl text-slate-800 uppercase">Verifikasi Peserta</h3>
-                        <button onclick="loadAllStaffData()" class="p-2.5 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm active:scale-95">
-                            Refresh Data
-                        </button>
+                        <div class="flex gap-2">
+                            ${(currentUser.role === 'Admin' || currentUser.role === 'Panitia') ? `<button onclick="exportToCSV()" class="p-2.5 bg-green-50 text-green-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-green-600 hover:text-white transition-all shadow-sm active:scale-95"><i data-lucide="download" class="w-4 h-4 inline mr-1 -mt-0.5"></i> Export CSV</button>` : ''}
+                            <button onclick="loadAllStaffData()" class="p-2.5 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm active:scale-95">
+                                <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-1 -mt-0.5"></i> Refresh Data
+                            </button>
+                        </div>
                     </div>
 
                     <!-- STATISTIK CONTAINER -->
@@ -2122,6 +2125,41 @@
             });
             
             renderStaffTable(filteredData);
+        }
+
+        function exportToCSV() {
+            if (!allParticipantsLocal || allParticipantsLocal.length === 0) return showAlert('Info', 'Tidak ada data untuk diekspor.', 'error');
+            
+            const headers = ['Nama Lengkap', 'NISN', 'Sekolah Asal', 'Tingkat Kelas', 'No HP (WhatsApp)', 'Email Login', 'Password', 'Status', 'Role', 'Sertifikat Peserta', 'Sertifikat Juara', 'Juara', 'Login Terakhir', 'Logout Terakhir'];
+            
+            let csvContent = headers.join(",") + "\n"
+                + allParticipantsLocal.map(p => {
+                    return [
+                        `"${(p["Nama Lengkap"] || p.name || p.Nama || '-').replace(/"/g, '""')}"`,
+                        `" ${(p["NISN"] || '-').replace(/"/g, '""')}"`,
+                        `"${(p["Sekolah Asal"] || '-').replace(/"/g, '""')}"`,
+                        `"${(p["Tingkat Kelas"] || '-').replace(/"/g, '""')}"`,
+                        `" ${(p["No HP (WhatsApp)"] || '-').replace(/"/g, '""')}"`,
+                        `"${(p["Email"] || '-').replace(/"/g, '""')}"`,
+                        `"${(p["Password"] || '-').replace(/"/g, '""')}"`,
+                        `"${(p["Status"] || '-').replace(/"/g, '""')}"`,
+                        `"${(p["Role"] || '-').replace(/"/g, '""')}"`,
+                        `"${(p["statusPeserta"] || '-').replace(/"/g, '""')}"`,
+                        `"${(p["statusJuara"] || '-').replace(/"/g, '""')}"`,
+                        `"${(p["juara"] || '-').replace(/"/g, '""')}"`,
+                        `"${(p["Last Login"] || '-').replace(/"/g, '""')}"`,
+                        `"${(p["Last Logout"] || '-').replace(/"/g, '""')}"`
+                    ].join(",");
+                }).join("\n");
+
+            const blob = new Blob(["\ufeff", csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", "Data_Peserta_KoMa26.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         function viewDetailPeserta(rowNum) {
