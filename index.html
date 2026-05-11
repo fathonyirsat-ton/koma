@@ -1141,13 +1141,13 @@
             if (act) {
                 menuHtml += `
                     <button onclick="viewSiswaTM()" id="menu-tm" class="${baseClass} text-slate-300"><i data-lucide="video" class="w-5 h-5 mr-3"></i> Tech. Meeting</button>
-                    <button onclick="viewSiswaCard()" id="menu-kartu" class="${baseClass} text-slate-300"><i data-lucide="credit-card" class="w-5 h-5 mr-3"></i> Kartu Ujian</button>
+                    <button onclick="viewSiswaCard()" id="menu-kartu" class="${baseClass} text-slate-300"><i data-lucide="credit-card" class="w-5 h-5 mr-3"></i> Kartu Peserta</button>
                     <button onclick="viewSiswaApp()" id="menu-app" class="${baseClass} text-slate-300"><i data-lucide="download-cloud" class="w-5 h-5 mr-3"></i> Unduh Aplikasi</button>
                 `;
             } else {
                 menuHtml += `
                     <button class="${baseClass} opacity-30 cursor-not-allowed hover:translate-x-0"><i data-lucide="video" class="w-5 h-5 mr-3"></i> Tech. Meeting <span class="ml-auto text-[8px] bg-white/20 px-2 py-1 rounded-md">Terkunci</span></button>
-                    <button class="${baseClass} opacity-30 cursor-not-allowed hover:translate-x-0"><i data-lucide="credit-card" class="w-5 h-5 mr-3"></i> Kartu Ujian <span class="ml-auto text-[8px] bg-white/20 px-2 py-1 rounded-md">Terkunci</span></button>
+                    <button class="${baseClass} opacity-30 cursor-not-allowed hover:translate-x-0"><i data-lucide="credit-card" class="w-5 h-5 mr-3"></i> Kartu Peserta <span class="ml-auto text-[8px] bg-white/20 px-2 py-1 rounded-md">Terkunci</span></button>
                     <button class="${baseClass} opacity-30 cursor-not-allowed hover:translate-x-0"><i data-lucide="download-cloud" class="w-5 h-5 mr-3"></i> Unduh Aplikasi <span class="ml-auto text-[8px] bg-white/20 px-2 py-1 rounded-md">Terkunci</span></button>
                 `;
             }
@@ -1171,6 +1171,7 @@
                 menuHtml += `
                     <button onclick="viewAdminTimeline()" id="menu-jadwal" class="${baseClass} text-slate-300"><i data-lucide="calendar" class="w-5 h-5 mr-3"></i> Jadwal</button>
                     <button onclick="viewAdminLinks()" id="menu-links" class="${baseClass} text-slate-300"><i data-lucide="link" class="w-5 h-5 mr-3"></i> Link Aplikasi</button>
+                    <button onclick="viewAdminCetakKartu()" id="menu-cetak-kartu" class="${baseClass} text-slate-300"><i data-lucide="printer" class="w-5 h-5 mr-3"></i> Cetak Kartu CBT</button>
                 `;
             }
 
@@ -1521,7 +1522,7 @@
 
             c.innerHTML = `
                 <div class="bg-white p-8 md:p-12 rounded-[3rem] border text-center font-bold animate-scale-in">
-                    <h3 class="text-xl mb-8 font-bold">Kartu Peserta Resmi</h3>
+                    <h3 class="text-xl mb-8 font-bold">Kartu Peserta</h3>
                     
                     <div id="kartu-peserta-area" class="bg-[#10141d] p-8 rounded-3xl text-white max-w-md mx-auto text-left border-b-8 border-blue-600 shadow-2xl relative overflow-hidden transition-transform duration-500 hover:scale-[1.02]">
                         <!-- Latar belakang hiasan -->
@@ -1534,7 +1535,7 @@
                             <div class="font-black text-xl tracking-tight">KoMa <span class="text-blue-500">2026</span></div>
                         </div>
                         
-                        <p class="text-[10px] uppercase text-blue-400 font-bold mb-5 tracking-widest relative z-10">KARTU UJIAN DIGITAL</p>
+                        <p class="text-[10px] uppercase text-blue-400 font-bold mb-5 tracking-widest relative z-10">KARTU PESERTA KOMA</p>
                         
                         <div class="space-y-4 relative z-10">
                             <div>
@@ -2536,6 +2537,117 @@
             } finally {
                 setLoading(false);
             }
+        }
+
+        async function viewAdminCetakKartu() {
+            setActiveMenu('menu-cetak-kartu');
+            const dc = document.getElementById('dashboard-content');
+            if (!dc) return;
+
+            dc.innerHTML = `
+                <div class="space-y-6 text-left bg-white p-8 rounded-3xl shadow-sm border animate-scale-in no-print">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <h3 class="font-black text-xl text-slate-800 uppercase">Cetak Kartu CBT</h3>
+                        <button onclick="window.print()" class="bg-blue-600 text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg hover:bg-blue-700 transition active:scale-95 flex items-center">
+                            <i data-lucide="printer" class="w-4 h-4 mr-2"></i> Print A4 (6 Kartu/Hal)
+                        </button>
+                    </div>
+                    <p class="text-sm text-slate-500 font-semibold mb-6">Pratinjau kartu CBT peserta. Gunakan kertas A4 dan atur margin "Minimum/None" saat mencetak di browser.</p>
+                    <div id="cbt-cards-preview" class="grid grid-cols-1 lg:grid-cols-2 gap-4 max-h-[50vh] overflow-y-auto p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                        <div class="col-span-full p-10 text-center text-slate-400 italic font-bold">Memuat data peserta...</div>
+                    </div>
+                </div>
+                <div id="print-area" class="print-show"></div>
+            `;
+            if (window.lucide) lucide.createIcons();
+
+            if (!allParticipantsLocal || allParticipantsLocal.length === 0) {
+                try {
+                    const res = await callGAS({ action: 'getAllData', role: currentUser.role });
+                    if(res && res.result === 'success') {
+                        allParticipantsLocal = (res.data || []).filter(p => (p.Role || p.role || "").toLowerCase() === 'siswa').sort((a,b)=>b.rowNum - a.rowNum);
+                    }
+                } catch (e) {
+                    document.getElementById('cbt-cards-preview').innerHTML = `<div class="col-span-full p-10 text-center text-red-500 font-bold">Gagal memuat data dari server.</div>`;
+                    return;
+                }
+            }
+            renderCBTCards();
+        }
+
+        function renderCBTCards() {
+            const printContainer = document.getElementById('print-area');
+            
+            // Hanya memfilter siswa yang Active (Telah Dikonfirmasi)
+            const data = allParticipantsLocal.filter(p => p.Status === 'Active');
+            if (data.length === 0) {
+                printContainer.innerHTML = `<div class="w-full text-center p-10 text-slate-400 font-bold bg-white rounded-3xl border no-print">Tidak ada data peserta aktif (terverifikasi).</div>`;
+                return;
+            }
+            const generateCardHTML = (p) => {
+                const nama = p["Nama Lengkap"] || p.name || p.Nama || '-';
+                const nisn = p["NISN"] || '-';
+                const ruang = p["Ruang"] || '-';
+                const userCBT = p["Username_CBT"] || p["Username CBT"] || p["Email"] || '-';
+                const passCBT = p["Password CBT"] || p["Password"] || '-';
+                
+                let photoElement = '';
+                if (p.profileUrl && p.profileUrl !== '-') {
+                    photoElement = `<img src="${getDriveThumbnailUrl(p.profileUrl)}" crossorigin="anonymous" class="absolute top-4 right-4 w-[3.5rem] h-[4.5rem] object-cover rounded-lg border border-slate-600 shadow-md z-20 bg-slate-800">`;
+                }
+
+                return `
+                    <div class="print-card relative text-white bg-[#10141d] rounded-2xl overflow-hidden border border-slate-800 border-b-[6px] border-b-blue-600 p-4 flex flex-col h-[88mm] break-inside-avoid print:h-[88mm]">
+                        <div class="absolute -right-8 -top-8 w-28 h-28 bg-blue-600/20 rounded-full blur-xl"></div>
+                        ${photoElement}
+                        <div class="flex items-center mb-2 relative z-10 w-3/4">
+                            <img src="${CONFIG.LOGO_URL}" crossorigin="anonymous" class="h-7 w-7 object-contain mr-2 rounded bg-white p-0.5">
+                            <div class="font-black text-[13px] tracking-tight leading-none text-white">KoMa <span class="text-blue-500">2026</span></div>
+                        </div>
+                        <p class="text-[7.5px] uppercase text-blue-400 font-bold mb-3 tracking-widest relative z-10">KARTU PESERTA CBT</p>
+                        
+                        <div class="space-y-2 relative z-10 flex-1">
+                            <div>
+                                <label class="text-[6.5px] text-slate-400 block font-bold tracking-widest mb-0.5">NAMA PESERTA</label>
+                                <p class="font-black uppercase text-[11px] leading-tight truncate ${photoElement ? 'w-[75%]' : 'w-full'} text-white">${nama}</p>
+                            </div>
+                            <div>
+                                <label class="text-[6.5px] text-slate-400 block font-bold tracking-widest mb-0.5">NISN / RUANG UJIAN</label>
+                                <p class="font-bold uppercase text-[9px] text-slate-200">${nisn} <span class="mx-1 text-slate-500">|</span> RUANG ${ruang}</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-auto bg-[#1e3a8a]/40 border border-blue-500/30 p-2.5 rounded-xl relative z-10 shrink-0">
+                            <p class="text-[6.5px] text-yellow-400 uppercase font-black tracking-widest mb-1.5 border-b border-blue-500/30 pb-1">
+                                Akses Login Aplikasi Ujian
+                            </p>
+                            <div class="flex flex-col space-y-1">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[6.5px] text-blue-300 font-bold tracking-widest">USERNAME</span>
+                                    <span class="font-black text-[9px] tracking-wide text-white">${userCBT}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[6.5px] text-blue-300 font-bold tracking-widest">PASSWORD</span>
+                                    <span class="font-black text-[9px] tracking-widest text-white">${passCBT}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            };
+            
+            // Render versi print (Dipisah ketat per 6 Kartu / 1 Halaman A4)
+            let printHTML = '';
+            for (let i = 0; i < data.length; i += 6) {
+                const chunk = data.slice(i, i + 6);
+                const chunkHTML = chunk.map(p => generateCardHTML(p)).join('');
+                printHTML += `
+                    <div class="print-page-wrapper bg-white p-[10mm] rounded-2xl print:rounded-none shadow-xl border border-slate-200 w-[210mm] h-[296mm] print:h-[296mm] mx-auto overflow-hidden mb-10 print:mb-0 print:border-none print:shadow-none box-border">
+                        <div class="grid grid-cols-2 gap-[4mm] w-full content-start">${chunkHTML}</div>
+                    </div>
+                `;
+            }
+            printContainer.innerHTML = printHTML;
         }
 
         function updateLiveStatusBar(data) {
