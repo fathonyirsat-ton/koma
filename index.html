@@ -10,7 +10,7 @@
     <!-- ======================================================================= -->
     <script>
         const CONFIG = {
-            API_URL: 'https://script.google.com/macros/s/AKfycbxrrhy_oQfyI6M3sb3WS6PNAyZ0B-ZHFdPyW-ljgufZwuRpVHIgXskLYwGidBKjhD2F/exec',
+            API_URL: 'https://script.google.com/macros/s/AKfycbxDDnaOWqZ2KkuE1LDp4oOj6XUP7G5a-bbvrBm6doGFTKC3mkYUaEjqFermSH_IuyAz/exec',
             LOGO_URL: 'https://lh3.googleusercontent.com/d/1kIKApNGTiAnIDwDCT27D8yGUNRpOpxE5',
             QRIS_URL: 'https://drive.google.com/thumbnail?id=1zlxMNvEt7a3Pos_Zt8qq6hUtleI2UTj_&sz=w1000'
         };
@@ -64,7 +64,21 @@
         .hover-card-effect { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         .hover-card-effect:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border-color: #bfdbfe; }
 
-        @media print { .no-print { display: none !important; } body { background: white; } .page-section { display: block !important; opacity: 1 !important; } #dashboard-content { width: 100% !important; padding: 0 !important; } aside { display: none !important; } }
+        .print-show { display: none; }
+        @media print { 
+            @page { size: A4 portrait; margin: 10mm; }
+            html, body { height: auto !important; min-height: auto !important; background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .no-print, nav, footer, aside, header, #loader-overlay { display: none !important; } 
+            .site-wrapper, main, .page-section, #page-dashboard > div, .flex-1 { min-height: auto !important; height: auto !important; padding: 0 !important; margin: 0 !important; display: block !important; border: none !important; box-shadow: none !important; background: transparent !important; }
+            .page-section { display: none !important; opacity: 1 !important; transform: none !important; animation: none !important; } 
+            #page-dashboard { display: block !important; } 
+            #dashboard-content { width: 100% !important; padding: 0 !important; margin: 0 !important; } 
+            .print-show { display: block !important; width: 100% !important; }
+            .print-grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 3mm !important; align-items: start; width: 100%; }
+            .print-card { display: flex !important; flex-direction: column !important; page-break-inside: avoid; break-inside: avoid; padding: 12px 15px !important; height: 90mm !important; box-sizing: border-box !important; overflow: hidden !important; border-radius: 16px !important; background-color: #10141d !important; border-top: 1px solid #1e293b !important; border-left: 1px solid #1e293b !important; border-right: 1px solid #1e293b !important; border-bottom: 6px solid #2563eb !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .print-page-wrapper { page-break-after: always; break-after: page; }
+            .print-page-wrapper:last-child { page-break-after: auto; break-after: auto; }
+        }
     </style>
 </head>
 <body class="text-slate-800" oncontextmenu="return false" ondragstart="return false" onselectstart="return false">
@@ -1171,7 +1185,7 @@
                 menuHtml += `
                     <button onclick="viewAdminTimeline()" id="menu-jadwal" class="${baseClass} text-slate-300"><i data-lucide="calendar" class="w-5 h-5 mr-3"></i> Jadwal</button>
                     <button onclick="viewAdminLinks()" id="menu-links" class="${baseClass} text-slate-300"><i data-lucide="link" class="w-5 h-5 mr-3"></i> Link Aplikasi</button>
-                    <button onclick="viewAdminCetakKartu()" id="menu-cetak-kartu" class="${baseClass} text-slate-300"><i data-lucide="printer" class="w-5 h-5 mr-3"></i> Cetak Kartu CBT</button>
+                    <button onclick="viewAdminCetakKartu()" id="menu-cetak-kartu" class="${baseClass} text-slate-300"><i data-lucide="printer" class="w-5 h-5 mr-3"></i> Ekspor Kartu CBT</button>
                 `;
             }
 
@@ -1535,7 +1549,7 @@
                             <div class="font-black text-xl tracking-tight">KoMa <span class="text-blue-500">2026</span></div>
                         </div>
                         
-                        <p class="text-[10px] uppercase text-blue-400 font-bold mb-5 tracking-widest relative z-10">KARTU PESERTA KOMA</p>
+                        <p class="text-[10px] uppercase text-blue-400 font-bold mb-5 tracking-widest relative z-10">KARTU UJIAN DIGITAL</p>
                         
                         <div class="space-y-4 relative z-10">
                             <div>
@@ -2014,10 +2028,23 @@
                         <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center animate-pulse"><div class="h-8 bg-slate-200 rounded w-1/2 mx-auto mb-2"></div><div class="h-3 bg-slate-200 rounded w-3/4 mx-auto"></div></div>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
                         <div>
                             <label class="text-[9px] font-black uppercase text-slate-400 block mb-1.5 ml-1">Cari Nama Siswa</label>
                             <input type="text" id="staff-filter-name" oninput="applyStaffFilters()" class="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-blue-600 outline-none transition hover:border-blue-300" placeholder="Ketik nama...">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-black uppercase text-slate-400 block mb-1.5 ml-1">Filter Kelas</label>
+                            <select id="staff-filter-kelas" onchange="applyStaffFilters()" class="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-blue-600 outline-none transition hover:border-blue-300 cursor-pointer text-slate-700">
+                                <option value="">Semua Kelas</option>
+                                <option value="VII">Kelas VII</option>
+                                <option value="VIII">Kelas VIII</option>
+                                <option value="IX">Kelas IX</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-black uppercase text-slate-400 block mb-1.5 ml-1">Cari Sekolah Asal</label>
+                            <input type="text" id="staff-filter-sekolah" oninput="applyStaffFilters()" class="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-blue-600 outline-none transition hover:border-blue-300" placeholder="Ketik sekolah...">
                         </div>
                         <div>
                             <label class="text-[9px] font-black uppercase text-slate-400 block mb-1.5 ml-1">Filter Status</label>
@@ -2034,6 +2061,7 @@
                         <table class="w-full border-collapse text-sm">
                             <thead class="bg-[#10141d] text-white border-b">
                                 <tr>
+                                    <th class="p-4 text-center font-black uppercase text-[10px] tracking-widest whitespace-nowrap w-12">No</th>
                                     <th class="p-4 text-left font-black uppercase text-[10px] tracking-widest whitespace-nowrap">Nama Lengkap</th>
                                     <th class="p-4 text-left font-black uppercase text-[10px] tracking-widest whitespace-nowrap">Kelas</th>
                                     <th class="p-4 text-left font-black uppercase text-[10px] tracking-widest whitespace-nowrap">Sekolah Asal</th>
@@ -2042,7 +2070,7 @@
                                 </tr>
                             </thead>
                             <tbody id="staff-table-body" class="divide-y divide-slate-100 bg-white">
-                                <tr><td colspan="5" class="p-10 text-center text-slate-400 italic font-bold">Memuat data peserta...</td></tr>
+                                <tr><td colspan="6" class="p-10 text-center text-slate-400 italic font-bold">Memuat data peserta...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -2082,7 +2110,7 @@
 
         async function loadAllStaffData() {
             const tbody = document.getElementById('staff-table-body');
-            if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-400 italic font-bold">Memuat data peserta...</td></tr>`;
+            if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-slate-400 italic font-bold">Memuat data peserta...</td></tr>`;
             try {
                 const res = await callGAS({ action: 'getAllData', role: currentUser.role });
                 if(res && res.result === 'success') {
@@ -2090,16 +2118,16 @@
                     renderStaffStats(allParticipantsLocal);
                     renderStaffTable(allParticipantsLocal);
                 } else {
-                    if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-red-500 font-bold">Gagal memuat data dari server.</td></tr>`;
+                    if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-red-500 font-bold">Gagal memuat data dari server.</td></tr>`;
                 }
             } catch(e) {
-                if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-red-500 font-bold">Terjadi kesalahan jaringan.</td></tr>`;
+                if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-red-500 font-bold">Terjadi kesalahan jaringan.</td></tr>`;
             }
         }
 
         function renderStaffTable(data) {
             const tbody = document.getElementById('staff-table-body'); if (!tbody) return;
-            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-400 font-bold">Tidak ada data peserta ditemukan.</td></tr>`; return; }
+            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-slate-400 font-bold">Tidak ada data peserta ditemukan.</td></tr>`; return; }
             
             tbody.innerHTML = data.map((p, idx) => {
                 let waVal = '';
@@ -2113,6 +2141,7 @@
                 }
                 return `
                 <tr class="hover:bg-blue-50/50 transition-colors group animate-slide-right" style="animation-delay: ${Math.min(idx * 0.05, 0.5)}s; opacity:0; animation-fill-mode: forwards;">
+                    <td class="p-4 font-bold text-slate-500 text-center">${idx + 1}</td>
                     <td class="p-4 font-black text-slate-800 whitespace-nowrap">${p["Nama Lengkap"] || p.name || p.Nama || '-'}</td>
                     <td class="p-4 font-semibold text-slate-600">${p["Tingkat Kelas"] || p.kelas || p.Kelas || '-'}</td>
                     <td class="p-4 font-black text-slate-600 uppercase text-[10px] tracking-wider">${p["Sekolah Asal"] || p.sekolah || p.Sekolah || '-'}</td>
@@ -2136,11 +2165,15 @@
         function applyStaffFilters() {
             const nameFilter = (document.getElementById('staff-filter-name').value || '').toLowerCase();
             const statusFilter = document.getElementById('staff-filter-status').value;
+            const kelasFilter = document.getElementById('staff-filter-kelas').value;
+            const sekolahFilter = (document.getElementById('staff-filter-sekolah').value || '').toLowerCase();
             
             const filteredData = allParticipantsLocal.filter(p => {
-                const nameMatch = (p["Nama Lengkap"] || '').toLowerCase().includes(nameFilter);
+                const nameMatch = (p["Nama Lengkap"] || p.name || p.Nama || '').toLowerCase().includes(nameFilter);
                 const statusMatch = statusFilter ? p.Status === statusFilter : true;
-                return nameMatch && statusMatch;
+                const kelasMatch = kelasFilter ? (p["Tingkat Kelas"] || p.kelas || p.Kelas || '') === kelasFilter : true;
+                const sekolahMatch = (p["Sekolah Asal"] || p.sekolah || p.Sekolah || '').toLowerCase().includes(sekolahFilter);
+                return nameMatch && statusMatch && kelasMatch && sekolahMatch;
             });
             
             renderStaffTable(filteredData);
@@ -2206,6 +2239,9 @@
                 { label: 'No HP (WhatsApp)', value: p["No HP (WhatsApp)"] },
                 { label: 'Email Login', value: p["Email"] },
                 { label: 'Password', value: p["Password"] },
+                { label: 'Ruang Ujian', value: p["Ruang"] || p.ruang || p.Ruang },
+                { label: 'Username CBT', value: p["Username_CBT"] || p["Username CBT"] || p.username_cbt },
+                { label: 'Password CBT', value: p["Password_CBT"] || p["Password CBT"] || p.password_cbt },
                 { label: 'Status Pendaftaran', value: `<span class="px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest ${p.Status === 'Active' ? 'bg-green-100 text-green-700' : (p.Status === 'Rejected' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700')}">${p.Status}</span>`, copyValue: p.Status },
                 { label: 'Role', value: p["Role"] },
                 { label: 'Status Sertifikat Peserta', value: p["statusPeserta"] },
@@ -2552,25 +2588,27 @@
                             <i data-lucide="printer" class="w-4 h-4 mr-2"></i> Print A4 (6 Kartu/Hal)
                         </button>
                     </div>
-                    <p class="text-sm text-slate-500 font-semibold mb-6">Pratinjau kartu CBT peserta. Gunakan kertas A4 dan atur margin "Minimum/None" saat mencetak di browser.</p>
-                    <div id="cbt-cards-preview" class="grid grid-cols-1 lg:grid-cols-2 gap-4 max-h-[50vh] overflow-y-auto p-4 bg-slate-50 rounded-2xl border border-slate-200">
-                        <div class="col-span-full p-10 text-center text-slate-400 italic font-bold">Memuat data peserta...</div>
-                    </div>
+                    <!--p class="text-sm text-slate-500 font-semibold mb-6">Tampilan kartu disusun presisi. 1 Halaman A4 akan diisi tepat 6 kartu tanpa terpotong atau halaman kosong. Gunakan "Save as PDF" di dialog Print untuk menyimpannya ke PDF.</p-->
                 </div>
-                <div id="print-area" class="print-show"></div>
+                <div id="print-area" class="mt-8 flex flex-col items-center gap-6 pb-10">
+                    <div class="w-full text-center p-10 text-slate-400 italic font-bold bg-white rounded-3xl border no-print">Memuat data peserta...</div>
+                </div>
             `;
             if (window.lucide) lucide.createIcons();
 
             if (!allParticipantsLocal || allParticipantsLocal.length === 0) {
+                setLoading(true);
                 try {
                     const res = await callGAS({ action: 'getAllData', role: currentUser.role });
                     if(res && res.result === 'success') {
                         allParticipantsLocal = (res.data || []).filter(p => (p.Role || p.role || "").toLowerCase() === 'siswa').sort((a,b)=>b.rowNum - a.rowNum);
                     }
                 } catch (e) {
-                    document.getElementById('cbt-cards-preview').innerHTML = `<div class="col-span-full p-10 text-center text-red-500 font-bold">Gagal memuat data dari server.</div>`;
+                    setLoading(false);
+                    document.getElementById('print-area').innerHTML = `<div class="w-full p-10 text-center text-red-500 font-bold bg-white rounded-3xl border no-print">Gagal memuat data dari server.</div>`;
                     return;
                 }
+                setLoading(false);
             }
             renderCBTCards();
         }
@@ -2581,23 +2619,23 @@
             // Hanya memfilter siswa yang Active (Telah Dikonfirmasi)
             const data = allParticipantsLocal.filter(p => p.Status === 'Active');
             if (data.length === 0) {
-                printContainer.innerHTML = `<div class="w-full text-center p-10 text-slate-400 font-bold bg-white rounded-3xl border no-print">Tidak ada data peserta aktif (terverifikasi).</div>`;
+                printContainer.innerHTML = `<div class="w-full p-10 text-center text-slate-400 font-bold bg-white rounded-3xl border no-print">Tidak ada data peserta aktif (terverifikasi).</div>`;
                 return;
             }
             const generateCardHTML = (p) => {
                 const nama = p["Nama Lengkap"] || p.name || p.Nama || '-';
                 const nisn = p["NISN"] || '-';
-                const ruang = p["Ruang"] || '-';
-                const userCBT = p["Username_CBT"] || p["Username CBT"] || p["Email"] || '-';
-                const passCBT = p["Password CBT"] || p["Password"] || '-';
-                
+                const ruang = p["Ruang"] || p.ruang || p.Ruang || '-';
+                const userCBT = p["Username_CBT"] || p["Username CBT"] || p.username_cbt || p["Email"] || p.email || '-';
+                const passCBT = p["Password_CBT"] || p["Password CBT"] || p.password_cbt || p["Password"] || p.password || '-';
+
                 let photoElement = '';
                 if (p.profileUrl && p.profileUrl !== '-') {
                     photoElement = `<img src="${getDriveThumbnailUrl(p.profileUrl)}" crossorigin="anonymous" class="absolute top-4 right-4 w-[3.5rem] h-[4.5rem] object-cover rounded-lg border border-slate-600 shadow-md z-20 bg-slate-800">`;
                 }
 
                 return `
-                    <div class="print-card relative text-white bg-[#10141d] rounded-2xl overflow-hidden border border-slate-800 border-b-[6px] border-b-blue-600 p-4 flex flex-col h-[88mm] break-inside-avoid print:h-[88mm]">
+                    <div class="relative text-white bg-[#10141d] rounded-2xl overflow-hidden border border-slate-800 border-b-[6px] border-b-blue-600 p-4 flex flex-col h-[88mm] break-inside-avoid print:h-[88mm]">
                         <div class="absolute -right-8 -top-8 w-28 h-28 bg-blue-600/20 rounded-full blur-xl"></div>
                         ${photoElement}
                         <div class="flex items-center mb-2 relative z-10 w-3/4">
@@ -2618,16 +2656,14 @@
                         </div>
 
                         <div class="mt-auto bg-[#1e3a8a]/40 border border-blue-500/30 p-2.5 rounded-xl relative z-10 shrink-0">
-                            <p class="text-[6.5px] text-yellow-400 uppercase font-black tracking-widest mb-1.5 border-b border-blue-500/30 pb-1">
-                                Akses Login Aplikasi Ujian
-                            </p>
+                            <p class="text-[6.5px] text-yellow-400 uppercase font-black tracking-widest mb-1.5 border-b border-blue-500/30 pb-1">Akses Login Aplikasi Ujian</p>
                             <div class="flex flex-col space-y-1">
                                 <div class="flex justify-between items-center">
                                     <span class="text-[6.5px] text-blue-300 font-bold tracking-widest">USERNAME</span>
                                     <span class="font-black text-[9px] tracking-wide text-white">${userCBT}</span>
                                 </div>
                                 <div class="flex justify-between items-center">
-                                    <span class="text-[6.5px] text-blue-300 font-bold tracking-widest">PASSWORD</span>
+                                    <span class="text-[6px] text-blue-300 font-bold tracking-widest">PASSWORD</span>
                                     <span class="font-black text-[9px] tracking-widest text-white">${passCBT}</span>
                                 </div>
                             </div>
@@ -2635,14 +2671,13 @@
                     </div>
                 `;
             };
-            
-            // Render versi print (Dipisah ketat per 6 Kartu / 1 Halaman A4)
+
             let printHTML = '';
             for (let i = 0; i < data.length; i += 6) {
                 const chunk = data.slice(i, i + 6);
                 const chunkHTML = chunk.map(p => generateCardHTML(p)).join('');
                 printHTML += `
-                    <div class="print-page-wrapper bg-white p-[10mm] rounded-2xl print:rounded-none shadow-xl border border-slate-200 w-[210mm] h-[296mm] print:h-[296mm] mx-auto overflow-hidden mb-10 print:mb-0 print:border-none print:shadow-none box-border">
+                    <div class="print-page-wrapper bg-white p-[10mm] rounded-2xl print:rounded-none shadow-xl border border-slate-200 w-[210mm] h-[296mm] print:h-[296mm] mx-auto overflow-hidden mb-10 print:mb-0 print:border-none print:shadow-none box-border shrink-0">
                         <div class="grid grid-cols-2 gap-[4mm] w-full content-start">${chunkHTML}</div>
                     </div>
                 `;
