@@ -710,7 +710,9 @@
                 </div>
                 <div>
                     <label class="text-[10px] uppercase font-black text-slate-500 block mb-1.5 ml-1">Sekolah Asal *</label>
-                    <input type="text" id="guru-sekolah" list="sekolah-list" autocomplete="off" required placeholder="Ketik untuk mencari sekolah..." class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-purple-600 outline-none transition hover:border-purple-300 text-slate-700 uppercase">
+                    <select id="guru-sekolah" required class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-purple-600 outline-none transition hover:border-purple-300 text-slate-700 uppercase cursor-pointer">
+                        <option value="" disabled selected>PILIH SEKOLAH ASAL</option>
+                    </select>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -833,6 +835,7 @@
         let currentUser = null;
         let globalSchedule = [];
         let allParticipantsLocal = [];
+        let allDataCache = [];
         let isRegistrationOpen = false;
         let countdownInterval;
 
@@ -1936,7 +1939,7 @@
                     <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-slate-100 pb-6">
                         <div class="text-center md:text-left">
                             <h3 class="text-2xl font-black uppercase text-slate-800">Hasil Test CBT</h3>
-                            <p class="text-sm text-slate-500 mt-1 leading-relaxed">Berikut adalah rekapitulasi nilai dan Siswa Waktu ujian Anda.</p>
+                            <p class="text-sm text-slate-500 mt-1 leading-relaxed">Berikut adalah rekapitulasi nilai dan Sisa Waktu ujian Anda.</p>
                         </div>
                         <button onclick="refreshHasilTestData()" class="px-5 py-2.5 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm active:scale-95 flex items-center group shrink-0">
                             <i data-lucide="refresh-cw" class="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform duration-500"></i> Refresh Data
@@ -1958,7 +1961,7 @@
                                     <span class="text-lg font-black text-blue-600">${u.nilai_uji || '-'}</span>
                                 </div>
                                 <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-100">
-                                    <span class="text-[10px] uppercase font-black text-slate-400">Siswa Waktu</span>
+                                    <span class="text-[10px] uppercase font-black text-slate-400">Sisa Waktu</span>
                                     <span class="text-sm font-black text-slate-600">${u.waktu_uji || '-'}</span>
                                 </div>
                                 <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-100">
@@ -1982,7 +1985,7 @@
                                     <span class="text-lg font-black text-yellow-600">${u.nilai_kom || '-'}</span>
                                 </div>
                                 <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-yellow-100">
-                                    <span class="text-[10px] uppercase font-black text-yellow-700">Siswa Waktu</span>
+                                    <span class="text-[10px] uppercase font-black text-yellow-700">Sisa Waktu</span>
                                     <span class="text-sm font-black text-yellow-800">${u.waktu_kom || '-'}</span>
                                 </div>
                                 <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-yellow-100">
@@ -2456,7 +2459,8 @@
                     </div>
 
                     <!-- STATISTIK KARTU -->
-                    <div id="admin-dashboard-stats" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+                    <div id="admin-dashboard-stats" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center animate-pulse"><div class="h-8 bg-slate-200 rounded w-1/2 mx-auto mb-2"></div><div class="h-3 bg-slate-200 rounded w-3/4 mx-auto"></div></div>
                         <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center animate-pulse"><div class="h-8 bg-slate-200 rounded w-1/2 mx-auto mb-2"></div><div class="h-3 bg-slate-200 rounded w-3/4 mx-auto"></div></div>
                         <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center animate-pulse"><div class="h-8 bg-slate-200 rounded w-1/2 mx-auto mb-2"></div><div class="h-3 bg-slate-200 rounded w-3/4 mx-auto"></div></div>
                         <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center animate-pulse"><div class="h-8 bg-slate-200 rounded w-1/2 mx-auto mb-2"></div><div class="h-3 bg-slate-200 rounded w-3/4 mx-auto"></div></div>
@@ -2476,6 +2480,22 @@
                             <h4 class="font-black text-slate-700 uppercase text-sm mb-4 text-center tracking-widest">Pendaftar per Sekolah Asal (Top 10)</h4>
                             <div class="relative w-full" id="chart-sekolah-container" style="height: 256px;">
                                 <canvas id="chart-sekolah"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GRAFIK STATUS CBT -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6 animate-scale-in" style="animation-delay: 0.2s; opacity:0; animation-fill-mode: forwards;">
+                        <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                            <h4 class="font-black text-slate-700 uppercase text-sm mb-4 text-center tracking-widest">Status Uji Coba (CBT)</h4>
+                            <div class="relative h-64 w-full">
+                                <canvas id="chart-status-uji"></canvas>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                            <h4 class="font-black text-slate-700 uppercase text-sm mb-4 text-center tracking-widest">Status Kompetisi (CBT)</h4>
+                            <div class="relative h-64 w-full">
+                                <canvas id="chart-status-kom"></canvas>
                             </div>
                         </div>
                     </div>
@@ -2507,7 +2527,7 @@
             if (!allParticipantsLocal || allParticipantsLocal.length === 0) {
                 loadAdminDashboardData();
             } else {
-                renderAdminDashboardStats(allParticipantsLocal);
+                renderAdminDashboardStats(allDataCache.length > 0 ? allDataCache : allParticipantsLocal);
                 renderAdminDashboardCharts(allParticipantsLocal);
                 renderAdminDashboardSchoolTable(allParticipantsLocal);
             }
@@ -2518,8 +2538,9 @@
             try {
                 const res = await callGAS({ action: 'getAllData', role: currentUser.role });
                 if(res && res.result === 'success') {
-                    allParticipantsLocal = (res.data || []).filter(p => (p.Role || p.role || "").toLowerCase() === 'siswa').sort((a,b)=>b.rowNum - a.rowNum);
-                    renderAdminDashboardStats(allParticipantsLocal);
+                    allDataCache = res.data || [];
+                    allParticipantsLocal = allDataCache.filter(p => (p.Role || p.role || "").toLowerCase() === 'siswa').sort((a,b)=>b.rowNum - a.rowNum);
+                    renderAdminDashboardStats(allDataCache);
                     renderAdminDashboardCharts(allParticipantsLocal);
                     renderAdminDashboardSchoolTable(allParticipantsLocal);
                 }
@@ -2533,11 +2554,21 @@
             const container = document.getElementById('admin-dashboard-stats');
             if (!container) return;
             
-            const total = data.length;
-            const totalSekolah = new Set(data.map(p => (p["Sekolah Asal"] || p.sekolah || p.Sekolah || 'Tidak Disebutkan').toUpperCase().trim())).size;
-            const aktif = data.filter(p => p.Status === 'Active').length;
-            const pending = data.filter(p => p.Status === 'Menunggu Konfirmasi').length;
-            const ditolak = data.filter(p => p.Status === 'Rejected').length;
+            let dataSiswa = data;
+            let dataPendamping = [];
+            
+            if (allDataCache.length > 0) {
+                dataSiswa = allDataCache.filter(p => (p.Role || p.role || "").toLowerCase() === 'siswa');
+                dataPendamping = allDataCache.filter(p => (p.Role || p.role || "").toLowerCase() === 'pendamping');
+            }
+
+            const total = dataSiswa.length;
+            const totalSekolah = new Set(dataSiswa.map(p => (p["Sekolah Asal"] || p.sekolah || p.Sekolah || 'Tidak Disebutkan').toUpperCase().trim())).size;
+            const aktif = dataSiswa.filter(p => p.Status === 'Active').length;
+            const pending = dataSiswa.filter(p => p.Status === 'Menunggu Konfirmasi').length;
+            const ditolak = dataSiswa.filter(p => p.Status === 'Rejected').length;
+            
+            const totalPendamping = dataPendamping.length;
 
             container.innerHTML = `
                 <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100 text-center shadow-sm transform transition duration-300 hover:scale-105 animate-slide-right" style="animation-delay: 0.1s; opacity:0; animation-fill-mode: forwards;">
@@ -2550,13 +2581,17 @@
                 </div>
                 <div class="p-4 bg-green-50 rounded-2xl border border-green-100 text-center shadow-sm transform transition duration-300 hover:scale-105 animate-slide-right" style="animation-delay: 0.2s; opacity:0; animation-fill-mode: forwards;">
                     <h4 class="text-3xl font-black text-green-600 mb-1">${aktif}</h4>
-                    <p class="text-[9px] font-bold uppercase tracking-widest text-green-500">Status Aktif</p>
+                    <p class="text-[9px] font-bold uppercase tracking-widest text-green-500">Siswa Aktif</p>
                 </div>
                 <div class="p-4 bg-amber-50 rounded-2xl border border-amber-100 text-center shadow-sm transform transition duration-300 hover:scale-105 animate-slide-right" style="animation-delay: 0.25s; opacity:0; animation-fill-mode: forwards;">
                     <h4 class="text-3xl font-black text-amber-600 mb-1">${pending}</h4>
                     <p class="text-[9px] font-bold uppercase tracking-widest text-amber-500">Menunggu Konfirmasi</p>
                 </div>
-                <div class="p-4 bg-red-50 rounded-2xl border border-red-100 text-center shadow-sm transform transition duration-300 hover:scale-105 animate-slide-right" style="animation-delay: 0.3s; opacity:0; animation-fill-mode: forwards;">
+                <div class="p-4 bg-indigo-50 rounded-2xl border border-indigo-100 text-center shadow-sm transform transition duration-300 hover:scale-105 animate-slide-right" style="animation-delay: 0.3s; opacity:0; animation-fill-mode: forwards;">
+                    <h4 class="text-3xl font-black text-indigo-600 mb-1">${totalPendamping}</h4>
+                    <p class="text-[9px] font-bold uppercase tracking-widest text-indigo-500">Total Pembina</p>
+                </div>
+                <div class="p-4 bg-red-50 rounded-2xl border border-red-100 text-center shadow-sm transform transition duration-300 hover:scale-105 animate-slide-right" style="animation-delay: 0.35s; opacity:0; animation-fill-mode: forwards;">
                     <h4 class="text-3xl font-black text-red-600 mb-1">${ditolak}</h4>
                     <p class="text-[9px] font-bold uppercase tracking-widest text-red-500">Ditolak</p>
                 </div>
@@ -2565,10 +2600,14 @@
 
         let chartKelasInstance = null;
         let chartSekolahInstance = null;
+        let chartStatusUjiInstance = null;
+        let chartStatusKomInstance = null;
 
         function renderAdminDashboardCharts(data) {
             const kelasCount = {};
             const sekolahCount = {};
+            const statusUjiCount = { 'Selesai': 0, 'Mengerjakan': 0, 'Belum Mulai': 0 };
+            const statusKomCount = { 'Selesai': 0, 'Mengerjakan': 0, 'Belum Mulai': 0 };
 
             data.forEach(p => {
                 let kls = (p["Tingkat Kelas"] || p.kelas || p.Kelas || 'Tidak Disebutkan').toUpperCase();
@@ -2576,6 +2615,16 @@
 
                 kelasCount[kls] = (kelasCount[kls] || 0) + 1;
                 sekolahCount[sek] = (sekolahCount[sek] || 0) + 1;
+
+                let sUji = (p["status_uji"] || p.status_uji || 'Belum Mulai').toString().toLowerCase();
+                if (sUji.includes('selesai')) statusUjiCount['Selesai']++;
+                else if (sUji.includes('mengerjakan')) statusUjiCount['Mengerjakan']++;
+                else statusUjiCount['Belum Mulai']++;
+
+                let sKom = (p["status_kom"] || p.status_kom || 'Belum Mulai').toString().toLowerCase();
+                if (sKom.includes('selesai')) statusKomCount['Selesai']++;
+                else if (sKom.includes('mengerjakan')) statusKomCount['Mengerjakan']++;
+                else statusKomCount['Belum Mulai']++;
             });
 
             const kelasLabels = Object.keys(kelasCount).sort();
@@ -2631,6 +2680,48 @@
                         indexAxis: 'y',
                         plugins: { legend: { display: false } },
                         scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+                    }
+                });
+            }
+
+            const ctxUji = document.getElementById('chart-status-uji');
+            if (ctxUji) {
+                if (chartStatusUjiInstance) chartStatusUjiInstance.destroy();
+                chartStatusUjiInstance = new Chart(ctxUji, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Selesai', 'Mengerjakan', 'Belum Mulai'],
+                        datasets: [{
+                            data: [statusUjiCount['Selesai'], statusUjiCount['Mengerjakan'], statusUjiCount['Belum Mulai']],
+                            backgroundColor: ['#10b981', '#f59e0b', '#cbd5e1'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+            }
+
+            const ctxKom = document.getElementById('chart-status-kom');
+            if (ctxKom) {
+                if (chartStatusKomInstance) chartStatusKomInstance.destroy();
+                chartStatusKomInstance = new Chart(ctxKom, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Selesai', 'Mengerjakan', 'Belum Mulai'],
+                        datasets: [{
+                            data: [statusKomCount['Selesai'], statusKomCount['Mengerjakan'], statusKomCount['Belum Mulai']],
+                            backgroundColor: ['#3b82f6', '#f59e0b', '#cbd5e1'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } }
                     }
                 });
             }
@@ -2817,6 +2908,7 @@
             try {
                 const res = await callGAS({ action: 'getAllData', role: currentUser.role });
                 if(res && res.result === 'success') {
+                    allDataCache = res.data || [];
                     let dataList = res.data || [];
                     if (currentUser.role === 'Pendamping') {
                         dataList = dataList.filter(p => (p.Role || p.role || "").toLowerCase() === 'siswa');
@@ -3751,6 +3843,13 @@
                     const datalist = document.getElementById('sekolah-list');
                     if (datalist) {
                         datalist.innerHTML = res.data.map(s => `<option value="${s}">${s}</option>`).join('');
+                    }
+                    
+                    const guruSekolah = document.getElementById('guru-sekolah');
+                    if (guruSekolah && guruSekolah.tagName === 'SELECT') {
+                        const existingVal = guruSekolah.value;
+                        guruSekolah.innerHTML = '<option value="" disabled selected>PILIH SEKOLAH ASAL</option>' + res.data.map(s => `<option value="${s}">${s}</option>`).join('');
+                        if (existingVal) guruSekolah.value = existingVal;
                     }
                 }
             } catch (e) { console.error("Gagal memuat list sekolah", e); }
