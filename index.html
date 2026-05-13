@@ -2690,7 +2690,7 @@
                 chartStatusUjiInstance = new Chart(ctxUji, {
                     type: 'doughnut',
                     data: {
-                        labels: ['Selesai', 'Mengerjakan', 'Belum Mulai'],
+                    labels: [`Selesai: ${statusUjiCount['Selesai']}`, `Mengerjakan: ${statusUjiCount['Mengerjakan']}`, `Belum Mulai: ${statusUjiCount['Belum Mulai']}`],
                         datasets: [{
                             data: [statusUjiCount['Selesai'], statusUjiCount['Mengerjakan'], statusUjiCount['Belum Mulai']],
                             backgroundColor: ['#10b981', '#f59e0b', '#cbd5e1'],
@@ -2700,7 +2700,7 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: { legend: { position: 'bottom' } }
+                    plugins: { legend: { position: 'right' } }
                     }
                 });
             }
@@ -2711,7 +2711,7 @@
                 chartStatusKomInstance = new Chart(ctxKom, {
                     type: 'doughnut',
                     data: {
-                        labels: ['Selesai', 'Mengerjakan', 'Belum Mulai'],
+                    labels: [`Selesai: ${statusKomCount['Selesai']}`, `Mengerjakan: ${statusKomCount['Mengerjakan']}`, `Belum Mulai: ${statusKomCount['Belum Mulai']}`],
                         datasets: [{
                             data: [statusKomCount['Selesai'], statusKomCount['Mengerjakan'], statusKomCount['Belum Mulai']],
                             backgroundColor: ['#3b82f6', '#f59e0b', '#cbd5e1'],
@@ -2721,7 +2721,7 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: { legend: { position: 'bottom' } }
+                    plugins: { legend: { position: 'right' } }
                     }
                 });
             }
