@@ -10,7 +10,7 @@
     <!-- ======================================================================= -->
     <script>
         const CONFIG = {
-            API_URL: 'https://script.google.com/macros/s/AKfycbzR1XKq2oY9vQqpJ_yOf2dQmWaC9XqRxWWKcDelQ_PecIdhLUv6kBxS30qFbiu1xXLm/exec',
+            API_URL: 'https://script.google.com/macros/s/AKfycbwsdsHg7MF_h6Wz1MpXTRChNXfrBQL8-KYdusgMWlba1A2IXq9V4l4TY8TXHvNLOAS3/exec',
             LOGO_URL: 'https://lh3.googleusercontent.com/d/1kIKApNGTiAnIDwDCT27D8yGUNRpOpxE5',
             QRIS_URL: 'https://drive.google.com/thumbnail?id=1zlxMNvEt7a3Pos_Zt8qq6hUtleI2UTj_&sz=w1000'
         };
@@ -1372,16 +1372,25 @@
                     menuHtml += `<button onclick="viewSiswaProfile()" id="menu-profil" class="${baseClass} text-slate-300"><i data-lucide="user" class="w-5 h-5 mr-3"></i> Profil Saya</button>`;
                 }
 
-                if (u.role === 'Admin') {
+                if (u.role === 'Admin' || u.role === 'Panitia') {
+                    menuHtml += `<button onclick="viewAdminTimeline()" id="menu-jadwal" class="${baseClass} text-slate-300"><i data-lucide="calendar" class="w-5 h-5 mr-3"></i> Jadwal</button>`;
+                    
+                    if (u.role === 'Admin') {
+                        menuHtml += `<button onclick="viewAdminLinks()" id="menu-links" class="${baseClass} text-slate-300"><i data-lucide="link" class="w-5 h-5 mr-3"></i> Link Aplikasi</button>`;
+                    }
+                    
                     menuHtml += `
-                        <button onclick="viewAdminTimeline()" id="menu-jadwal" class="${baseClass} text-slate-300"><i data-lucide="calendar" class="w-5 h-5 mr-3"></i> Jadwal</button>
-                        <button onclick="viewAdminLinks()" id="menu-links" class="${baseClass} text-slate-300"><i data-lucide="link" class="w-5 h-5 mr-3"></i> Link Aplikasi</button>
                         <button onclick="viewAdminCetakKartu()" id="menu-cetak-kartu" class="${baseClass} text-slate-300"><i data-lucide="printer" class="w-5 h-5 mr-3"></i> Kartu CBT</button>
                         <button onclick="viewDenahRuang()" id="menu-denah" class="${baseClass} text-slate-300"><i data-lucide="layout-grid" class="w-5 h-5 mr-3"></i> Denah + Presensi</button>
                         <button onclick="viewAdminTokenCBT()" id="menu-token" class="${baseClass} text-slate-300"><i data-lucide="key" class="w-5 h-5 mr-3"></i> Token CBT</button>
-                        <button onclick="viewAdminBAP()" id="menu-bap" class="${baseClass} text-slate-300"><i data-lucide="file-text" class="w-5 h-5 mr-3"></i> Berita Acara</button>
-                        <button onclick="viewAdminCetakSertifikat()" id="menu-cetak-sertifikat" class="${baseClass} text-slate-300"><i data-lucide="award" class="w-5 h-5 mr-3"></i> Sertifikat</button>
                     `;
+                    
+                    if (u.role === 'Admin') {
+                        menuHtml += `
+                            <button onclick="viewAdminBAP()" id="menu-bap" class="${baseClass} text-slate-300"><i data-lucide="file-text" class="w-5 h-5 mr-3"></i> Berita Acara</button>
+                            <button onclick="viewAdminCetakSertifikat()" id="menu-cetak-sertifikat" class="${baseClass} text-slate-300"><i data-lucide="award" class="w-5 h-5 mr-3"></i> Sertifikat</button>
+                        `;
+                    }
                 }
 
                 menuHtml += `
@@ -3451,7 +3460,7 @@
             
             setLoading(true);
             try {
-                const res = await callGAS({ action: 'generateDenah' });
+                const res = await callGAS({ action: 'generateDenah', role: currentUser.role });
                 if (res && res.result === 'success') {
                     showAlert('Sukses', 'Ruang dan kursi berhasil diatur secara otomatis!', 'success');
                     loadAllStaffData().then(() => viewDenahRuang('A'));
@@ -4854,12 +4863,11 @@
                             <div class="absolute -right-10 -bottom-10 opacity-10 text-blue-500 rotate-12 transition-transform group-hover:rotate-0 duration-1000 group-hover:scale-110">
                                 <i data-lucide="key" class="w-40 h-40"></i>
                             </div>
-                            <h4 class="font-black text-blue-900 uppercase text-sm tracking-wider mb-2 relative z-10">Halaman Token Server</h4>
-                            <p class="text-xs text-blue-700 font-bold mb-8 break-all relative z-10">${tokenLink}</p>
+                            <h4 class="font-black text-blue-900 uppercase text-sm tracking-wider mb-8 relative z-10">Halaman Token Server</h4>
                             
-                            <a href="${tokenLink}" target="_blank" class="relative z-10 inline-flex items-center justify-center w-full bg-blue-600 text-white font-black py-4 rounded-xl uppercase text-xs tracking-widest shadow-lg hover:bg-blue-700 transition transform hover:scale-105 active:scale-95">
+                            <button onclick="window.open('${tokenLink}', '_blank')" class="relative z-10 inline-flex items-center justify-center w-full bg-blue-600 text-white font-black py-4 rounded-xl uppercase text-xs tracking-widest shadow-lg hover:bg-blue-700 transition transform hover:scale-105 active:scale-95">
                                 <i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Buka Token CBT
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>
