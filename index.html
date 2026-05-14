@@ -10,7 +10,7 @@
     <!-- ======================================================================= -->
     <script>
         const CONFIG = {
-            API_URL: 'https://script.google.com/macros/s/AKfycby3F037bJQoAmlgK1-Szj7BVX8kCr9_2556h7PotABgvXbYLswcYNnp4oXgfUxKqAh3/exec',
+            API_URL: 'https://script.google.com/macros/s/AKfycbzR1XKq2oY9vQqpJ_yOf2dQmWaC9XqRxWWKcDelQ_PecIdhLUv6kBxS30qFbiu1xXLm/exec',
             LOGO_URL: 'https://lh3.googleusercontent.com/d/1kIKApNGTiAnIDwDCT27D8yGUNRpOpxE5',
             QRIS_URL: 'https://drive.google.com/thumbnail?id=1zlxMNvEt7a3Pos_Zt8qq6hUtleI2UTj_&sz=w1000'
         };
@@ -80,6 +80,12 @@
             .print-page-wrapper { page-break-after: always; break-after: page; }
             .print-page-wrapper:last-child { page-break-after: auto; break-after: auto; }
         }
+
+        /* Custom Scrollbar untuk Denah Layout Horizontal Menyamping */
+        .custom-scrollbar::-webkit-scrollbar { height: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 <body class="text-slate-800" oncontextmenu="return false" ondragstart="return false" onselectstart="return false">
@@ -1370,8 +1376,11 @@
                     menuHtml += `
                         <button onclick="viewAdminTimeline()" id="menu-jadwal" class="${baseClass} text-slate-300"><i data-lucide="calendar" class="w-5 h-5 mr-3"></i> Jadwal</button>
                         <button onclick="viewAdminLinks()" id="menu-links" class="${baseClass} text-slate-300"><i data-lucide="link" class="w-5 h-5 mr-3"></i> Link Aplikasi</button>
-                        <button onclick="viewAdminCetakKartu()" id="menu-cetak-kartu" class="${baseClass} text-slate-300"><i data-lucide="printer" class="w-5 h-5 mr-3"></i> Ekspor Kartu CBT</button>
-                        <button onclick="viewAdminCetakSertifikat()" id="menu-cetak-sertifikat" class="${baseClass} text-slate-300"><i data-lucide="award" class="w-5 h-5 mr-3"></i> Cetak Sertifikat</button>
+                        <button onclick="viewAdminCetakKartu()" id="menu-cetak-kartu" class="${baseClass} text-slate-300"><i data-lucide="printer" class="w-5 h-5 mr-3"></i> Kartu CBT</button>
+                        <button onclick="viewDenahRuang()" id="menu-denah" class="${baseClass} text-slate-300"><i data-lucide="layout-grid" class="w-5 h-5 mr-3"></i> Denah + Presensi</button>
+                        <button onclick="viewAdminTokenCBT()" id="menu-token" class="${baseClass} text-slate-300"><i data-lucide="key" class="w-5 h-5 mr-3"></i> Token CBT</button>
+                        <button onclick="viewAdminBAP()" id="menu-bap" class="${baseClass} text-slate-300"><i data-lucide="file-text" class="w-5 h-5 mr-3"></i> Berita Acara</button>
+                        <button onclick="viewAdminCetakSertifikat()" id="menu-cetak-sertifikat" class="${baseClass} text-slate-300"><i data-lucide="award" class="w-5 h-5 mr-3"></i> Sertifikat</button>
                     `;
                 }
 
@@ -2947,9 +2956,9 @@
                 return `
                 <tr class="hover:bg-blue-50/50 transition-colors group animate-slide-right" style="animation-delay: ${Math.min(idx * 0.05, 0.5)}s; opacity:0; animation-fill-mode: forwards;">
                     <td class="p-4 font-bold text-slate-500 text-center">${idx + 1}</td>
-                    <td class="p-4 font-black text-slate-800 whitespace-nowrap">${p["Nama Lengkap"] || p.name || p.Nama || '-'}</td>
+                    <td class="p-4 font-black text-slate-800 whitespace-normal min-w-[150px] max-w-[250px] break-words">${p["Nama Lengkap"] || p.name || p.Nama || '-'}</td>
                     <td class="p-4 font-semibold text-slate-600">${p["Tingkat Kelas"] || p.kelas || p.Kelas || '-'}</td>
-                    <td class="p-4 font-black text-slate-600 uppercase text-[10px] tracking-wider">${p["Sekolah Asal"] || p.sekolah || p.Sekolah || '-'}</td>
+                    <td class="p-4 font-black text-slate-600 uppercase text-[10px] tracking-wider whitespace-normal min-w-[120px] max-w-[200px] break-words">${p["Sekolah Asal"] || p.sekolah || p.Sekolah || '-'}</td>
                     <td class="p-4 text-center">
                         <span class="px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${
                             p.Status === 'Active' ? 'bg-green-100 text-green-700' : 
@@ -2987,6 +2996,473 @@
             });
             
             renderStaffTable(filteredData);
+        }
+
+        function viewDenahRuang(selectedRuang = 'A') {
+            setActiveMenu('menu-denah');
+            const dc = document.getElementById('dashboard-content');
+            if (!dc) return;
+
+            if (!allDataCache || allDataCache.length === 0) {
+                dc.innerHTML = `<div class="p-10 text-center"><div class="animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent mx-auto"></div><p class="mt-4 font-bold text-slate-400">Memuat data peserta...</p></div>`;
+                setLoading(true);
+                loadAllStaffData().then(() => {
+                    setLoading(false);
+                    if (allDataCache && allDataCache.length > 0) {
+                        viewDenahRuang(selectedRuang);
+                    } else {
+                        dc.innerHTML = `<div class="col-span-full p-10 text-center text-slate-400 italic font-bold border-2 border-dashed border-slate-200 rounded-2xl w-full">Data peserta masih kosong atau gagal dimuat.</div>`;
+                    }
+                });
+                return;
+            }
+
+            const activeSiswa = allParticipantsLocal.filter(p => (p.Role || p.role || "").toLowerCase() === 'siswa' && p.Status === 'Active');
+            
+            // Filter peserta berdasarkan ruangan
+            let roomData = activeSiswa.filter(p => {
+                let r = String(p.Ruang || p.ruang || "-").toUpperCase();
+                return r.startsWith(selectedRuang + "-") || r === selectedRuang;
+            });
+
+            // Urutkan berdasarkan Kode Ruang, lalu Kelas, dan terakhir Nama Abjad
+            roomData.sort((a, b) => {
+                let rA = String(a.Ruang || "").toUpperCase();
+                let rB = String(b.Ruang || "").toUpperCase();
+                
+                let partsA = rA.split('-');
+                let partsB = rB.split('-');
+                if (partsA.length === 3 && partsB.length === 3 && partsA[0] === partsB[0]) {
+                    let kA = parseInt(partsA[1]) || 99; let kB = parseInt(partsB[1]) || 99;
+                    if (kA !== kB) return kA - kB;
+                    let numA = parseInt(partsA[2]) || 999; let numB = parseInt(partsB[2]) || 999;
+                    if (numA !== numB) return numA - numB;
+                } else if (rA !== rB) {
+                    return rA.localeCompare(rB, undefined, {numeric: true});
+                }
+                
+                let kelasVal = { "VII": 7, "VIII": 8, "IX": 9 };
+                let gradeA = kelasVal[String(a["Tingkat Kelas"] || a.kelas || a.Kelas || "").toUpperCase()] || 99;
+                let gradeB = kelasVal[String(b["Tingkat Kelas"] || b.kelas || b.Kelas || "").toUpperCase()] || 99;
+                if (gradeA !== gradeB) return gradeA - gradeB;
+                return String(a["Nama Lengkap"] || "").localeCompare(String(b["Nama Lengkap"] || ""));
+            });
+
+            const tabsHtml = ['A', 'B', 'C', 'D'].map(r => `
+                <button onclick="viewDenahRuang('${r}')" class="px-6 py-3 font-black text-xs uppercase tracking-widest rounded-xl transition-all ${selectedRuang === r ? 'bg-blue-600 text-white shadow-lg transform scale-105' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}">
+                    Ruang ${r}
+                </button>
+            `).join('');
+
+            let gridHtml = '';
+            if (roomData.length === 0) {
+                gridHtml = `<div class="col-span-full p-10 text-center text-slate-400 italic font-bold border-2 border-dashed border-slate-200 rounded-2xl w-full flex items-center justify-center min-h-[300px] print:hidden">Tidak ada peserta yang dialokasikan di Ruang ${selectedRuang}.<br><span class="text-[10px] mt-2 block font-normal text-slate-400">Gunakan tombol "Atur Ruang" untuk menyusun kursi secara otomatis.</span></div>`;
+            } else {
+                let columns = [];
+                let currentGrade = null;
+                let currentColumn = [];
+
+                let kelasValMap = { "VII": 7, "VIII": 8, "IX": 9 };
+
+                // Pisahkan per tingkat kelas dan paksa max 6 kursi per kolom
+                roomData.forEach(p => {
+                    let rawKelas = String(p["Tingkat Kelas"] || p.kelas || p.Kelas || "").toUpperCase();
+                    let grade = kelasValMap[rawKelas] ? String(kelasValMap[rawKelas]) : 'X';
+                    
+                    if (grade !== currentGrade) {
+                        if (currentColumn.length > 0) {
+                            columns.push(currentColumn);
+                            currentColumn = [];
+                        }
+                        currentGrade = grade;
+                    }
+
+                    if (currentColumn.length >= 6) {
+                        columns.push(currentColumn);
+                        currentColumn = [];
+                    }
+
+                    currentColumn.push(p);
+                });
+                if (currentColumn.length > 0) {
+                    columns.push(currentColumn);
+                }
+
+                // Sisipkan slot kursi kosong agar genap 6 baris penuh
+                let flatGrid = [];
+                columns.forEach(col => {
+                    col.forEach(p => flatGrid.push(p));
+                    for (let i = col.length; i < 6; i++) {
+                        flatGrid.push(null);
+                    }
+                });
+
+                gridHtml = flatGrid.map((p, idx) => {
+                    if (p === null) {
+                        return `<div class="w-full h-full opacity-0 break-inside-avoid"></div>`;
+                    }
+                    
+                    let photoUrl = p.profileUrl && p.profileUrl !== '-' ? getDriveThumbnailUrl(p.profileUrl) : '';
+                    let photoElement = photoUrl 
+                        ? `<img src="${photoUrl}" crossorigin="anonymous" class="w-8 h-10 print:w-8 print:h-10 object-cover rounded shadow-sm border border-slate-200 shrink-0">`
+                        : `<div class="w-8 h-10 print:w-8 print:h-10 bg-slate-100 rounded flex items-center justify-center border border-slate-200 shrink-0"><i data-lucide="user" class="w-4 h-4 text-slate-400"></i></div>`;
+                    
+                    return `
+                    <div class="bg-white border-[1.5px] border-blue-200 p-1 sm:p-2 rounded-xl shadow-sm flex items-center gap-2 hover:border-blue-400 transition-all relative overflow-hidden print:border-slate-400 print:shadow-none break-inside-avoid w-full h-full print:rounded-lg print:p-1.5">
+                        <div class="absolute top-0 left-0 w-1.5 h-full bg-blue-500 print:bg-slate-600"></div>
+                        
+                        <!-- Photo & Room Code (Kiri) -->
+                        <div class="pl-2 shrink-0 flex flex-col items-center justify-center h-full min-w-[44px] print:min-w-[40px]">
+                            <div class="bg-blue-600 text-white border border-blue-700 rounded-md px-1.5 py-1 font-black mb-1.5 print:bg-slate-800 print:border-slate-900 print:text-white text-[11px] print:text-[10px] w-full text-center tracking-tight shadow-sm whitespace-nowrap leading-none">
+                                ${p.Ruang ? p.Ruang : '-'}
+                            </div>
+                            ${photoElement}
+                        </div>
+                        
+                        <!-- User Details (Kanan) -->
+                        <div class="flex flex-col justify-center text-left w-full overflow-hidden shrink min-w-0 pr-1">
+                            <h5 class="text-[10px] sm:text-[11px] print:text-[9.5px] font-black text-slate-800 uppercase leading-tight w-full mb-0.5" title="${p["Nama Lengkap"] || '-'}">${p["Nama Lengkap"] || '-'}</h5>
+                            <p class="text-[8px] sm:text-[9px] print:text-[7.5px] uppercase font-bold text-slate-500 tracking-wider w-full mb-0.5" title="${p["Sekolah Asal"] || '-'}">${p["Sekolah Asal"] || '-'}</p>
+                            <p class="text-[8px] print:text-[7.5px] uppercase font-black text-blue-600 truncate w-full">CBT: ${p["Username_CBT"] || p.Email || p.email || '-'}</p>
+                        </div>
+                    </div>
+                `}).join('');
+            }
+
+            dc.innerHTML = `
+                <div class="space-y-4 sm:space-y-6 text-left bg-white p-4 sm:p-8 rounded-3xl shadow-sm border animate-scale-in print:border-none print:shadow-none print:p-0 print:m-0 w-full print:h-[100vh] print:overflow-hidden">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4 sm:pb-6 print:hidden">
+                        <h3 class="font-black text-xl text-slate-800 uppercase flex items-center">
+                            <i data-lucide="layout-grid" class="w-6 h-6 mr-3 text-blue-600"></i> Denah + Presensi
+                        </h3>
+                        <div class="flex flex-wrap gap-2">
+                            ${currentUser.role === 'Admin' ? `<button onclick="generateDenahOtomatis()" class="p-2 bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all shadow-sm active:scale-95 flex items-center"><i data-lucide="wand-2" class="w-4 h-4 mr-2"></i> Atur Ruang</button>` : ''}
+                            <button onclick="printDenahLandscape()" class="p-2 bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-700 transition-all shadow-sm active:scale-95 flex items-center">
+                                <i data-lucide="printer" class="w-4 h-4 mr-2"></i> Cetak Denah
+                            </button>
+                            <button onclick="printSemuaDenah()" class="p-2 bg-slate-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-600 transition-all shadow-sm active:scale-95 flex items-center" title="Denah Meja Seluruh Ruang">
+                                <i data-lucide="layers" class="w-4 h-4 mr-2"></i> Semua Ruang
+                            </button>
+                            <button onclick="printDaftarHadir('${selectedRuang}')" class="p-2 bg-blue-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-sm active:scale-95 flex items-center">
+                                <i data-lucide="clipboard-list" class="w-4 h-4 mr-2"></i> Daftar Hadir
+                            </button>
+                            <button onclick="printSemuaDaftarHadir()" class="p-2 bg-blue-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-sm active:scale-95 flex items-center" title="Daftar Hadir A4 Seluruh Ruang">
+                                <i data-lucide="files" class="w-4 h-4 mr-2"></i> Semua Absensi
+                            </button>
+                            <button onclick="loadAllStaffData().then(() => viewDenahRuang('${selectedRuang}'))" class="p-2 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm active:scale-95 flex items-center">
+                                <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i> Refresh Data
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2 sm:gap-3 mb-4 sm:mb-8 print:hidden justify-center sm:justify-start">
+                        ${tabsHtml}
+                    </div>
+                    
+                    <!-- PRINT AREA CONTAINER (Dipaskan Full 1 Halaman Penuh) -->
+                    <div class="print:w-[100vw] print:h-[96vh] print:mx-0 print:flex print:flex-col print:justify-start print:overflow-hidden bg-slate-50 p-4 sm:p-6 rounded-3xl border border-slate-200 print:bg-transparent print:border-none print:p-0 print:m-0 w-full h-[600px] print:h-full">
+                        
+                        <div class="hidden print:block text-center mb-2 border-b-2 border-slate-800 pb-1 shrink-0">
+                            <h2 class="text-lg font-black uppercase tracking-widest leading-tight">Denah Ruang KoMa 2026</h2>
+                            <h3 class="text-base font-bold uppercase text-slate-600 tracking-widest leading-tight mt-0.5">RUANG ${selectedRuang}</h3>
+                        </div>
+
+                        <div class="w-full flex justify-center mb-4 print:mb-2 shrink-0">
+                            <div class="bg-slate-800 text-white px-8 py-1.5 rounded-xl shadow-md border-b-4 border-slate-600 text-center relative w-48 print:border print:border-slate-800 print:bg-white print:text-slate-800 print:shadow-none">
+                                <h4 class="font-black uppercase tracking-widest text-xs print:text-[10px]">Meja Pengawas</h4>
+                                <div class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-slate-800 rotate-45 print:bg-slate-800 print:border-r print:border-b print:border-slate-800"></div>
+                            </div>
+                        </div>
+
+                        <!-- 6x6 Grid Container -->
+                        <div class="w-full flex-1 overflow-x-auto print:overflow-hidden pb-1 custom-scrollbar">
+                            <div style="display: grid; grid-template-rows: repeat(6, minmax(0, 1fr)); grid-auto-columns: minmax(0, 1fr); grid-auto-flow: column; gap: 0.25rem; min-width: 100%; width: 100%; height: 100%;" class="print:gap-1">
+                                ${gridHtml}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            `;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function sortRoomData(roomData) {
+            return roomData.sort((a, b) => {
+                let rA = String(a.Ruang || "").toUpperCase();
+                let rB = String(b.Ruang || "").toUpperCase();
+                let partsA = rA.split('-');
+                let partsB = rB.split('-');
+                if (partsA.length === 3 && partsB.length === 3 && partsA[0] === partsB[0]) {
+                    let kA = parseInt(partsA[1]) || 99; let kB = parseInt(partsB[1]) || 99;
+                    if (kA !== kB) return kA - kB;
+                    let numA = parseInt(partsA[2]) || 999; let numB = parseInt(partsB[2]) || 999;
+                    if (numA !== numB) return numA - numB;
+                } else if (rA !== rB) {
+                    return rA.localeCompare(rB, undefined, {numeric: true});
+                }
+                let kelasVal = { "VII": 7, "VIII": 8, "IX": 9 };
+                let gradeA = kelasVal[String(a["Tingkat Kelas"] || a.kelas || a.Kelas || "").toUpperCase()] || 99;
+                let gradeB = kelasVal[String(b["Tingkat Kelas"] || b.kelas || b.Kelas || "").toUpperCase()] || 99;
+                if (gradeA !== gradeB) return gradeA - gradeB;
+                return String(a["Nama Lengkap"] || "").localeCompare(String(b["Nama Lengkap"] || ""));
+            });
+        }
+
+        function printDenahLandscape() {
+            let style = document.getElementById('print-style-override');
+            if (!style) {
+                style = document.createElement('style');
+                style.id = 'print-style-override';
+                document.head.appendChild(style);
+            }
+            style.innerHTML = '@media print { @page { size: landscape !important; margin: 3mm !important; } html, body, .site-wrapper, main { width: 100% !important; height: 100% !important; overflow: hidden !important; margin: 0 !important; padding: 0 !important; box-sizing: border-box !important; } #temp-print-container { display: none !important; } }';
+            window.print();
+        }
+
+        function printKartuPortrait() {
+            let style = document.getElementById('print-style-override');
+            if (!style) {
+                style = document.createElement('style');
+                style.id = 'print-style-override';
+                document.head.appendChild(style);
+            }
+            style.innerHTML = '@media print { @page { size: 210mm 330mm !important; margin: 0 !important; } html, body, .site-wrapper, main { width: 100% !important; margin: 0 !important; padding: 0 !important; box-sizing: border-box !important; background-color: white !important; } #temp-print-container { display: none !important; } }';
+            window.print();
+        }
+
+        function printSemuaDenah() {
+            if (!allParticipantsLocal || allParticipantsLocal.length === 0) return showAlert('Info', 'Data peserta kosong.', 'error');
+            const activeSiswa = allParticipantsLocal.filter(p => (p.Role || p.role || "").toLowerCase() === 'siswa' && p.Status === 'Active');
+            
+            const rooms = ['A', 'B', 'C', 'D'];
+            let allRoomsHtml = '';
+
+            rooms.forEach((room, roomIndex) => {
+                let roomData = activeSiswa.filter(p => {
+                    let r = String(p.Ruang || p.ruang || "-").toUpperCase();
+                    return r.startsWith(room + "-") || r === room;
+                });
+                roomData = sortRoomData(roomData);
+
+                let gridHtml = '';
+                if (roomData.length === 0) {
+                    gridHtml = `<div class="col-span-full p-10 text-center text-slate-400 italic font-bold border-2 border-dashed border-slate-200 rounded-2xl w-full flex items-center justify-center min-h-[300px]">Tidak ada peserta yang dialokasikan di Ruang ${room}.</div>`;
+                } else {
+                    let columns = [];
+                    let currentGrade = null;
+                    let currentColumn = [];
+                    let kelasValMap = { "VII": 7, "VIII": 8, "IX": 9 };
+
+                    roomData.forEach(p => {
+                        let rawKelas = String(p["Tingkat Kelas"] || p.kelas || p.Kelas || "").toUpperCase();
+                        let grade = kelasValMap[rawKelas] ? String(kelasValMap[rawKelas]) : 'X';
+                        if (grade !== currentGrade) {
+                            if (currentColumn.length > 0) { columns.push(currentColumn); currentColumn = []; }
+                            currentGrade = grade;
+                        }
+                        if (currentColumn.length >= 6) { columns.push(currentColumn); currentColumn = []; }
+                        currentColumn.push(p);
+                    });
+                    if (currentColumn.length > 0) { columns.push(currentColumn); }
+
+                    let flatGrid = [];
+                    columns.forEach(col => {
+                        col.forEach(p => flatGrid.push(p));
+                        for (let i = col.length; i < 6; i++) { flatGrid.push(null); }
+                    });
+
+                    gridHtml = flatGrid.map((p, idx) => {
+                        if (p === null) return `<div class="w-full h-full opacity-0 break-inside-avoid"></div>`;
+                        let photoUrl = p.profileUrl && p.profileUrl !== '-' ? getDriveThumbnailUrl(p.profileUrl) : '';
+                        let photoElement = photoUrl 
+                            ? `<img src="${photoUrl}" crossorigin="anonymous" class="w-8 h-10 object-cover rounded shadow-sm border border-slate-200 shrink-0">`
+                            : `<div class="w-8 h-10 bg-slate-100 rounded flex items-center justify-center border border-slate-200 shrink-0"><i data-lucide="user" class="w-4 h-4 text-slate-400"></i></div>`;
+                        
+                        return `
+                        <div class="bg-white border border-slate-400 p-1.5 rounded-lg flex items-center gap-2 relative overflow-hidden break-inside-avoid w-full h-full">
+                            <div class="absolute top-0 left-0 w-1.5 h-full bg-slate-600"></div>
+                            <div class="pl-2 shrink-0 flex flex-col items-center justify-center h-full min-w-[40px]">
+                                <div class="bg-slate-800 text-white border border-slate-900 rounded-md px-1.5 py-1 font-black mb-1.5 text-[10px] w-full text-center tracking-tight whitespace-nowrap leading-none">${p.Ruang ? p.Ruang : '-'}</div>
+                                ${photoElement}
+                            </div>
+                            <div class="flex flex-col justify-center text-left w-full overflow-hidden shrink min-w-0 pr-1">
+                                <h5 class="text-[9.5px] font-black text-slate-800 uppercase leading-tight w-full mb-0.5">${p["Nama Lengkap"] || '-'}</h5>
+                                <p class="text-[7.5px] uppercase font-bold text-slate-500 tracking-wider w-full mb-0.5">${p["Sekolah Asal"] || '-'}</p>
+                                <p class="text-[7.5px] uppercase font-black text-blue-600 truncate w-full">CBT: ${p["Username_CBT"] || p.Email || p.email || '-'}</p>
+                            </div>
+                        </div>
+                        `;
+                    }).join('');
+                }
+
+                allRoomsHtml += `
+                    <div class="w-[100vw] h-[96vh] flex flex-col justify-start overflow-hidden bg-white p-4 box-border ${roomIndex < rooms.length - 1 ? 'break-after-page' : ''}">
+                        <div class="text-center mb-2 border-b-2 border-slate-800 pb-1 shrink-0">
+                            <h2 class="text-lg font-black uppercase tracking-widest leading-tight">Denah Ruang KoMa 2026</h2>
+                            <h3 class="text-base font-bold uppercase text-slate-600 tracking-widest leading-tight mt-0.5">RUANG ${room}</h3>
+                        </div>
+                        <div class="w-full flex justify-center mb-4 shrink-0">
+                            <div class="bg-white text-slate-800 px-8 py-1.5 rounded-xl border border-slate-800 text-center relative w-48">
+                                <h4 class="font-black uppercase tracking-widest text-[10px]">Meja Pengawas</h4>
+                                <div class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white rotate-45 border-r border-b border-slate-800"></div>
+                            </div>
+                        </div>
+                        <div class="w-full flex-1 overflow-hidden pb-1">
+                            <div style="display: grid; grid-template-rows: repeat(6, minmax(0, 1fr)); grid-auto-columns: minmax(0, 1fr); grid-auto-flow: column; gap: 0.25rem; min-width: 100%; width: 100%; height: 100%;">
+                                ${gridHtml}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            let printContainer = document.getElementById('temp-print-container');
+            if (!printContainer) {
+                printContainer = document.createElement('div');
+                printContainer.id = 'temp-print-container';
+                printContainer.className = 'hidden print:block w-full absolute top-0 left-0 z-[99999] bg-white';
+                document.body.appendChild(printContainer);
+            }
+            printContainer.innerHTML = allRoomsHtml;
+
+            let style = document.getElementById('print-style-override');
+            if (!style) {
+                style = document.createElement('style');
+                style.id = 'print-style-override';
+                document.head.appendChild(style);
+            }
+            style.innerHTML = '@media print { @page { size: landscape !important; margin: 3mm !important; } html, body { width: 100% !important; height: auto !important; margin: 0 !important; padding: 0 !important; box-sizing: border-box !important; background: white !important; } .site-wrapper { display: none !important; } #temp-print-container { display: block !important; position: absolute !important; left: 0 !important; top: 0 !important; } .break-after-page { page-break-after: always !important; break-after: page !important; } }';
+
+            if (window.lucide) lucide.createIcons();
+            setTimeout(() => { window.print(); }, 500);
+        }
+
+        function renderDaftarHadirHtml(room, roomData) {
+            let trs = '';
+            if (roomData.length === 0) {
+                trs = `<tr><td colspan="7" class="p-4 text-center text-slate-500 font-bold">Tidak ada peserta di ruangan ini</td></tr>`;
+            } else {
+                trs = roomData.map((p, idx) => `
+                    <tr>
+                        <td class="px-2 py-1 border border-slate-800 text-center text-xs w-8">${idx + 1}</td>
+                        <td class="px-2 py-1 border border-slate-800 text-center text-[11px] font-black w-16">${p.Ruang || '-'}</td>
+                        <td class="px-2 py-1 border border-slate-800 text-left text-[11px] uppercase">${p["Nama Lengkap"] || '-'}</td>
+                        <td class="px-2 py-1 border border-slate-800 text-center text-[10px] w-20 tracking-wider">${p.NISN || '-'}</td>
+                        <td class="px-2 py-1 border border-slate-800 text-center text-[10px] w-12">${p["Tingkat Kelas"] || p.kelas || p.Kelas || '-'}</td>
+                        <td class="px-2 py-1 border border-slate-800 text-left text-[9px] uppercase leading-tight w-40">${p["Sekolah Asal"] || '-'}</td>
+                        <td class="px-2 py-1 border border-slate-800 text-left text-xs relative h-6 w-24">
+                            <span class="absolute top-1 ${idx % 2 === 0 ? 'left-1' : 'left-8'} text-[8px] text-slate-500">${idx + 1}.</span>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            return `
+                <div class="w-[210mm] print:w-full min-h-[297mm] print:min-h-[270mm] print:h-auto bg-white p-[10mm] print:p-0 mx-auto box-border flex flex-col break-after-page relative print:border-none print:shadow-none shadow-xl border border-slate-200 mb-8">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between border-b-4 border-slate-800 pb-3 mb-3 shrink-0">
+                        <img src="${CONFIG.LOGO_URL}" class="w-16 h-16 object-contain" crossorigin="anonymous">
+                        <div class="text-center flex-1 px-4">
+                            <h2 class="text-lg font-black uppercase tracking-widest leading-tight">DAFTAR HADIR PESERTA</h2>
+                            <h3 class="text-base font-bold uppercase tracking-widest text-slate-700 leading-tight">KOMPETISI MATEMATIKA (KoMa) 2026</h3>
+                            <p class="text-[10px] font-semibold mt-1 uppercase text-slate-600">Dinas Pendidikan Provinsi Jawa Timur - Cabdin Bojonegoro Tuban</p>
+                        </div>
+                        <div class="w-16"></div>
+                    </div>
+                    <!-- Room Info -->
+                    <div class="flex justify-between items-end mb-3 font-bold text-[11px] shrink-0 text-slate-800">
+                        <div>
+                            <p class="mb-1">RUANG <span class="ml-10">:</span> <span class="text-sm font-black">${room}</span></p>
+                            <p>HARI, TGL <span class="ml-[34px]">:</span> ...........................................................</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="mb-1">WAKTU <span class="ml-4">:</span> ...........................................................</p>
+                            <p>SESI <span class="ml-[27px]">:</span> ...........................................................</p>
+                        </div>
+                    </div>
+                    <!-- Table -->
+                    <table class="w-full border-collapse border border-slate-800 text-slate-800 flex-1">
+                        <thead class="bg-slate-100">
+                            <tr>
+                                <th class="p-1 border border-slate-800 text-[10px] uppercase font-black tracking-widest">No</th>
+                                <th class="p-1 border border-slate-800 text-[10px] uppercase font-black tracking-widest">No Kursi</th>
+                                <th class="p-1 border border-slate-800 text-[10px] uppercase font-black tracking-widest text-left">Nama Lengkap</th>
+                                <th class="p-1 border border-slate-800 text-[10px] uppercase font-black tracking-widest">NISN</th>
+                                <th class="p-1 border border-slate-800 text-[10px] uppercase font-black tracking-widest">Kelas</th>
+                                <th class="p-1 border border-slate-800 text-[10px] uppercase font-black tracking-widest text-left">Sekolah Asal</th>
+                                <th class="p-1 border border-slate-800 text-[10px] uppercase font-black tracking-widest">Tanda Tangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${trs}
+                        </tbody>
+                    </table>
+                    <!-- Footer Signatures -->
+                    <div class="flex justify-between px-16 text-[11px] font-bold shrink-0 pt-4 text-slate-800 mt-auto">
+                        <div class="text-center">
+                            <p>Pengawas 1</p><br><br><br><p>(................................................)</p>
+                        </div>
+                        <div class="text-center">
+                            <p>Pengawas 2</p><br><br><br><p>(................................................)</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function triggerPrintDaftarHadir(htmlContent) {
+            let printContainer = document.getElementById('temp-print-container');
+            if (!printContainer) {
+                printContainer = document.createElement('div');
+                printContainer.id = 'temp-print-container';
+                printContainer.className = 'hidden print:block w-full absolute top-0 left-0 z-[99999] bg-white';
+                document.body.appendChild(printContainer);
+            }
+            printContainer.innerHTML = htmlContent;
+
+            let style = document.getElementById('print-style-override');
+            if (!style) {
+                style = document.createElement('style');
+                style.id = 'print-style-override';
+                document.head.appendChild(style);
+            }
+            style.innerHTML = '@media print { @page { size: A4 portrait !important; margin: 12.7mm !important; } html, body { width: 100% !important; height: auto !important; margin: 0 !important; padding: 0 !important; box-sizing: border-box !important; background: white !important; } .site-wrapper { display: none !important; } #temp-print-container { display: block !important; position: static !important; } .break-after-page { page-break-after: always !important; break-after: page !important; } }';
+
+            if (window.lucide) lucide.createIcons();
+            setTimeout(() => { window.print(); }, 500);
+        }
+
+        function printDaftarHadir(room) {
+            if (!allParticipantsLocal || allParticipantsLocal.length === 0) return showAlert('Info', 'Data peserta kosong.', 'error');
+            const activeSiswa = allParticipantsLocal.filter(p => (p.Role || p.role || "").toLowerCase() === 'siswa' && p.Status === 'Active');
+            let roomData = sortRoomData(activeSiswa.filter(p => String(p.Ruang || "-").toUpperCase().startsWith(room + "-") || String(p.Ruang || "-").toUpperCase() === room));
+            triggerPrintDaftarHadir(renderDaftarHadirHtml(room, roomData));
+        }
+
+        function printSemuaDaftarHadir() {
+            if (!allParticipantsLocal || allParticipantsLocal.length === 0) return showAlert('Info', 'Data peserta kosong.', 'error');
+            const activeSiswa = allParticipantsLocal.filter(p => (p.Role || p.role || "").toLowerCase() === 'siswa' && p.Status === 'Active');
+            let allHtml = ['A', 'B', 'C', 'D'].map(room => renderDaftarHadirHtml(room, sortRoomData(activeSiswa.filter(p => String(p.Ruang || "-").toUpperCase().startsWith(room + "-") || String(p.Ruang || "-").toUpperCase() === room)))).join('');
+            triggerPrintDaftarHadir(allHtml);
+        }
+
+        async function generateDenahOtomatis() {
+            if (!confirm("Peringatan: Aksi ini akan mengatur ulang seluruh Ruang dan Kursi peserta yang aktif sesuai aturan (A-C @32 kursi, D sisanya, urut kelas ke bawah). Lanjutkan?")) return;
+            
+            setLoading(true);
+            try {
+                const res = await callGAS({ action: 'generateDenah' });
+                if (res && res.result === 'success') {
+                    showAlert('Sukses', 'Ruang dan kursi berhasil diatur secara otomatis!', 'success');
+                    loadAllStaffData().then(() => viewDenahRuang('A'));
+                } else {
+                    showAlert('Gagal', res.message || 'Terjadi kesalahan saat mengatur denah.', 'error');
+                }
+            } catch(e) {
+                showAlert('Ralat', 'Gagal menyambung ke server.', 'error');
+            } finally {
+                setLoading(false);
+            }
         }
 
         function exportToXLSX() {
@@ -3476,6 +3952,7 @@
                     { platform: "iOS SEB", url: "" },
                     { platform: "Config SEB (PC/Laptop)", url: "" },
                     { platform: "Config SEB (HP/Smartphone)", url: "" },
+                    { platform: "Token CBT", url: "http://112.78.44.188/komatok/" },
                     { platform: "Technical Meeting", url: "" },
                     { platform: "Grup WA", url: "" },
                     { platform: "Sertifikat Peserta", url: "" },
@@ -3501,6 +3978,7 @@
                     else if(it.platform.includes('iOS')) iconName = 'tablet';
                     else if(it.platform.includes('Android')) iconName = 'smartphone';
                     else if(it.platform.includes('Config')) iconName = 'settings';
+                    else if(it.platform.includes('Token CBT')) iconName = 'key';
                         else if(it.platform.includes('Technical Meeting')) iconName = 'video';
                         else if(it.platform.includes('Grup WA')) iconName = 'users';
                         else if(it.platform.includes('Sertifikat')) iconName = 'award';
@@ -3564,14 +4042,14 @@
                 <div class="space-y-6 text-left bg-white p-8 rounded-3xl shadow-sm border animate-scale-in no-print">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <h3 class="font-black text-xl text-slate-800 uppercase">Cetak Kartu CBT</h3>
-                        <button onclick="window.print()" class="bg-blue-600 text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg hover:bg-blue-700 transition active:scale-95 flex items-center">
-                            <i data-lucide="printer" class="w-4 h-4 mr-2"></i> Print A4 (6 Kartu/Hal)
+                        <button onclick="printKartuPortrait()" class="bg-blue-600 text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg hover:bg-blue-700 transition active:scale-95 flex items-center">
+                            <i data-lucide="printer" class="w-4 h-4 mr-2"></i> Print Folio/F4 (6 Kartu)
                         </button>
                     </div>
-                    <!--p class="text-sm text-slate-500 font-semibold mb-6">Tampilan kartu disusun presisi. 1 Halaman A4 akan diisi tepat 6 kartu tanpa terpotong atau halaman kosong. Gunakan "Save as PDF" di dialog Print untuk menyimpannya ke PDF.</p-->
+                    <p class="text-xs text-slate-500 font-semibold mt-2">Tampilan kartu telah diatur penuh (stretch) untuk 1 halaman kertas <b class="text-blue-600">Folio/F4 (210mm x 330mm)</b>. Pastikan margin printer pada pengaturan cetak Anda diatur ke minimum (Default/None) agar tidak muncul halaman kosong.</p>
                 </div>
-                <div id="print-area" class="mt-8 flex flex-col items-center gap-6 pb-10">
-                    <div class="w-full text-center p-10 text-slate-400 italic font-bold bg-white rounded-3xl border no-print">Memuat data peserta...</div>
+                <div id="print-area" class="mt-8 print:mt-0 flex flex-col items-center gap-6 print:gap-0 pb-10 print:pb-0 w-full print:block">
+                    <div class="w-full text-center p-10 text-slate-400 italic font-bold bg-white rounded-3xl border no-print">Memuat data kartu...</div>
                 </div>
             `;
             if (window.lucide) lucide.createIcons();
@@ -3598,6 +4076,18 @@
             
             // Hanya memfilter siswa yang Active (Telah Dikonfirmasi)
             const data = allParticipantsLocal.filter(p => p.Status === 'Active');
+            
+            // Urutkan berdasarkan Sekolah Asal dan Abjad Nama
+            data.sort((a, b) => {
+                let sekolahA = String(a["Sekolah Asal"] || a.sekolah || a.Sekolah || "").toUpperCase();
+                let sekolahB = String(b["Sekolah Asal"] || b.sekolah || b.Sekolah || "").toUpperCase();
+                if (sekolahA !== sekolahB) return sekolahA.localeCompare(sekolahB);
+                
+                let namaA = String(a["Nama Lengkap"] || a.name || a.Nama || "").toUpperCase();
+                let namaB = String(b["Nama Lengkap"] || b.name || b.Nama || "").toUpperCase();
+                return namaA.localeCompare(namaB);
+            });
+
             if (data.length === 0) {
                 printContainer.innerHTML = `<div class="w-full p-10 text-center text-slate-400 font-bold bg-white rounded-3xl border no-print">Tidak ada data peserta aktif (terverifikasi).</div>`;
                 return;
@@ -3613,56 +4103,58 @@
 
                 let photoElement = '';
                 if (p.profileUrl && p.profileUrl !== '-') {
-                    photoElement = `<img src="${getDriveThumbnailUrl(p.profileUrl)}" crossorigin="anonymous" class="w-16 h-20 object-cover rounded-lg border-2 border-white shadow-md z-20 bg-slate-100 mx-auto">`;
+                    photoElement = `<img src="${getDriveThumbnailUrl(p.profileUrl)}" crossorigin="anonymous" class="w-[24mm] h-[30mm] object-cover rounded-xl border-[3px] border-slate-200 shadow-sm bg-slate-100">`;
                 } else {
-                    photoElement = `<div class="w-16 h-20 rounded-lg border-2 border-slate-200 shadow-md z-20 bg-slate-50 mx-auto flex items-center justify-center text-slate-300"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg></div>`;
+                    photoElement = `<div class="w-[24mm] h-[30mm] rounded-xl border-[3px] border-slate-200 shadow-sm bg-slate-50 flex items-center justify-center text-slate-300"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg></div>`;
                 }
 
                 return `
-                    <div class="relative bg-white text-slate-800 rounded-xl overflow-hidden border-[1.5px] border-slate-400 print:border-slate-800 border-dashed p-4 flex flex-col h-[88mm] break-inside-avoid print:h-[88mm] shadow-sm">
+                    <div class="bg-white text-slate-800 rounded-2xl overflow-hidden border-[2px] border-slate-600 border-dashed flex flex-col h-full w-full break-inside-avoid shadow-sm">
                         
-                        <!-- Top Accent Bar -->
-                        <div class="absolute top-0 left-0 w-full h-14 bg-[#1e3a8a] border-b-4 border-yellow-400 z-0"></div>
-
-                        <!-- Header Info -->
-                        <div class="flex items-center justify-center relative z-10 w-full h-14 -mt-4 mb-2">
-                            <img src="${CONFIG.LOGO_URL}" crossorigin="anonymous" class="h-8 w-8 object-contain mr-2.5 rounded bg-white p-0.5 shadow-sm">
+                        <!-- Header Background -->
+                        <div class="w-full py-2 bg-[#1e3a8a] border-b-[4px] border-yellow-400 flex items-center justify-center shrink-0">
+                            <img src="${CONFIG.LOGO_URL}" crossorigin="anonymous" class="h-10 w-10 object-contain mr-3 rounded bg-white p-0.5 shadow-sm">
                             <div class="text-left leading-none mt-0.5">
-                                <div class="text-[8.5px] text-yellow-300 font-black tracking-[0.2em] mb-0.5">KARTU PESERTA CBT</div>
-                                <div class="font-black text-[15px] tracking-tight leading-none text-white">KoMa <span class="text-yellow-300">2026</span></div>
+                                <div class="text-[10px] text-yellow-300 font-black tracking-[0.2em] mb-0.5">KARTU PESERTA CBT</div>
+                                <div class="font-black text-[20px] tracking-tight leading-none text-white">KoMa <span class="text-yellow-300">2026</span></div>
                             </div>
                         </div>
 
-                        <!-- Photo Section -->
-                        <div class="relative z-10 w-full mb-2">
-                            ${photoElement}
-                        </div>
+                        <!-- Content Area (Horizontal Layout) -->
+                        <div class="flex flex-row flex-1 p-3 gap-4 items-center justify-center bg-white">
+                            
+                            <!-- Photo Section -->
+                            <div class="shrink-0 flex justify-center items-center">
+                                ${photoElement}
+                            </div>
 
-                        <!-- Text Details Section -->
-                        <div class="text-center relative z-10 flex-1 flex flex-col justify-start mt-0.5 px-1">
-                            <h4 class="font-black uppercase text-[12px] leading-tight text-slate-900 mb-0.5 line-clamp-2">${nama}</h4>
-                            <p class="font-bold uppercase text-[7.5px] text-slate-500 tracking-wider mb-1 truncate">${sekolah}</p>
-                            <p class="font-black uppercase text-[9px] text-slate-700 tracking-wider">${nisn}</p>
-                            <div class="mt-1 flex items-center justify-center gap-1.5">
-                                <span class="bg-slate-100 border border-slate-200 px-2 py-0.5 rounded text-[7.5px] font-black uppercase text-slate-600 tracking-widest">KELAS ${kelas}</span>
-                                <span class="bg-blue-50 border border-blue-200 px-2 py-0.5 rounded text-[7.5px] font-black uppercase text-blue-800 tracking-widest">RUANG ${ruang}</span>
+                            <!-- Text Details Section (Tengah & Menonjol) -->
+                            <div class="flex-1 flex flex-col justify-center items-center text-center min-w-0">
+                                <h4 class="font-black uppercase text-[15px] leading-tight text-slate-900 mb-1.5 line-clamp-2 w-full">${nama}</h4>
+                                <p class="font-bold uppercase text-[11px] text-slate-500 tracking-wider mb-1 truncate w-full">${sekolah}</p>
+                                <p class="font-black uppercase text-[13px] text-slate-700 tracking-wider mb-2 w-full">${nisn}</p>
+                                
+                                <div class="flex flex-wrap items-center justify-center gap-2 w-full">
+                                    <span class="bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-md text-[10px] font-black uppercase text-slate-600 tracking-widest shadow-sm">KELAS ${kelas}</span>
+                                    <span class="bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-md text-[10px] font-black uppercase text-blue-800 tracking-widest shadow-sm">RUANG ${ruang}</span>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Login Details Box -->
-                        <div class="mt-auto bg-slate-50 border border-slate-300 p-2.5 rounded-xl relative z-10 shrink-0 text-center shadow-inner">
-                            <p class="text-[7.5px] text-blue-800 uppercase font-black tracking-widest mb-2 flex items-center justify-center border-b border-slate-200 pb-1.5">
-                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg> 
+                        <div class="bg-slate-50 border-t border-slate-300 p-3 shrink-0 flex flex-col justify-center">
+                            <p class="text-[11px] text-blue-800 uppercase font-black tracking-widest mb-2.5 flex items-center justify-center">
+                                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg> 
                                 Akses Login Aplikasi
                             </p>
-                            <div class="grid grid-cols-2 gap-1.5">
-                                <div class="bg-white px-2 py-1.5 rounded border border-slate-300 shadow-sm flex flex-col justify-center items-center">
-                                    <span class="text-[6.5px] text-slate-500 font-black tracking-widest mb-0.5 leading-none">USERNAME</span>
-                                    <span class="font-black text-[10px] leading-tight tracking-wide text-slate-900 break-all text-center w-full">${userCBT}</span>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-white px-2 py-2.5 rounded-lg border border-slate-300 shadow-sm flex flex-col justify-center items-center">
+                                    <span class="text-[9px] text-slate-500 font-black tracking-widest mb-0.5 leading-none">USERNAME</span>
+                                    <span class="font-black text-[14px] leading-tight tracking-wide text-slate-900 break-all text-center w-full">${userCBT}</span>
                                 </div>
-                                <div class="bg-white px-2 py-1.5 rounded border border-slate-300 shadow-sm flex flex-col justify-center items-center">
-                                    <span class="text-[6.5px] text-slate-500 font-black tracking-widest mb-0.5 leading-none">PASSWORD</span>
-                                    <span class="font-black text-[10px] leading-tight tracking-widest text-slate-900 break-all text-center w-full">${passCBT}</span>
+                                <div class="bg-white px-2 py-2.5 rounded-lg border border-slate-300 shadow-sm flex flex-col justify-center items-center">
+                                    <span class="text-[9px] text-slate-500 font-black tracking-widest mb-0.5 leading-none">PASSWORD</span>
+                                    <span class="font-black text-[14px] leading-tight tracking-widest text-slate-900 break-all text-center w-full">${passCBT}</span>
                                 </div>
                             </div>
                         </div>
@@ -3675,8 +4167,8 @@
                 const chunk = data.slice(i, i + 6);
                 const chunkHTML = chunk.map(p => generateCardHTML(p)).join('');
                 printHTML += `
-                    <div class="print-page-wrapper bg-white p-[10mm] rounded-2xl print:rounded-none shadow-xl border border-slate-200 w-[210mm] h-[296mm] print:h-[296mm] mx-auto overflow-hidden mb-10 print:mb-0 print:border-none print:shadow-none box-border shrink-0">
-                        <div class="grid grid-cols-2 gap-[4mm] w-full content-start">${chunkHTML}</div>
+                    <div class="print-page-wrapper bg-white p-[10mm] print:p-[12mm] rounded-none border border-slate-200 w-[210mm] h-[330mm] mx-auto overflow-hidden mb-10 print:mb-0 box-border shrink-0 print:border-none print:shadow-none print:flex print:flex-col print:justify-center print:items-center">
+                        <div class="grid grid-cols-2 grid-rows-3 gap-[6mm] print:gap-[8mm] w-full h-full content-stretch">${chunkHTML}</div>
                     </div>
                 `;
             }
@@ -3691,23 +4183,60 @@
             dc.innerHTML = `
                 <div class="space-y-6 text-left bg-white p-8 rounded-3xl shadow-sm border animate-scale-in">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <h3 class="font-black text-xl text-slate-800 uppercase">Cetak Sertifikat Peserta & Juara</h3>
-                        <button onclick="viewAdminCetakSertifikat()" class="p-2.5 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm active:scale-95">
-                            <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-1 -mt-0.5"></i> Refresh Data
-                        </button>
+                        <h3 class="font-black text-xl text-slate-800 uppercase">Sertifikat Peserta & Juara</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="printRekap('Uji Coba')" class="p-2 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-sm active:scale-95 flex items-center">
+                                <i data-lucide="printer" class="w-4 h-4 mr-1.5"></i> Rekap Uji
+                            </button>
+                            <button onclick="printRekap('Kompetisi')" class="p-2 bg-yellow-500 text-yellow-950 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-yellow-600 transition-all shadow-sm active:scale-95 flex items-center">
+                                <i data-lucide="printer" class="w-4 h-4 mr-1.5"></i> Rekap Kom
+                            </button>
+                            <button onclick="allParticipantsLocal=[]; viewAdminCetakSertifikat()" class="p-2 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all shadow-sm active:scale-95 flex items-center">
+                                <i data-lucide="refresh-cw" class="w-4 h-4 mr-1.5"></i> Refresh
+                            </button>
+                        </div>
                     </div>
                     <p class="text-sm text-slate-500 font-semibold mb-6">Unduh sertifikat peserta atau juara langsung dari daftar di bawah ini. Admin dapat mengunduh sertifikat meskipun status sertifikat belum diaktifkan untuk peserta.</p>
                     
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
                         <div>
-                            <label class="text-[9px] font-black uppercase text-slate-400 block mb-1.5 ml-1">Cari Nama Siswa</label>
+                            <label class="text-[9px] font-black uppercase text-slate-400 block mb-1.5 ml-1">Cari Nama</label>
                             <input type="text" id="cert-filter-name" oninput="applyCertFilters()" class="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-blue-600 outline-none transition hover:border-blue-300" placeholder="Ketik nama...">
                         </div>
                         <div>
-                            <label class="text-[9px] font-black uppercase text-slate-400 block mb-1.5 ml-1">Filter Gelar Juara</label>
+                            <label class="text-[9px] font-black uppercase text-slate-400 block mb-1.5 ml-1">Cari Sekolah</label>
+                            <input type="text" id="cert-filter-sekolah" oninput="applyCertFilters()" class="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-blue-600 outline-none transition hover:border-blue-300" placeholder="Ketik sekolah...">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-black uppercase text-slate-400 block mb-1.5 ml-1">Filter Role</label>
+                            <select id="cert-filter-role" onchange="applyCertFilters()" class="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-blue-600 outline-none transition hover:border-blue-300 cursor-pointer text-slate-700">
+                                <option value="">Semua Role</option>
+                                <option value="Siswa">Siswa</option>
+                                <option value="Pendamping">Pembina</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-black uppercase text-slate-400 block mb-1.5 ml-1">Filter Kelas</label>
+                            <select id="cert-filter-kelas" onchange="applyCertFilters()" class="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-blue-600 outline-none transition hover:border-blue-300 cursor-pointer text-slate-700">
+                                <option value="">Semua Kelas</option>
+                                <option value="VII">Kelas VII</option>
+                                <option value="VIII">Kelas VIII</option>
+                                <option value="IX">Kelas IX</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-black uppercase text-slate-400 block mb-1.5 ml-1">Filter Juara</label>
                             <select id="cert-filter-juara" onchange="applyCertFilters()" class="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-blue-600 outline-none transition hover:border-blue-300 cursor-pointer text-slate-700">
-                                <option value="">Semua Peserta</option>
-                                <option value="juara">Hanya yang memiliki Gelar Juara</option>
+                                <option value="">Semua</option>
+                                <option value="juara">Hanya Juara</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-black uppercase text-slate-400 block mb-1.5 ml-1">Urutan Ranking</label>
+                            <select id="cert-sort-ranking" onchange="applyCertFilters()" class="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-blue-600 outline-none transition hover:border-blue-300 cursor-pointer text-slate-700">
+                                <option value="rank_kom">Rank Kompetisi</option>
+                                <option value="rank_uji">Rank Uji Coba</option>
+                                <option value="nama">Urut Abjad Nama</option>
                             </select>
                         </div>
                     </div>
@@ -3716,19 +4245,369 @@
                         <table class="w-full border-collapse text-sm">
                             <thead class="bg-[#10141d] text-white border-b">
                                 <tr>
-                                    <th class="p-4 text-center font-black uppercase text-[10px] tracking-widest whitespace-nowrap w-12">No</th>
-                                    <th class="p-4 text-left font-black uppercase text-[10px] tracking-widest whitespace-nowrap">Nama Lengkap</th>
-                                    <th class="p-4 text-left font-black uppercase text-[10px] tracking-widest whitespace-nowrap">Kelas</th>
-                                    <th class="p-4 text-left font-black uppercase text-[10px] tracking-widest whitespace-nowrap">Sekolah Asal</th>
-                                    <th class="p-4 text-center font-black uppercase text-[10px] tracking-widest whitespace-nowrap">Gelar Juara</th>
-                                    <th class="p-4 text-center font-black uppercase text-[10px] tracking-widest whitespace-nowrap">Aksi Cetak</th>
+                                    <th class="p-3 text-center font-black uppercase text-[10px] tracking-widest whitespace-nowrap w-10">No</th>
+                                    <th class="p-3 text-left font-black uppercase text-[10px] tracking-widest whitespace-nowrap">Nama Lengkap</th>
+                                    <th class="p-3 text-center font-black uppercase text-[10px] tracking-widest whitespace-nowrap">Kelas</th>
+                                    <th class="p-3 text-left font-black uppercase text-[10px] tracking-widest whitespace-nowrap">Sekolah Asal</th>
+                                    <th class="p-3 text-center font-black uppercase text-[10px] tracking-widest whitespace-nowrap text-blue-300">Uji Coba</th>
+                                    <th class="p-3 text-center font-black uppercase text-[10px] tracking-widest whitespace-nowrap text-blue-300">Rank Uji</th>
+                                    <th class="p-3 text-center font-black uppercase text-[10px] tracking-widest whitespace-nowrap text-yellow-400 bg-yellow-50/10">Kompetisi</th>
+                                    <th class="p-3 text-center font-black uppercase text-[10px] tracking-widest whitespace-nowrap text-amber-500 bg-yellow-50/10">Rank Kom</th>
+                                    <th class="p-3 text-center font-black uppercase text-[10px] tracking-widest whitespace-nowrap">Gelar Juara</th>
+                                    <th class="p-3 text-center font-black uppercase text-[10px] tracking-widest whitespace-nowrap">Aksi Cetak</th>
                                 </tr>
                             </thead>
                             <tbody id="cert-table-body" class="divide-y divide-slate-100 bg-white">
-                                <tr><td colspan="6" class="p-10 text-center text-slate-400 italic font-bold">Memuat data peserta...</td></tr>
+                                <tr><td colspan="10" class="p-10 text-center text-slate-400 italic font-bold">Memuat data peserta...</td></tr>
                             </tbody>
                         </table>
                     </div>
+                </div>
+            `;
+            if (window.lucide) lucide.createIcons();
+
+            if (!allParticipantsLocal || allParticipantsLocal.length === 0) {
+                setLoading(true);
+                try {
+                    const res = await callGAS({ action: 'getAllData', role: currentUser.role });
+                    if(res && res.result === 'success') {
+                        allParticipantsLocal = (res.data || []).filter(p => ['siswa', 'pendamping'].includes((p.Role || p.role || "").toLowerCase())).sort((a,b)=>b.rowNum - a.rowNum);
+                        calculateRankings();
+                    }
+                } catch (e) {
+                    setLoading(false);
+                    document.getElementById('cert-table-body').innerHTML = `<tr><td colspan="10" class="p-10 text-center text-red-500 font-bold">Gagal memuat data dari server.</td></tr>`;
+                    return;
+                }
+                setLoading(false);
+            } else {
+                calculateRankings();
+            }
+            applyCertFilters();
+        }
+
+        function calculateRankings() {
+            const classes = ["VII", "VIII", "IX"];
+            
+            function parseTimeToSecs(timeStr) {
+                if (!timeStr || timeStr === '-' || timeStr.trim() === '') return 0;
+                let parts = String(timeStr).split(':');
+                let secs = 0;
+                if (parts.length === 3) {
+                    secs = parseInt(parts[0] || 0) * 3600 + parseInt(parts[1] || 0) * 60 + parseInt(parts[2] || 0);
+                } else if (parts.length === 2) {
+                    secs = parseInt(parts[0] || 0) * 60 + parseInt(parts[1] || 0);
+                } else {
+                    secs = parseInt(timeStr) || 0;
+                }
+                return secs;
+            }
+
+            classes.forEach(kls => {
+                let classData = allParticipantsLocal.filter(p => (p["Tingkat Kelas"] || p.kelas || p.Kelas || '').toUpperCase() === kls && p.Status === 'Active' && (p.Role || p.role || '').toLowerCase() === 'siswa');
+                
+                // Rank Uji
+                classData.sort((a, b) => {
+                    let nA = parseFloat(a.nilai_uji) || 0;
+                    let nB = parseFloat(b.nilai_uji) || 0;
+                    if (nA !== nB) return nB - nA;
+                    let tA = parseTimeToSecs(a.waktu_uji);
+                    let tB = parseTimeToSecs(b.waktu_uji);
+                    return tB - tA; // Sisa waktu terbanyak di atas
+                });
+                classData.forEach((p, idx) => p._rankUji = idx + 1);
+
+                // Rank Kom
+                classData.sort((a, b) => {
+                    let nA = parseFloat(a.nilai_kom) || 0;
+                    let nB = parseFloat(b.nilai_kom) || 0;
+                    if (nA !== nB) return nB - nA;
+                    let tA = parseTimeToSecs(a.waktu_kom);
+                    let tB = parseTimeToSecs(b.waktu_kom);
+                    return tB - tA;
+                });
+                classData.forEach((p, idx) => p._rankKom = idx + 1);
+            });
+        }
+
+        function renderCertTable(data) {
+            const tbody = document.getElementById('cert-table-body');
+            if (!tbody) return;
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" class="p-10 text-center text-slate-400 font-bold">Tidak ada data peserta ditemukan.</td></tr>`;
+                return;
+            }
+            
+            let currentKelas = null;
+            let classIdx = 1;
+            let html = '';
+            
+            data.forEach((p, idx) => {
+                const kls = (p["Tingkat Kelas"] || p.kelas || p.Kelas || 'Tanpa Kelas').toUpperCase();
+                
+                // Sisipkan Baris Pemisah per Kelas
+                if (kls !== currentKelas) {
+                    html += `
+                        <tr class="bg-blue-50 border-y-2 border-blue-100">
+                            <td colspan="10" class="p-3 font-black text-blue-800 text-left uppercase tracking-widest text-xs">
+                                TINGKAT KELAS: ${kls}
+                            </td>
+                        </tr>
+                    `;
+                    currentKelas = kls;
+                    classIdx = 1; // Reset No Urut ke 1
+                }
+
+                const isSiswa = (p.Role || p.role || '').toLowerCase() === 'siswa';
+                const isJuara = isSiswa && p.juara && p.juara !== '-';
+                const rankUji = isSiswa && p._rankUji ? '#' + p._rankUji : '-';
+                const rankKom = isSiswa && p._rankKom ? '#' + p._rankKom : '-';
+                
+                html += `
+                <tr class="hover:bg-blue-50/50 transition-colors group animate-slide-right" style="animation-delay: ${Math.min(idx * 0.05, 0.5)}s; opacity:0; animation-fill-mode: forwards;">
+                    <td class="p-3 font-bold text-slate-500 text-center">${classIdx++}</td>
+                    <td class="p-3 font-black text-slate-800 whitespace-normal min-w-[150px] max-w-[250px] break-words">${p["Nama Lengkap"] || p.name || p.Nama || '-'}${p.Role === 'Pendamping' ? ' <span class="ml-2 mt-1 px-2 py-0.5 bg-purple-100 text-purple-700 text-[8px] rounded-full uppercase tracking-widest inline-block">Pendamping</span>' : ''}</td>
+                    <td class="p-3 text-center font-semibold text-slate-600">${p["Tingkat Kelas"] || p.kelas || p.Kelas || '-'}</td>
+                    <td class="p-3 font-black text-slate-600 uppercase text-[10px] tracking-wider whitespace-normal min-w-[120px] max-w-[200px] break-words">${p["Sekolah Asal"] || p.sekolah || p.Sekolah || '-'}</td>
+                    
+                    <td class="p-3 text-center">
+                        <div class="font-bold text-slate-700">${p.nilai_uji && p.nilai_uji !== '-' ? p.nilai_uji : '-'}</div>
+                        <div class="text-[9px] text-slate-400 font-semibold tracking-widest mt-0.5">${p.waktu_uji && p.waktu_uji !== '-' ? p.waktu_uji : '-'}</div>
+                    </td>
+                    <td class="p-3 text-center font-black text-slate-500">${rankUji}</td>
+                    
+                    <td class="p-3 text-center bg-yellow-50/10">
+                        <div class="font-black text-blue-700">${p.nilai_kom && p.nilai_kom !== '-' ? p.nilai_kom : '-'}</div>
+                        <div class="text-[9px] text-blue-400 font-semibold tracking-widest mt-0.5">${p.waktu_kom && p.waktu_kom !== '-' ? p.waktu_kom : '-'}</div>
+                    </td>
+                    <td class="p-3 text-center font-black text-amber-600 bg-yellow-50/10">${rankKom}</td>
+                    
+                    <td class="p-3 text-center">
+                        ${isJuara ? `<span class="px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest bg-yellow-100 text-yellow-700">${p.juara}</span>` : `<span class="text-slate-400">-</span>`}
+                    </td>
+                    <td class="p-3 text-center">
+                        <div class="flex items-center justify-center gap-1.5">
+                            ${isSiswa ? `
+                                <button onclick="generateSertifikat('Peserta', '${p.Email || p.email}')" class="bg-blue-100 text-blue-700 px-2 py-2 rounded-lg text-[9px] font-black uppercase hover:bg-blue-600 hover:text-white transition shadow-sm active:scale-95 flex items-center" title="Cetak Sertifikat Peserta">
+                                    <i data-lucide="file-badge" class="w-3.5 h-3.5 sm:mr-1"></i> <span class="hidden sm:inline">Peserta</span>
+                                </button>
+                                ${isJuara ? `<button onclick="generateSertifikat('Juara', '${p.Email || p.email}')" class="bg-yellow-100 text-yellow-700 px-2 py-2 rounded-lg text-[9px] font-black uppercase hover:bg-yellow-600 hover:text-white transition shadow-sm active:scale-95 flex items-center" title="Cetak Sertifikat Juara"><i data-lucide="trophy" class="w-3.5 h-3.5 sm:mr-1"></i> <span class="hidden sm:inline">Juara</span></button>` : `<button class="bg-slate-100 text-slate-400 px-2 py-2 rounded-lg text-[9px] font-black uppercase cursor-not-allowed flex items-center" title="Bukan Juara"><i data-lucide="trophy" class="w-3.5 h-3.5 sm:mr-1"></i> <span class="hidden sm:inline">Juara</span></button>`}
+                            ` : `
+                                <button onclick="generateSertifikat('Pembimbing', '${p.Email || p.email}')" class="bg-purple-100 text-purple-700 px-2 py-2 rounded-lg text-[9px] font-black uppercase hover:bg-purple-600 hover:text-white transition shadow-sm active:scale-95 flex items-center" title="Cetak Sertifikat Pembina">
+                                    <i data-lucide="award" class="w-3.5 h-3.5 sm:mr-1"></i> <span class="hidden sm:inline">Pembina</span>
+                                </button>
+                            `}
+                        </div>
+                    </td>
+                </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function applyCertFilters() {
+            const nameFilter = (document.getElementById('cert-filter-name').value || '').toLowerCase();
+            const sekolahFilter = (document.getElementById('cert-filter-sekolah').value || '').toLowerCase();
+            const roleFilter = (document.getElementById('cert-filter-role').value || '').toLowerCase();
+            const kelasFilter = (document.getElementById('cert-filter-kelas').value || '').toUpperCase();
+            const juaraFilter = document.getElementById('cert-filter-juara').value;
+            const sortOrder = document.getElementById('cert-sort-ranking').value;
+            
+            let filteredData = allParticipantsLocal.filter(p => {
+                const roleMatch = roleFilter ? (p.Role || p.role || '').toLowerCase() === roleFilter : true;
+                const kelasMatch = kelasFilter ? (p["Tingkat Kelas"] || p.kelas || p.Kelas || '').toUpperCase() === kelasFilter : true;
+                const nameMatch = (p["Nama Lengkap"] || p.name || p.Nama || '').toLowerCase().includes(nameFilter);
+                const sekolahMatch = sekolahFilter ? (p["Sekolah Asal"] || p.sekolah || p.Sekolah || '').toLowerCase().includes(sekolahFilter) : true;
+                const juaraMatch = juaraFilter === 'juara' ? (p.juara && p.juara !== '-') : true;
+                return roleMatch && kelasMatch && nameMatch && sekolahMatch && juaraMatch;
+            });
+            
+            if (sortOrder === 'rank_kom') {
+                filteredData.sort((a, b) => {
+                    let klsDiff = (a["Tingkat Kelas"] || '').localeCompare(b["Tingkat Kelas"] || '');
+                    if (klsDiff !== 0) return klsDiff;
+                    let rA = a._rankKom || 9999;
+                    let rB = b._rankKom || 9999;
+                    return rA - rB;
+                });
+            } else if (sortOrder === 'rank_uji') {
+                filteredData.sort((a, b) => {
+                    let klsDiff = (a["Tingkat Kelas"] || '').localeCompare(b["Tingkat Kelas"] || '');
+                    if (klsDiff !== 0) return klsDiff;
+                    let rA = a._rankUji || 9999;
+                    let rB = b._rankUji || 9999;
+                    return rA - rB;
+                });
+            } else {
+                filteredData.sort((a, b) => {
+                    let klsDiff = (a["Tingkat Kelas"] || '').localeCompare(b["Tingkat Kelas"] || '');
+                    if (klsDiff !== 0) return klsDiff;
+                    return (a["Nama Lengkap"] || '').localeCompare(b["Nama Lengkap"] || '');
+                });
+            }
+
+            window.currentCertFilteredData = filteredData;
+            renderCertTable(filteredData);
+        }
+
+        function printRekap(type) {
+            let dataToPrint = window.currentCertFilteredData || [];
+            // Hanya cetak nilai Siswa, abaikan pendamping/pembina jika ikut ter-filter
+            dataToPrint = dataToPrint.filter(p => (p.Role || p.role || '').toLowerCase() === 'siswa');
+            
+            if (dataToPrint.length === 0) return showAlert('Info', 'Tidak ada data peserta (siswa) untuk dicetak.', 'error');
+
+            let currentKelas = null;
+            let classIdx = 1;
+            let trs = '';
+
+            dataToPrint.forEach((p, idx) => {
+                const kls = (p["Tingkat Kelas"] || p.kelas || p.Kelas || 'Tanpa Kelas').toUpperCase();
+                
+                // Buat Sub-Header Kelas
+                if (kls !== currentKelas) {
+                    trs += `
+                        <tr class="bg-slate-200 border-y border-slate-800">
+                            <td colspan="8" class="p-2 font-black text-slate-800 text-left uppercase tracking-widest text-[11px]">
+                                TINGKAT KELAS: ${kls}
+                            </td>
+                        </tr>
+                    `;
+                    currentKelas = kls;
+                    classIdx = 1; // Reset nomor urut
+                }
+
+                let nilai = type === 'Uji Coba' ? (p.nilai_uji || '-') : (p.nilai_kom || '-');
+                let waktu = type === 'Uji Coba' ? (p.waktu_uji || '-') : (p.waktu_kom || '-');
+                let rank = type === 'Uji Coba' ? (p._rankUji ? '#' + p._rankUji : '-') : (p._rankKom ? '#' + p._rankKom : '-');
+
+                trs += `
+                    <tr>
+                        <td class="px-2 py-1.5 border border-slate-800 text-center text-[10px] w-10">${classIdx++}</td>
+                        <td class="px-2 py-1.5 border border-slate-800 text-left text-[11px] font-black uppercase">${p["Nama Lengkap"] || '-'}</td>
+                        <td class="px-2 py-1.5 border border-slate-800 text-center text-[10px] tracking-wider">${p.NISN || '-'}</td>
+                        <td class="px-2 py-1.5 border border-slate-800 text-center text-[10px] uppercase">${p["Tingkat Kelas"] || '-'}</td>
+                        <td class="px-2 py-1.5 border border-slate-800 text-left text-[10px] uppercase">${p["Sekolah Asal"] || '-'}</td>
+                        <td class="px-2 py-1.5 border border-slate-800 text-center text-[11px] font-bold">${nilai}</td>
+                        <td class="px-2 py-1.5 border border-slate-800 text-center text-[10px] font-semibold text-slate-600">${waktu}</td>
+                        <td class="px-2 py-1.5 border border-slate-800 text-center text-[11px] font-black">${rank}</td>
+                    </tr>
+                `;
+            });
+
+            let tubanTgl = ".................................... 2026";
+            if (typeof globalSchedule !== 'undefined' && globalSchedule.length > 0) {
+                const pelaksanaan = globalSchedule.find(p => p.name.toLowerCase().includes('hari pelaksanaan') || p.name.toLowerCase().includes('pelaksanaan'));
+                if (pelaksanaan && pelaksanaan.start) {
+                    try {
+                        const d = new Date(pelaksanaan.start);
+                        if (!isNaN(d.getTime())) tubanTgl = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                    } catch(e) {}
+                }
+            }
+
+            let htmlContent = `
+                <div class="w-[210mm] bg-white p-[10mm] print:p-0 mx-auto box-border flex flex-col relative print:border-none print:shadow-none shadow-xl border border-slate-200 min-h-[297mm]">
+                    <!-- Header / KOP Surat -->
+                    <div class="flex items-center justify-between border-b-[3px] border-slate-800 pb-4 mb-1 shrink-0">
+                        <img src="${CONFIG.LOGO_URL}" class="w-20 h-20 object-contain" crossorigin="anonymous">
+                        <div class="text-center flex-1 px-4">
+                            <h2 class="text-xl font-black uppercase tracking-widest leading-tight">MGMP MATEMATIKA SMA/MA KAB. TUBAN</h2>
+                            <h3 class="text-lg font-bold uppercase tracking-widest text-slate-700 leading-tight">PANITIA KOMPETISI MATEMATIKA (KoMa) 2026</h3>
+                            <p class="text-[10px] font-semibold mt-1 uppercase text-slate-600">Sekretariat: SMAN 1 Tuban, Jl. W.R. Supratman No. 2 Tuban</p>
+                        </div>
+                        <div class="w-20"></div>
+                    </div>
+                    <div class="border-b border-slate-800 mb-6 shrink-0 w-full"></div>
+
+                    <!-- Judul Rekap -->
+                    <div class="text-center mb-6 shrink-0">
+                        <h3 class="text-lg font-black uppercase tracking-wider mb-1 underline">REKAPITULASI HASIL ${type.toUpperCase()}</h3>
+                        <p class="text-xs font-bold text-slate-700">Kompetisi Matematika Tingkat SMP/MTs 2026</p>
+                    </div>
+
+                    <!-- Tabel Nilai -->
+                    <table class="w-full border-collapse border border-slate-800 text-slate-800 mb-8 shrink-0">
+                        <thead class="bg-slate-100">
+                            <tr>
+                                <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider">No</th>
+                                <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider text-left">Nama Lengkap</th>
+                                <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider">NISN</th>
+                                <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider">Kelas</th>
+                                <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider text-left">Sekolah Asal</th>
+                                <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider text-blue-700">Nilai</th>
+                                <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider text-slate-600">Waktu</th>
+                                <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider text-amber-600">Rank</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${trs}
+                        </tbody>
+                    </table>
+
+                    <!-- Tanda Tangan -->
+                    <div class="flex justify-end px-10 text-sm shrink-0 pt-4 text-slate-800 mt-auto break-inside-avoid">
+                        <div class="text-left w-64">
+                            <p class="mb-1">Tuban, ${tubanTgl}</p>
+                            <p class="font-bold">Ketua MGMP Matematika SMA/MA</p>
+                            <p class="font-bold">Kabupaten Tuban</p>
+                            <br><br><br><br>
+                            <p class="font-black underline text-[15px]">Fathony Irsat, S.Si., S.Pd., Gr.</p>
+                            <p class="font-bold mt-1">NIP. 198203302022211006</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            let printContainer = document.getElementById('temp-print-container');
+            if (!printContainer) {
+                printContainer = document.createElement('div');
+                printContainer.id = 'temp-print-container';
+                printContainer.className = 'hidden print:block w-full absolute top-0 left-0 z-[99999] bg-white';
+                document.body.appendChild(printContainer);
+            }
+            printContainer.innerHTML = htmlContent;
+
+            let style = document.getElementById('print-style-override');
+            if (!style) {
+                style = document.createElement('style');
+                style.id = 'print-style-override';
+                document.head.appendChild(style);
+            }
+            
+            style.innerHTML = '@media print { @page { size: A4 portrait !important; margin: 12.7mm !important; } html, body { width: 100% !important; height: auto !important; margin: 0 !important; padding: 0 !important; box-sizing: border-box !important; background: white !important; } .site-wrapper { display: none !important; } #temp-print-container { display: block !important; position: static !important; } table { page-break-inside: auto; } tr { page-break-inside: avoid; page-break-after: auto; } }';
+
+            if (window.lucide) lucide.createIcons();
+            setTimeout(() => { window.print(); }, 500);
+        }
+
+        async function viewAdminBAP() {
+            setActiveMenu('menu-bap');
+            const dc = document.getElementById('dashboard-content');
+            if (!dc) return;
+
+            dc.innerHTML = `
+                <div class="space-y-6 text-left bg-white p-8 rounded-3xl shadow-sm border animate-scale-in no-print">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <h3 class="font-black text-xl text-slate-800 uppercase">Berita Acara Penetapan Juara</h3>
+                        <div class="flex gap-2">
+                            <select id="bap-type-selector" onchange="updateBapPreview()" class="p-2 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-blue-600 outline-none text-slate-700 shadow-sm cursor-pointer">
+                                <option value="Kompetisi">BAP Kompetisi</option>
+                                <option value="Uji Coba">BAP Uji Coba</option>
+                            </select>
+                            <button onclick="printBAP()" class="p-2.5 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-sm active:scale-95 flex items-center">
+                                <i data-lucide="printer" class="w-4 h-4 mr-2"></i> Cetak BAP (A4)
+                            </button>
+                            <button onclick="loadAllStaffData().then(() => viewAdminBAP())" class="p-2.5 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all shadow-sm active:scale-95 flex items-center">
+                                <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-500 font-semibold mt-2">Pratinjau daftar juara yang akan dicetak pada Berita Acara resmi. Sistem otomatis mengambil peringkat 1-6 dari hasil nilai CBT.</p>
+                </div>
+                <div id="bap-preview" class="mt-8 overflow-x-auto bg-slate-50 p-6 border border-slate-200 rounded-2xl shadow-inner pb-10">
+                    <div class="p-10 text-center text-slate-400 italic font-bold">Memuat data juara...</div>
                 </div>
             `;
             if (window.lucide) lucide.createIcons();
@@ -3742,57 +4621,254 @@
                     }
                 } catch (e) {
                     setLoading(false);
-                    document.getElementById('cert-table-body').innerHTML = `<tr><td colspan="6" class="p-10 text-center text-red-500 font-bold">Gagal memuat data dari server.</td></tr>`;
+                    document.getElementById('bap-preview').innerHTML = `<div class="text-center text-red-500 font-bold">Gagal memuat data dari server.</div>`;
                     return;
                 }
                 setLoading(false);
             }
-            renderCertTable(allParticipantsLocal);
+            
+            calculateRankings();
+            updateBapPreview();
         }
 
-        function renderCertTable(data) {
-            const tbody = document.getElementById('cert-table-body');
-            if (!tbody) return;
-            if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-slate-400 font-bold">Tidak ada data peserta ditemukan.</td></tr>`;
-                return;
+        function updateBapPreview() {
+            const type = document.getElementById('bap-type-selector').value;
+            const previewEl = document.getElementById('bap-preview');
+            if (previewEl) {
+                previewEl.innerHTML = generateBAPHtml(type);
+                // Mengecilkan pratinjau agar muat di layar dengan baik
+                const wrapper = previewEl.querySelector('.w-\\[210mm\\]');
+                if (wrapper) {
+                    wrapper.classList.remove('shadow-xl');
+                    wrapper.classList.add('shadow-md', 'transform', 'origin-top', 'scale-90', 'md:scale-100');
+                }
+            }
+        }
+
+        function generateBAPHtml(type) {
+            const isKom = type === 'Kompetisi';
+            
+            let juaraList = allParticipantsLocal.filter(p => {
+                if (p.Status !== 'Active' || (p.Role || p.role || '').toLowerCase() !== 'siswa') return false;
+                let r = isKom ? p._rankKom : p._rankUji;
+                return r >= 1 && r <= 6;
+            });
+
+            juaraList.sort((a, b) => {
+                let kA = (a["Tingkat Kelas"] || '').toUpperCase();
+                let kB = (b["Tingkat Kelas"] || '').toUpperCase();
+                if (kA !== kB) return kA.localeCompare(kB);
+                
+                let rA = isKom ? (a._rankKom || 99) : (a._rankUji || 99);
+                let rB = isKom ? (b._rankKom || 99) : (b._rankUji || 99);
+                return rA - rB;
+            });
+
+            const getBapGelar = (rank) => {
+                if (rank === 1) return 'Juara 1';
+                if (rank === 2) return 'Juara 2';
+                if (rank === 3) return 'Juara 3';
+                if (rank === 4) return 'Harapan 1';
+                if (rank === 5) return 'Harapan 2';
+                if (rank === 6) return 'Harapan 3';
+                return '-';
+            };
+
+            let trs = '';
+            let currentKelas = null;
+
+            if (juaraList.length === 0) {
+                trs = `<tr><td colspan="6" class="p-4 text-center text-slate-500 font-bold">Belum ada data pemenang yang ditetapkan.</td></tr>`;
+            } else {
+                juaraList.forEach((p) => {
+                    const kls = (p["Tingkat Kelas"] || '-').toUpperCase();
+                    if (kls !== currentKelas) {
+                        trs += `
+                            <tr class="bg-slate-200 border-y border-slate-800">
+                                <td colspan="6" class="p-2 font-black text-slate-800 text-left uppercase tracking-widest text-[11px]">
+                                    TINGKAT KELAS: ${kls}
+                                </td>
+                            </tr>
+                        `;
+                        currentKelas = kls;
+                    }
+
+                    let r = isKom ? p._rankKom : p._rankUji;
+                    let gelar = getBapGelar(r);
+
+                    trs += `
+                        <tr>
+                            <td class="px-3 py-1.5 border border-slate-800 text-center text-xs w-10">${r}</td>
+                            <td class="px-3 py-1.5 border border-slate-800 text-left text-[11px] font-black uppercase whitespace-normal break-words">${p["Nama Lengkap"] || '-'}</td>
+                            <td class="px-3 py-1.5 border border-slate-800 text-center text-[11px] tracking-wider">${p.NISN || '-'}</td>
+                            <td class="px-3 py-1.5 border border-slate-800 text-left text-[11px] uppercase whitespace-normal break-words">${p["Sekolah Asal"] || '-'}</td>
+                            <td class="px-3 py-1.5 border border-slate-800 text-center text-[11px] uppercase">${kls}</td>
+                            <td class="px-3 py-1.5 border border-slate-800 text-center text-[11px] font-black uppercase text-blue-700">${gelar}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            const yyyy = new Date().getFullYear();
+            
+            // Mengambil tanggal dari Timeline Jadwal (Hari Pelaksanaan)
+            let hariBAP = "........................";
+            let tglBAP = "........................";
+            let blnBAP = "........................";
+            let thnBAP = "........................";
+            let tubanTgl = ".................................... 2026";
+
+            if (typeof globalSchedule !== 'undefined' && globalSchedule.length > 0) {
+                const pelaksanaan = globalSchedule.find(p => p.name.toLowerCase().includes('hari pelaksanaan') || p.name.toLowerCase().includes('pelaksanaan'));
+                if (pelaksanaan && pelaksanaan.start) {
+                    try {
+                        const d = new Date(pelaksanaan.start);
+                        if (!isNaN(d.getTime())) {
+                            hariBAP = d.toLocaleDateString('id-ID', { weekday: 'long' });
+                            tglBAP = d.toLocaleDateString('id-ID', { day: 'numeric' });
+                            blnBAP = d.toLocaleDateString('id-ID', { month: 'long' });
+                            thnBAP = d.toLocaleDateString('id-ID', { year: 'numeric' });
+                            tubanTgl = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                        }
+                    } catch(e) {}
+                }
+            }
+
+            return `
+                <div class="w-[210mm] min-h-[297mm] bg-white p-[15mm] mx-auto box-border flex flex-col relative print:border-none print:shadow-none shadow-xl border border-slate-200">
+                    <!-- Header / KOP Surat -->
+                    <div class="flex items-center justify-between border-b-[3px] border-slate-800 pb-4 mb-1 shrink-0">
+                        <img src="${CONFIG.LOGO_URL}" class="w-20 h-20 object-contain" crossorigin="anonymous">
+                        <div class="text-center flex-1 px-4">
+                            <h2 class="text-xl font-black uppercase tracking-widest leading-tight">MGMP MATEMATIKA SMA/MA KAB. TUBAN</h2>
+                            <h3 class="text-lg font-bold uppercase tracking-widest text-slate-700 leading-tight">PANITIA KOMPETISI MATEMATIKA (KoMa) 2026</h3>
+                            <p class="text-[10px] font-semibold mt-1 uppercase text-slate-600">Sekretariat: SMAN 1 Tuban, Jl. W.R. Supratman No. 2 Tuban</p>
+                        </div>
+                        <div class="w-20"></div>
+                    </div>
+                    <div class="border-b border-slate-800 mb-6 shrink-0 w-full"></div>
+
+                    <!-- Judul BAP -->
+                    <div class="text-center mb-6 shrink-0">
+                        <h3 class="text-lg font-black uppercase underline tracking-wider mb-1">BERITA ACARA PENETAPAN JUARA ${type.toUpperCase()}</h3>
+                        <p class="text-sm font-bold text-slate-700">Nomor: ....../MGMP-MAT/TUBAN/V/2026</p>
+                    </div>
+
+                    <!-- Isi BAP -->
+                    <div class="text-sm text-slate-800 leading-relaxed text-justify mb-6 shrink-0">
+                        <p class="mb-2">Pada hari ini, <b>${hariBAP}</b> tanggal <b>${tglBAP}</b> bulan <b>${blnBAP}</b> tahun <b>${thnBAP}</b>, bertempat di SMAN 1 Tuban, Panitia Pelaksana Kompetisi Matematika (KoMa) 2026 Tingkat SMP/MTs telah menetapkan daftar pemenang (Juara) berdasarkan hasil nilai tertinggi dari serangkaian tes <b>${type}</b> yang telah diselenggarakan.</p>
+                        <p>Berikut adalah daftar nama pemenang yang dinyatakan berhak atas penghargaan dan gelar juara:</p>
+                    </div>
+
+                    <!-- Tabel Juara -->
+                    <table class="w-full border-collapse border border-slate-800 text-slate-800 mb-8 shrink-0">
+                        <thead class="bg-slate-100">
+                            <tr>
+                                <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider">No</th>
+                                <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider text-left">Nama Pemenang</th>
+                                <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider">NISN</th>
+                                <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider text-left">Sekolah Asal</th>
+                                <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider">Kelas</th>
+                                <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider">Gelar Juara</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${trs}
+                        </tbody>
+                    </table>
+
+                    <!-- Penutup & Tanda Tangan -->
+                    <div class="text-sm text-slate-800 leading-relaxed text-justify mb-8 shrink-0">
+                        <p>Demikian Berita Acara Penetapan Juara ini dibuat dengan sebenar-benarnya untuk dapat dipergunakan sebagaimana mestinya. Keputusan Panitia bersifat mutlak dan tidak dapat diganggu gugat.</p>
+                    </div>
+
+                    <div class="flex justify-end px-10 text-sm shrink-0 pt-4 text-slate-800 mt-auto">
+                        <div class="text-left w-64">
+                            <p class="mb-1">Tuban, ${tubanTgl}</p>
+                            <p class="font-bold">Ketua MGMP Matematika SMA/MA</p>
+                            <p class="font-bold">Kabupaten Tuban</p>
+                            <br><br><br><br>
+                            <p class="font-black underline text-[15px]">Fathony Irsat, S.Si., S.Pd., Gr.</p>
+                            <p class="font-bold mt-1">NIP. 198203302022211006</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function printBAP() {
+            const type = document.getElementById('bap-type-selector').value;
+            const htmlContent = generateBAPHtml(type);
+            let printContainer = document.getElementById('temp-print-container');
+            if (!printContainer) {
+                printContainer = document.createElement('div');
+                printContainer.id = 'temp-print-container';
+                printContainer.className = 'hidden print:block w-full absolute top-0 left-0 z-[99999] bg-white';
+                document.body.appendChild(printContainer);
+            }
+            printContainer.innerHTML = htmlContent;
+
+            let style = document.getElementById('print-style-override');
+            if (!style) {
+                style = document.createElement('style');
+                style.id = 'print-style-override';
+                document.head.appendChild(style);
             }
             
-            tbody.innerHTML = data.map((p, idx) => {
-                const isJuara = p.juara && p.juara !== '-';
-                return `
-                <tr class="hover:bg-blue-50/50 transition-colors group animate-slide-right" style="animation-delay: ${Math.min(idx * 0.05, 0.5)}s; opacity:0; animation-fill-mode: forwards;">
-                    <td class="p-4 font-bold text-slate-500 text-center">${idx + 1}</td>
-                    <td class="p-4 font-black text-slate-800 whitespace-nowrap">${p["Nama Lengkap"] || p.name || p.Nama || '-'}${p.Role === 'Pendamping' ? ' <span class="ml-2 px-2 py-0.5 bg-purple-100 text-purple-700 text-[8px] rounded-full uppercase tracking-widest hidden sm:inline">Pendamping</span>' : ''}</td>
-                    <td class="p-4 font-semibold text-slate-600">${p["Tingkat Kelas"] || p.kelas || p.Kelas || '-'}</td>
-                    <td class="p-4 font-black text-slate-600 uppercase text-[10px] tracking-wider">${p["Sekolah Asal"] || p.sekolah || p.Sekolah || '-'}</td>
-                    <td class="p-4 text-center">
-                        ${isJuara ? `<span class="px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-yellow-100 text-yellow-700">${p.juara}</span>` : `<span class="text-slate-400">-</span>`}
-                    </td>
-                    <td class="p-4 text-center">
-                        <div class="flex items-center justify-center gap-2">
-                            <button onclick="generateSertifikat('Peserta', '${p.Email || p.email}')" class="bg-blue-100 text-blue-700 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase hover:bg-blue-600 hover:text-white transition shadow-sm active:scale-95 flex items-center" title="Cetak Sertifikat Peserta">
-                                <i data-lucide="file-badge" class="w-4 h-4 sm:mr-1"></i> <span class="hidden sm:inline">Peserta</span>
-                            </button>
-                            ${isJuara ? `<button onclick="generateSertifikat('Juara', '${p.Email || p.email}')" class="bg-yellow-100 text-yellow-700 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase hover:bg-yellow-600 hover:text-white transition shadow-sm active:scale-95 flex items-center" title="Cetak Sertifikat Juara"><i data-lucide="trophy" class="w-4 h-4 sm:mr-1"></i> <span class="hidden sm:inline">Juara</span></button>` : `<button class="bg-slate-100 text-slate-400 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase cursor-not-allowed flex items-center" title="Bukan Juara"><i data-lucide="trophy" class="w-4 h-4 sm:mr-1"></i> <span class="hidden sm:inline">Juara</span></button>`}
-                        </div>
-                    </td>
-                </tr>
-            `}).join('');
+            style.innerHTML = '@media print { @page { size: A4 portrait !important; margin: 12.7mm !important; } html, body { width: 100% !important; height: auto !important; margin: 0 !important; padding: 0 !important; box-sizing: border-box !important; background: white !important; } .site-wrapper { display: none !important; } #temp-print-container { display: block !important; position: static !important; } }';
+
             if (window.lucide) lucide.createIcons();
+            setTimeout(() => { window.print(); }, 500);
         }
 
-        function applyCertFilters() {
-            const nameFilter = (document.getElementById('cert-filter-name').value || '').toLowerCase();
-            const juaraFilter = document.getElementById('cert-filter-juara').value;
-            
-            const filteredData = allParticipantsLocal.filter(p => {
-                const nameMatch = (p["Nama Lengkap"] || p.name || p.Nama || '').toLowerCase().includes(nameFilter);
-                const juaraMatch = juaraFilter === 'juara' ? (p.juara && p.juara !== '-') : true;
-                return nameMatch && juaraMatch;
-            });
-            
-            renderCertTable(filteredData);
+        async function viewAdminTokenCBT() {
+            setActiveMenu('menu-token');
+            const dc = document.getElementById('dashboard-content');
+            if (!dc) return;
+
+            dc.innerHTML = `<div class="p-10 text-center"><div class="animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent mx-auto"></div><p class="mt-4 font-bold text-slate-400">Memuat tautan Token CBT...</p></div>`;
+
+            try {
+                const r = await callGAS({ action: 'getAppLinks' });
+                let tokenLink = "http://112.78.44.188/komatok/"; 
+                
+                if (r && r.result === 'success') {
+                    const tokenData = r.data.find(d => d.platform === 'Token CBT');
+                    if (tokenData && tokenData.url && tokenData.url !== '#' && tokenData.url.trim() !== '') {
+                        tokenLink = tokenData.url;
+                    }
+                }
+
+            dc.innerHTML = `
+                <div class="space-y-6 text-left bg-white p-8 rounded-3xl shadow-sm border animate-scale-in">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <h3 class="font-black text-xl text-slate-800 uppercase">Akses Token CBT</h3>
+                        <button onclick="viewAdminTokenCBT()" class="p-2.5 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm active:scale-95 flex items-center">
+                            <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i> Refresh Token
+                        </button>
+                    </div>
+                    <p class="text-sm text-slate-500 font-semibold mb-6">Klik tombol di bawah ini untuk membuka halaman Token CBT secara langsung. Tautan ini dapat diatur melalui menu <b>Link Aplikasi</b>.</p>
+                    
+                    <div class="flex items-center justify-center py-10">
+                        <div class="bg-blue-50 border-2 border-blue-200 rounded-[2rem] p-10 text-center shadow-lg relative overflow-hidden group w-full max-w-md hover-card-effect">
+                            <div class="absolute -right-10 -bottom-10 opacity-10 text-blue-500 rotate-12 transition-transform group-hover:rotate-0 duration-1000 group-hover:scale-110">
+                                <i data-lucide="key" class="w-40 h-40"></i>
+                            </div>
+                            <h4 class="font-black text-blue-900 uppercase text-sm tracking-wider mb-2 relative z-10">Halaman Token Server</h4>
+                            <p class="text-xs text-blue-700 font-bold mb-8 break-all relative z-10">${tokenLink}</p>
+                            
+                            <a href="${tokenLink}" target="_blank" class="relative z-10 inline-flex items-center justify-center w-full bg-blue-600 text-white font-black py-4 rounded-xl uppercase text-xs tracking-widest shadow-lg hover:bg-blue-700 transition transform hover:scale-105 active:scale-95">
+                                <i data-lucide="external-link" class="w-4 h-4 mr-2"></i> Buka Token CBT
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            if (window.lucide) lucide.createIcons();
+
+            } catch (e) {
+                dc.innerHTML = `<div class="p-10 text-center text-red-500 font-bold">Gagal memuat data tautan dari server.</div>`;
+            }
         }
 
         function updateLiveStatusBar(data) {
