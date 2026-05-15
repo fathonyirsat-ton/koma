@@ -10,7 +10,7 @@
     <!-- ======================================================================= -->
     <script>
         const CONFIG = {
-            API_URL: 'https://script.google.com/macros/s/AKfycbxwQB6UMV4TiKxG77ic9_UlYYpm9apZrb-yfcAjiKvPgea13U4U5YlsXuAcDHYzsA5E/exec',
+            API_URL: 'https://script.google.com/macros/s/AKfycbzw_XQk1PJw-NPzQIyv2nY6BMguL8njD_9mQMORdjvuGnwObxq6wSMuwndm-QFWg56M/exec',
             LOGO_URL: 'https://lh3.googleusercontent.com/d/1kIKApNGTiAnIDwDCT27D8yGUNRpOpxE5',
             QRIS_URL: 'https://drive.google.com/thumbnail?id=1zlxMNvEt7a3Pos_Zt8qq6hUtleI2UTj_&sz=w1000'
         };
@@ -4327,12 +4327,13 @@
             `;
             if (window.lucide) lucide.createIcons();
 
-            if (!allParticipantsLocal || allParticipantsLocal.length === 0) {
+            if (!allDataCache || allDataCache.length === 0) {
                 setLoading(true);
                 try {
                     const res = await callGAS({ action: 'getAllData', role: currentUser.role });
                     if(res && res.result === 'success') {
-                        allParticipantsLocal = (res.data || []).filter(p => (p.Role || p.role || "").toLowerCase() === 'siswa').sort((a,b)=>b.rowNum - a.rowNum);
+                        allDataCache = res.data || [];
+                        allParticipantsLocal = allDataCache.filter(p => (p.Role || p.role || "").toLowerCase() === 'siswa').sort((a,b)=>b.rowNum - a.rowNum);
                     }
                 } catch (e) {
                     setLoading(false);
@@ -4340,6 +4341,8 @@
                     return;
                 }
                 setLoading(false);
+            } else {
+                allParticipantsLocal = allDataCache.filter(p => (p.Role || p.role || "").toLowerCase() === 'siswa').sort((a,b)=>b.rowNum - a.rowNum);
             }
             renderCBTCards();
         }
@@ -4478,7 +4481,7 @@
                             <button onclick="printRekap('Kompetisi')" class="p-2 bg-yellow-500 text-yellow-950 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-yellow-600 transition-all shadow-sm active:scale-95 flex items-center">
                                 <i data-lucide="printer" class="w-4 h-4 mr-1.5"></i> Rekap Kom
                             </button>
-                            <button onclick="allParticipantsLocal=[]; viewAdminCetakSertifikat()" class="p-2 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all shadow-sm active:scale-95 flex items-center">
+                            <button onclick="allDataCache=[]; viewAdminCetakSertifikat()" class="p-2 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all shadow-sm active:scale-95 flex items-center">
                                 <i data-lucide="refresh-cw" class="w-4 h-4 mr-1.5"></i> Refresh
                             </button>
                         </div>
@@ -4536,6 +4539,7 @@
                                     <th class="p-3 text-left font-black uppercase text-[10px] tracking-widest whitespace-nowrap">Nama Lengkap</th>
                                     <th class="p-3 text-center font-black uppercase text-[10px] tracking-widest whitespace-nowrap">Kelas</th>
                                     <th class="p-3 text-left font-black uppercase text-[10px] tracking-widest whitespace-nowrap">Sekolah Asal</th>
+                                    <th class="p-3 text-left font-black uppercase text-[10px] tracking-widest whitespace-nowrap">Pembina</th>
                                     <th class="p-3 text-center font-black uppercase text-[10px] tracking-widest whitespace-nowrap text-blue-300">Uji Coba</th>
                                     <th class="p-3 text-center font-black uppercase text-[10px] tracking-widest whitespace-nowrap text-blue-300">Rank Uji</th>
                                     <th class="p-3 text-center font-black uppercase text-[10px] tracking-widest whitespace-nowrap text-yellow-400 bg-yellow-50/10">Kompetisi</th>
@@ -4545,7 +4549,7 @@
                                 </tr>
                             </thead>
                             <tbody id="cert-table-body" class="divide-y divide-slate-100 bg-white">
-                                <tr><td colspan="10" class="p-10 text-center text-slate-400 italic font-bold">Memuat data peserta...</td></tr>
+                                <tr><td colspan="11" class="p-10 text-center text-slate-400 italic font-bold">Memuat data peserta...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -4553,21 +4557,23 @@
             `;
             if (window.lucide) lucide.createIcons();
 
-            if (!allParticipantsLocal || allParticipantsLocal.length === 0) {
+            if (!allDataCache || allDataCache.length === 0) {
                 setLoading(true);
                 try {
                     const res = await callGAS({ action: 'getAllData', role: currentUser.role });
                     if(res && res.result === 'success') {
-                        allParticipantsLocal = (res.data || []).filter(p => ['siswa', 'pendamping'].includes((p.Role || p.role || "").toLowerCase())).sort((a,b)=>b.rowNum - a.rowNum);
+                        allDataCache = res.data || [];
+                        allParticipantsLocal = allDataCache.filter(p => ['siswa', 'pendamping'].includes((p.Role || p.role || "").toLowerCase())).sort((a,b)=>b.rowNum - a.rowNum);
                         calculateRankings();
                     }
                 } catch (e) {
                     setLoading(false);
-                    document.getElementById('cert-table-body').innerHTML = `<tr><td colspan="10" class="p-10 text-center text-red-500 font-bold">Gagal memuat data dari server.</td></tr>`;
+                    document.getElementById('cert-table-body').innerHTML = `<tr><td colspan="11" class="p-10 text-center text-red-500 font-bold">Gagal memuat data dari server.</td></tr>`;
                     return;
                 }
                 setLoading(false);
             } else {
+                allParticipantsLocal = allDataCache.filter(p => ['siswa', 'pendamping'].includes((p.Role || p.role || "").toLowerCase())).sort((a,b)=>b.rowNum - a.rowNum);
                 calculateRankings();
             }
             applyCertFilters();
@@ -4621,7 +4627,7 @@
             const tbody = document.getElementById('cert-table-body');
             if (!tbody) return;
             if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="p-10 text-center text-slate-400 font-bold">Tidak ada data peserta ditemukan.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="11" class="p-10 text-center text-slate-400 font-bold">Tidak ada data peserta ditemukan.</td></tr>`;
                 return;
             }
             
@@ -4636,7 +4642,7 @@
                 if (kls !== currentKelas) {
                     html += `
                         <tr class="bg-blue-50 border-y-2 border-blue-100">
-                            <td colspan="10" class="p-3 font-black text-blue-800 text-left uppercase tracking-widest text-xs">
+                            <td colspan="11" class="p-3 font-black text-blue-800 text-left uppercase tracking-widest text-xs">
                                 TINGKAT KELAS: ${kls}
                             </td>
                         </tr>
@@ -4650,12 +4656,21 @@
                 const rankUji = isSiswa && p._rankUji ? '#' + p._rankUji : '-';
                 const rankKom = isSiswa && p._rankKom ? '#' + p._rankKom : '-';
                 
+                let pembinaName = '-';
+                if (isSiswa) {
+                    let pembina = allParticipantsLocal.find(x => (x.Role || x.role || '').toLowerCase() === 'pendamping' && (x["Sekolah Asal"] || x.sekolah || x.Sekolah || '').toLowerCase().trim() === (p["Sekolah Asal"] || p.sekolah || p.Sekolah || '').toLowerCase().trim());
+                    if (pembina) pembinaName = pembina["Nama Lengkap"] || pembina.name || pembina.Nama || '-';
+                } else {
+                    pembinaName = 'Guru/Pembina';
+                }
+
                 html += `
                 <tr class="hover:bg-blue-50/50 transition-colors group animate-slide-right" style="animation-delay: ${Math.min(idx * 0.05, 0.5)}s; opacity:0; animation-fill-mode: forwards;">
                     <td class="p-3 font-bold text-slate-500 text-center">${classIdx++}</td>
-                    <td class="p-3 font-black text-slate-800 whitespace-normal min-w-[150px] max-w-[250px] break-words">${p["Nama Lengkap"] || p.name || p.Nama || '-'}${p.Role === 'Pendamping' ? ' <span class="ml-2 mt-1 px-2 py-0.5 bg-purple-100 text-purple-700 text-[8px] rounded-full uppercase tracking-widest inline-block">Pendamping</span>' : ''}</td>
+                    <td class="p-3 font-black text-slate-800 whitespace-normal min-w-[150px] max-w-[250px] break-words">${p["Nama Lengkap"] || p.name || p.Nama || '-'}${!isSiswa ? ' <span class="ml-2 mt-1 px-2 py-0.5 bg-purple-100 text-purple-700 text-[8px] rounded-full uppercase tracking-widest inline-block">Pendamping</span>' : ''}</td>
                     <td class="p-3 text-center font-semibold text-slate-600">${p["Tingkat Kelas"] || p.kelas || p.Kelas || '-'}</td>
                     <td class="p-3 font-black text-slate-600 uppercase text-[10px] tracking-wider whitespace-normal min-w-[120px] max-w-[200px] break-words">${p["Sekolah Asal"] || p.sekolah || p.Sekolah || '-'}</td>
+                    <td class="p-3 font-bold text-slate-600 text-[10px] whitespace-normal min-w-[100px] max-w-[180px] break-words">${pembinaName}</td>
                     
                     <td class="p-3 text-center">
                         <div class="font-bold text-slate-700">${p.nilai_uji && p.nilai_uji !== '-' ? p.nilai_uji : '-'}</div>
@@ -4756,7 +4771,7 @@
                 if (kls !== currentKelas) {
                     trs += `
                         <tr class="bg-slate-200 border-y border-slate-800">
-                            <td colspan="8" class="p-2 font-black text-slate-800 text-left uppercase tracking-widest text-[11px]">
+                            <td colspan="9" class="p-2 font-black text-slate-800 text-left uppercase tracking-widest text-[11px]">
                                 TINGKAT KELAS: ${kls}
                             </td>
                         </tr>
@@ -4769,6 +4784,10 @@
                 let waktu = type === 'Uji Coba' ? (p.waktu_uji || '-') : (p.waktu_kom || '-');
                 let rank = type === 'Uji Coba' ? (p._rankUji ? '#' + p._rankUji : '-') : (p._rankKom ? '#' + p._rankKom : '-');
 
+                let pembinaName = '-';
+                let pembina = allParticipantsLocal.find(x => (x.Role || x.role || '').toLowerCase() === 'pendamping' && (x["Sekolah Asal"] || x.sekolah || x.Sekolah || '').toLowerCase().trim() === (p["Sekolah Asal"] || p.sekolah || p.Sekolah || '').toLowerCase().trim());
+                if (pembina) pembinaName = pembina["Nama Lengkap"] || pembina.name || pembina.Nama || '-';
+
                 trs += `
                     <tr>
                         <td class="px-2 py-1.5 border border-slate-800 text-center text-[10px] w-10">${classIdx++}</td>
@@ -4776,6 +4795,7 @@
                         <td class="px-2 py-1.5 border border-slate-800 text-center text-[10px] tracking-wider">${p.NISN || '-'}</td>
                         <td class="px-2 py-1.5 border border-slate-800 text-center text-[10px] uppercase">${p["Tingkat Kelas"] || '-'}</td>
                         <td class="px-2 py-1.5 border border-slate-800 text-left text-[10px] uppercase">${p["Sekolah Asal"] || '-'}</td>
+                        <td class="px-2 py-1.5 border border-slate-800 text-left text-[10px] uppercase">${pembinaName}</td>
                         <td class="px-2 py-1.5 border border-slate-800 text-center text-[11px] font-bold">${nilai}</td>
                         <td class="px-2 py-1.5 border border-slate-800 text-center text-[10px] font-semibold text-slate-600">${waktu}</td>
                         <td class="px-2 py-1.5 border border-slate-800 text-center text-[11px] font-black">${rank}</td>
@@ -4823,6 +4843,7 @@
                                 <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider">NISN</th>
                                 <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider">Kelas</th>
                                 <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider text-left">Sekolah Asal</th>
+                                <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider text-left">Pembina</th>
                                 <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider text-blue-700">Nilai</th>
                                 <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider text-slate-600">Waktu</th>
                                 <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider text-amber-600">Rank</th>
@@ -4901,12 +4922,13 @@
             `;
             if (window.lucide) lucide.createIcons();
 
-            if (!allParticipantsLocal || allParticipantsLocal.length === 0) {
+            if (!allDataCache || allDataCache.length === 0) {
                 setLoading(true);
                 try {
                     const res = await callGAS({ action: 'getAllData', role: currentUser.role });
                     if(res && res.result === 'success') {
-                        allParticipantsLocal = (res.data || []).filter(p => (p.Role || p.role || "").toLowerCase() === 'siswa').sort((a,b)=>b.rowNum - a.rowNum);
+                        allDataCache = res.data || [];
+                        allParticipantsLocal = allDataCache.filter(p => (p.Role || p.role || "").toLowerCase() === 'siswa').sort((a,b)=>b.rowNum - a.rowNum);
                     }
                 } catch (e) {
                     setLoading(false);
@@ -4914,6 +4936,8 @@
                     return;
                 }
                 setLoading(false);
+            } else {
+                allParticipantsLocal = allDataCache.filter(p => (p.Role || p.role || "").toLowerCase() === 'siswa').sort((a,b)=>b.rowNum - a.rowNum);
             }
             
             calculateRankings();
