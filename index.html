@@ -5306,7 +5306,7 @@
                             <i data-lucide="refresh-cw" class="w-4 h-4 mr-2 -mt-0.5"></i> Refresh Data
                         </button>
                     </div>
-                    <p class="text-sm text-slate-500 font-semibold mb-6">Pratinjau laporan kegiatan yang sama dengan yang dilihat publik di Halaman Depan. Anda dapat menyembunyikan menu Laporan dari publik dengan <b>menghapus centang "Siswa"</b> pada Menu Laporan di <button onclick="viewAdminMenuSettings()" class="text-blue-600 hover:underline">Pengaturan Menu</button>.</p>
+                    <p class="text-sm text-slate-500 font-semibold mb-6">Pratinjau laporan kegiatan yang sama dengan yang dilihat publik di Halaman Depan.${currentUser.role === 'Admin' ? ' Anda dapat menyembunyikan menu Laporan dari publik dengan <b>menghapus centang "Siswa"</b> pada Menu Laporan di <button onclick="viewAdminMenuSettings()" class="text-blue-600 hover:underline">Pengaturan Menu</button>.' : ''}</p>
                     
                     <!-- Form Upload Dokumentasi -->
                     <div class="${(currentUser.role === 'Admin' || currentUser.role === 'Panitia') ? 'block' : 'hidden'} bg-slate-50 p-6 rounded-2xl border border-slate-200 mb-6">
