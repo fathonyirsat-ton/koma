@@ -1460,7 +1460,7 @@
             let menuHtml = '';
 
             // Bagian Menu Panel Admin / Pendamping
-            const adminMenus = ['menu-admin-dashboard', 'menu-petunjuk', 'menu-laporan', 'menu-peserta', 'menu-profil', 'menu-jadwal', 'menu-links', 'menu-settings', 'menu-cetak-kartu', 'menu-denah', 'menu-token', 'menu-bap', 'menu-cetak-sertifikat', 'menu-sertifikat'];
+            const adminMenus = ['menu-admin-dashboard', 'menu-petunjuk', 'menu-laporan', 'menu-peserta', 'menu-profil', 'menu-jadwal', 'menu-cetak-kartu', 'menu-denah', 'menu-token', 'menu-bap', 'menu-cetak-sertifikat', 'menu-sertifikat', 'menu-links', 'menu-settings'];
             let hasAdminMenu = false;
             adminMenus.forEach(m => {
                 if (checkMenuPermission(m, u.role)) {
@@ -1491,12 +1491,6 @@
                 if (checkMenuPermission('menu-jadwal', u.role)) {
                     menuHtml += `<button onclick="viewAdminTimeline()" id="menu-jadwal" class="${baseClass} text-slate-300"><i data-lucide="calendar" class="w-5 h-5 mr-3"></i> Jadwal</button>`;
                 }
-                if (checkMenuPermission('menu-links', u.role)) {
-                    menuHtml += `<button onclick="viewAdminLinks()" id="menu-links" class="${baseClass} text-slate-300"><i data-lucide="link" class="w-5 h-5 mr-3"></i> Link Aplikasi</button>`;
-                }
-                if (checkMenuPermission('menu-settings', u.role)) {
-                    menuHtml += `<button onclick="viewAdminMenuSettings()" id="menu-settings" class="${baseClass} text-slate-300"><i data-lucide="settings" class="w-5 h-5 mr-3"></i> Pengaturan Menu</button>`;
-                }
                 if (checkMenuPermission('menu-cetak-kartu', u.role)) {
                     menuHtml += `<button onclick="viewAdminCetakKartu()" id="menu-cetak-kartu" class="${baseClass} text-slate-300"><i data-lucide="printer" class="w-5 h-5 mr-3"></i> Kartu CBT</button>`;
                 }
@@ -1518,6 +1512,12 @@
                     } else {
                         menuHtml += `<button class="${baseClass} opacity-30 cursor-not-allowed hover:translate-x-0"><i data-lucide="award" class="w-5 h-5 mr-3"></i> Sertifikat <span class="ml-auto text-[8px] bg-white/20 px-2 py-1 rounded-md">Terkunci</span></button>`;
                     }
+                }
+                if (checkMenuPermission('menu-links', u.role)) {
+                    menuHtml += `<button onclick="viewAdminLinks()" id="menu-links" class="${baseClass} text-slate-300"><i data-lucide="link" class="w-5 h-5 mr-3"></i> Link Aplikasi</button>`;
+                }
+                if (checkMenuPermission('menu-settings', u.role)) {
+                    menuHtml += `<button onclick="viewAdminMenuSettings()" id="menu-settings" class="${baseClass} text-slate-300"><i data-lucide="settings" class="w-5 h-5 mr-3"></i> Pengaturan Menu</button>`;
                 }
             }
 
