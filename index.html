@@ -894,6 +894,7 @@
             if (!globalMenuSettings || typeof globalMenuSettings !== 'object' || !globalMenuSettings['menu-admin-dashboard']) {
                 globalMenuSettings = {
                     'menu-admin-dashboard': { 'Admin': true, 'Staff': true, 'Panitia': true, 'Pendamping': false, 'Siswa': false },
+                    'menu-laporan': { 'Admin': true, 'Staff': true, 'Panitia': true, 'Pendamping': true, 'Siswa': true },
                     'menu-peserta': { 'Admin': true, 'Staff': true, 'Panitia': false, 'Pendamping': true, 'Siswa': false },
                     'menu-jadwal': { 'Admin': true, 'Staff': false, 'Panitia': true, 'Pendamping': false, 'Siswa': false },
                     'menu-links': { 'Admin': true, 'Staff': false, 'Panitia': false, 'Pendamping': false, 'Siswa': false },
@@ -4223,6 +4224,7 @@
             const roles = ['Admin', 'Staff', 'Panitia', 'Siswa', 'Pendamping'];
             const menuNames = {
                 'menu-admin-dashboard': 'Dashboard Admin',
+                'menu-laporan': 'Laporan Kegiatan',
                 'menu-peserta': 'Data Peserta / Peserta Bimbingan',
                 'menu-jadwal': 'Jadwal Admin',
                 'menu-links': 'Link Aplikasi',
