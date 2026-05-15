@@ -181,14 +181,14 @@
 
                         <div class="inline-flex flex-col items-center justify-center bg-white text-blue-950 px-6 sm:px-10 py-3 rounded-2xl shadow-2xl border-b-4 border-yellow-400 tracking-widest text-center animate-slide-right mx-auto transform hover:scale-105 transition-transform duration-300">
                             <span class="text-xs sm:text-sm font-black uppercase text-slate-800">Dinas Pendidikan Provinsi Jawa Timur</span>
-                            <span class="text-[9px] sm:text-[10px] font-bold uppercase text-slate-500 mt-1 border-t border-slate-100 pt-1 w-full">Cabang Dinas Pendidikan Wilayah Bojonegoro - Tuban</span>
+                            <span class="text-[9px] sm:text-[10px] font-bold uppercase text-slate-500 mt-1 border-t border-slate-100 pt-1 w-full whitespace-nowrap">Cabang Dinas Pendidikan Wilayah Bojonegoro - Tuban</span>
                         </div>
                         <h1 class="text-4xl sm:text-5xl md:text-8xl font-black tracking-tighter leading-tight drop-shadow-2xl text-center animate-scale-in">KOMPETISI<br><span class="text-yellow-400 inline-block animate-float">MATEMATIKA</span></h1>
                         <p class="text-base md:text-xl opacity-90 font-medium max-w-2xl mx-auto leading-relaxed text-center" style="animation: sectionFadeIn 1s forwards 0.2s; opacity: 0;">Ajang bergengsi numerasi tingkat SMP/MTs Negeri dan Swasta. Tunjukkan potensimu di KoMa 2026.</p>
                         
                         <div class="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-5 pt-2 md:pt-4" style="animation: sectionFadeIn 1s forwards 0.4s; opacity: 0;">
                             <button id="btn-hero-register" onclick="navigateToHash('#register')" class="w-full sm:w-auto bg-red-600 text-white font-extrabold py-4 md:py-5 px-10 md:px-14 rounded-full shadow-xl hover:bg-red-700 hover:shadow-red-600/50 transition-all duration-300 transform active:scale-95 text-sm uppercase tracking-wider text-center btn-blink">Daftar Sekarang</button>
-                            <button onclick="navigateToHash('#login')" class="w-full sm:w-auto bg-green-600 text-white font-extrabold py-4 md:py-5 px-10 md:px-14 rounded-full border-2 border-green-500 hover:bg-green-700 hover:border-green-600 shadow-lg hover:shadow-green-500/50 transition-all duration-300 transform hover:scale-105 active:scale-95 text-sm uppercase tracking-wider text-center">Login Portal</button>
+                            <button onclick="navigateToHash('#login')" class="w-full sm:w-auto bg-green-600 text-white font-extrabold py-4 md:py-5 px-10 md:px-14 rounded-full border-2 border-green-500 hover:bg-green-700 hover:border-green-600 shadow-lg hover:shadow-green-500/50 transition-all duration-300 transform hover:scale-105 active:scale-95 text-sm uppercase tracking-wider text-center">LOGIN</button>
                         </div>
                         <div class="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 pt-1 md:pt-3" style="animation: sectionFadeIn 1s forwards 0.6s; opacity: 0;">
                             <button onclick="openRegisterGuru()" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 rounded-full bg-purple-600 text-white hover:bg-purple-700 border border-purple-500 shadow-lg shadow-purple-600/30 font-bold text-xs uppercase tracking-widest transition-all duration-300 transform hover:scale-105 active:scale-95">
@@ -491,7 +491,7 @@
                              <div class="flex items-center">
                                  <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center mr-4 shadow-lg shadow-blue-600/40 font-bold p-1.5"><img src="" alt="Logo" class="logo-koma-img w-full h-full object-contain" onerror="this.src='https://placehold.co/40x40/2563eb/white?text=K'"></div>
                                  <div class="text-left text-white font-bold">
-                                     <h2 class="font-black uppercase tracking-widest text-sm leading-tight text-left">Panel KoMa</h2>
+                                     <h2 class="font-black uppercase tracking-widest text-sm leading-tight text-left">KoMa 2026</h2>
                                      <p id="sidebar-role-display" class="text-[10px] text-blue-400 uppercase mt-1 text-left">Dashboard</p>
                                  </div>
                              </div>
@@ -1431,7 +1431,7 @@
             }
             
             const roleDisp = document.getElementById('sidebar-role-display');
-            if (roleDisp) roleDisp.textContent = 'Panel ' + u.role;
+            if (roleDisp) roleDisp.textContent = u.role === 'Admin' ? 'Administrator' : 'Panel ' + u.role;
             
             // Susun atur panel responsif awal
             const navContainer = document.getElementById('sidebar-nav-container');
