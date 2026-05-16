@@ -1461,7 +1461,7 @@
             let menuHtml = '';
 
             // Bagian Menu Panel Admin / Pendamping
-            const adminMenus = ['menu-admin-dashboard', 'menu-petunjuk', 'menu-laporan', 'menu-peserta', 'menu-profil', 'menu-jadwal', 'menu-cetak-kartu', 'menu-denah', 'menu-token', 'menu-bap', 'menu-cetak-sertifikat', 'menu-sertifikat', 'menu-links', 'menu-settings'];
+            const adminMenus = ['menu-admin-dashboard', 'menu-petunjuk', 'menu-peserta', 'menu-profil', 'menu-jadwal', 'menu-cetak-kartu', 'menu-denah', 'menu-token', 'menu-laporan', 'menu-bap', 'menu-cetak-sertifikat', 'menu-sertifikat', 'menu-links', 'menu-settings'];
             let hasAdminMenu = false;
             adminMenus.forEach(m => {
                 if (checkMenuPermission(m, u.role)) {
@@ -1480,9 +1480,6 @@
             if (checkMenuPermission('menu-petunjuk', u.role)) {
                 menuHtml += `<button onclick="viewSiswaPetunjuk()" id="menu-petunjuk" class="${baseClass} text-slate-300"><i data-lucide="book-open" class="w-5 h-5 mr-3"></i> Ketentuan</button>`;
             }
-                if (checkMenuPermission('menu-laporan', u.role)) {
-                    menuHtml += `<button onclick="viewAdminLaporan()" id="menu-laporan" class="${baseClass} text-slate-300"><i data-lucide="bar-chart-2" class="w-5 h-5 mr-3"></i> Laporan Kegiatan</button>`;
-                }
                 if (checkMenuPermission('menu-peserta', u.role)) {
                     menuHtml += `<button onclick="viewStaffData()" id="menu-peserta" class="${baseClass} text-slate-300"><i data-lucide="users" class="w-5 h-5 mr-3"></i> ${u.role === 'Pendamping' ? 'Peserta Bimbingan' : 'Data Peserta'}</button>`;
                 }
@@ -1500,6 +1497,9 @@
                 }
                 if (checkMenuPermission('menu-token', u.role)) {
                     menuHtml += `<button onclick="viewAdminTokenCBT()" id="menu-token" class="${baseClass} text-slate-300"><i data-lucide="key" class="w-5 h-5 mr-3"></i> Token CBT</button>`;
+                }
+                if (checkMenuPermission('menu-laporan', u.role)) {
+                    menuHtml += `<button onclick="viewAdminLaporan()" id="menu-laporan" class="${baseClass} text-slate-300"><i data-lucide="bar-chart-2" class="w-5 h-5 mr-3"></i> Laporan Kegiatan</button>`;
                 }
                 if (checkMenuPermission('menu-bap', u.role)) {
                     menuHtml += `<button onclick="viewAdminBAP()" id="menu-bap" class="${baseClass} text-slate-300"><i data-lucide="file-text" class="w-5 h-5 mr-3"></i> Berita Acara</button>`;
@@ -4224,7 +4224,6 @@
             const roles = ['Admin', 'Staff', 'Panitia', 'Siswa', 'Pendamping'];
             const menuNames = {
                 'menu-admin-dashboard': 'Dashboard Admin',
-                'menu-laporan': 'Laporan Kegiatan',
                 'menu-peserta': 'Data Peserta / Peserta Bimbingan',
                 'menu-jadwal': 'Jadwal Admin',
                 'menu-links': 'Link Aplikasi',
@@ -4232,6 +4231,7 @@
                 'menu-cetak-kartu': 'Cetak Kartu CBT',
                 'menu-denah': 'Denah + Presensi',
                 'menu-token': 'Token CBT',
+                'menu-laporan': 'Laporan Kegiatan',
                 'menu-bap': 'Berita Acara',
                 'menu-cetak-sertifikat': 'Cetak Sertifikat',
                 'menu-status': 'Status Siswa',
@@ -4762,6 +4762,22 @@
             
             if (dataToPrint.length === 0) return showAlert('Info', 'Tidak ada data peserta (siswa) untuk dicetak.', 'error');
 
+            // Mengurutkan data berdasarkan peringkat sebelum dicetak agar rekap lebih rapi
+            dataToPrint = [...dataToPrint];
+            if (type === 'Uji Coba') {
+                dataToPrint.sort((a, b) => {
+                    let klsDiff = (a["Tingkat Kelas"] || '').localeCompare(b["Tingkat Kelas"] || '');
+                    if (klsDiff !== 0) return klsDiff;
+                    return (a._rankUji || 9999) - (b._rankUji || 9999);
+                });
+            } else {
+                dataToPrint.sort((a, b) => {
+                    let klsDiff = (a["Tingkat Kelas"] || '').localeCompare(b["Tingkat Kelas"] || '');
+                    if (klsDiff !== 0) return klsDiff;
+                    return (a._rankKom || 9999) - (b._rankKom || 9999);
+                });
+            }
+
             let currentKelas = null;
             let classIdx = 1;
             let trs = '';
@@ -4773,7 +4789,7 @@
                 if (kls !== currentKelas) {
                     trs += `
                         <tr class="bg-slate-200 border-y border-slate-800">
-                            <td colspan="9" class="p-2 font-black text-slate-800 text-left uppercase tracking-widest text-[11px]">
+                            <td colspan="8" class="p-2 font-black text-slate-800 text-left uppercase tracking-widest text-[11px]">
                                 TINGKAT KELAS: ${kls}
                             </td>
                         </tr>
@@ -4797,7 +4813,6 @@
                         <td class="px-2 py-1.5 border border-slate-800 text-center text-[10px] tracking-wider">${p.NISN || '-'}</td>
                         <td class="px-2 py-1.5 border border-slate-800 text-center text-[10px] uppercase">${p["Tingkat Kelas"] || '-'}</td>
                         <td class="px-2 py-1.5 border border-slate-800 text-left text-[10px] uppercase">${p["Sekolah Asal"] || '-'}</td>
-                        <td class="px-2 py-1.5 border border-slate-800 text-left text-[10px] uppercase">${pembinaName}</td>
                         <td class="px-2 py-1.5 border border-slate-800 text-center text-[11px] font-bold">${nilai}</td>
                         <td class="px-2 py-1.5 border border-slate-800 text-center text-[10px] font-semibold text-slate-600">${waktu}</td>
                         <td class="px-2 py-1.5 border border-slate-800 text-center text-[11px] font-black">${rank}</td>
@@ -4845,9 +4860,8 @@
                                 <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider">NISN</th>
                                 <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider">Kelas</th>
                                 <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider text-left">Sekolah Asal</th>
-                                <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider text-left">Pembina</th>
                                 <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider text-blue-700">Nilai</th>
-                                <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider text-slate-600">Waktu</th>
+                                <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider text-slate-600">Sisa Waktu</th>
                                 <th class="p-2 border border-slate-800 text-[11px] uppercase font-black tracking-wider text-amber-600">Rank</th>
                             </tr>
                         </thead>
@@ -5533,7 +5547,7 @@
                                 <div class="my-4 flex justify-center">
                                     <img src="https://drive.google.com/thumbnail?id=1Sgn6QVYeqtue_4h-N9jba1xp8n3C49ju&sz=w200" alt="QR Code Pengesahan" class="w-20 h-20 mix-blend-multiply">
                                 </div>
-                                <p class="text-blue-900 font-black underline text-sm">H. Abdul Aziz, S.Pd.</p>
+                                <p class="text-blue-900 font-black underline text-sm normal-case">H. ABDUL AZIZ, S.Pd.</p>
                                 <p class="text-blue-700 mt-1">NIP. 19680630 200604 1 004</p>
                             </div>
                         </div>
